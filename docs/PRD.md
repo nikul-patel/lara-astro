@@ -1,6 +1,6 @@
 # Astrology Platform — Product Requirements Document (PRD)
 
-**Status:** Draft v1.0 — for client review before implementation begins
+**Status:** Draft v2.0 — for review before implementation begins
 **Date:** 2026-07-18
 **Owner:** Nikul Patel
 
@@ -8,15 +8,21 @@
 
 ## 1. Executive Summary
 
-A bilingual/trilingual (English, Hindi, Gujarati), SEO-optimized astrology website where visitors can:
+A **reusable astrology-business website template/product** — not a site for one specific practice. Nikul is not an astrologer and has no existing client yet; the goal is to build one solid, well-architected codebase that can be **deployed and re-skinned for each future astrology-business client** (their branding, astrologers, services, pricing, content).
+
+Each deployment is a bilingual/trilingual (English, Hindi, Gujarati), SEO-optimized astrology website where visitors can:
 
 - Learn about the astrologer(s)/practice
-- Get their birth chart generated from an integrated astrology calculation engine
+- Get their birth chart generated from an integrated astrology calculation engine (traditional Indian/Vedic by default, with alternatives — see §8)
 - Book paid consultations (payment settled manually via UPI — no payment gateway)
 - Enroll in astrology courses (pre-recorded video + live scheduled classes)
 - Read SEO content (blog/articles) that drives organic search traffic
 
 A Laravel 13 + TailAdmin admin panel lets staff manage astrologers, services, pricing (INR & USD), bookings, courses, enrollments, content, and site settings.
+
+**Tenancy model:** single-tenant template (§10a) — one codebase per client deployment, not a shared multi-tenant SaaS. This keeps each client's build simple and isolated; multi-tenant SaaS was considered and explicitly deferred (see §10a).
+
+**Content for this build phase:** since there is no real client yet, the build proceeds with **realistic placeholder/demo content** — a fictional astrology practice ("demo tenant") with sample astrologers, services, pricing, courses, and blog posts — so the product is fully functional, demoable, and ready to be re-skinned the moment a real client signs on.
 
 ---
 
@@ -34,9 +40,10 @@ A Laravel 13 + TailAdmin admin panel lets staff manage astrologers, services, pr
 
 ## 3. Target Users
 
-1. **Client (visitor)** — wants a consultation or course; may be English, Hindi, or Gujarati speaking; price-sensitive across INR/USD (domestic + NRI/international audience).
-2. **Astrologer(s)** — deliver consultations/courses; need visibility into their bookings/availability.
-3. **Admin/Owner** — manages the whole platform: pricing, content, confirms payments, publishes blog content for SEO.
+1. **End client (site visitor)** — wants a consultation or course; may be English, Hindi, or Gujarati speaking; price-sensitive across INR/USD (domestic + NRI/international audience); may be from any region, hence the region-aware astrology-system recommendation in §8.
+2. **Astrologer(s)** — deliver consultations/courses; need visibility into their bookings/availability. (Within a deployment, one or many.)
+3. **Business Admin/Owner** — the astrology-business client Nikul deploys this for; manages their own instance's pricing, content, confirms payments, publishes blog content for SEO.
+4. **Nikul (builder/operator)** — owns the template codebase itself; customizes and deploys a copy per business client, is not a platform "super-admin" over live tenants (see §10a).
 
 ---
 
@@ -71,6 +78,7 @@ A Laravel 13 + TailAdmin admin panel lets staff manage astrologers, services, pr
 
 **Birth Chart Tool**
 - Form: name, date of birth, exact time of birth, place of birth (with geocoding/timezone lookup for accuracy).
+- Astrology system/chart style is pre-selected via the region-aware recommendation described in §8, with a visible override control.
 - Submits to the astrology calculation engine (see §8) → renders chart (Kundli/D1, planetary positions, houses, optionally basic Dasha) on-site.
 - Chart can be saved to the client's account and optionally attached to a consultation booking so the astrologer sees it ahead of time.
 
@@ -136,14 +144,24 @@ A Laravel 13 + TailAdmin admin panel lets staff manage astrologers, services, pr
 
 ---
 
-## 8. Astrology Engine Integration
+## 8. Astrology Engine Integration — Finalized Approach
 
 **Recommendation: open-source, self-hosted calculation engine** (no per-request API fees, no third-party rate limits, full data control) — built on the **Swiss Ephemeris**, the de-facto standard astronomical calculation library used by essentially all serious astrology software.
 
-- Approach: a small internal calculation service (PHP binding or a lightweight sidecar service) that takes DOB/time/place + timezone and returns planetary positions, houses (Placidus or Vedic/Lahiri per your tradition), and chart data, which the frontend then renders as an SVG/chart image.
-- Since Indian/Vedic astrology is implied (INR pricing, Hindi/Gujarati), the engine should default to **sidereal (Lahiri ayanamsa)** calculations, with the option to add Western tropical charts later if needed.
-- **Open question for you:** do you follow a specific tradition (Vedic/Jyotish vs Western tropical) and a specific chart style (North Indian / South Indian / East Indian Kundli chart)? This affects both the calculation config and the chart rendering style — please confirm.
-- If you already use a specific commercial astrology software/API today, tell us and we'll evaluate integrating with that instead of the self-hosted engine.
+- A small internal calculation service (PHP binding or a lightweight sidecar service) takes DOB/time/place + timezone and returns planetary positions, houses, and chart data, which the frontend renders as an SVG chart.
+
+**System default: traditional Indian (Vedic/Jyotish, sidereal, Lahiri ayanamsa).** This is the base configuration for every deployment, since the primary market is Indian/NRI clients.
+
+**Visitor choice + region-aware recommendation** (per your direction — decision is mine, so here's the concrete design):
+
+1. On first use of the birth chart tool, the site detects the visitor's likely region (IP geolocation, falling back to selected site language) and pre-selects a **recommended** chart system/style — visible as a clearly-labeled default, not forced:
+   - Visitor located in **North Indian states** (e.g. Delhi, UP, Punjab, Haryana, Rajasthan, MP) → recommend **Vedic, North Indian (diamond) chart style**.
+   - Visitor located in **South Indian states** (Tamil Nadu, Karnataka, Andhra Pradesh, Telangana, Kerala) → recommend **Vedic, South Indian (square grid) chart style**.
+   - Visitor located in **East Indian states** (West Bengal, Odisha, Assam) → recommend **Vedic, East Indian (Bengali) chart style**.
+   - Visitor outside India (NRI/international, e.g. via `/en/` locale + non-India IP) → recommend **Vedic, North Indian style** by default (most widely recognized internationally), while clearly offering **Western tropical** as a one-click alternative for visitors who expect that system.
+2. A visible toggle always lets the visitor override: **astrology system** (Vedic/Sidereal ↔ Western/Tropical) and, for Vedic, **chart style** (North / South / East Indian). Their choice is remembered (session/account) for future charts.
+3. MVP calculation scope: Lahiri ayanamsa for Vedic (the standard default used by most Indian astrology software) and standard tropical for Western. Additional ayanamsa options (Raman, KP, etc.) are a plausible future enhancement, not MVP.
+4. This recommendation logic and the calculation engine are both **per-deployment configurable** in the admin panel (a business client could, e.g., disable Western mode entirely, or force South Indian style only, if that fits their brand) — consistent with this being a reusable template.
 
 ---
 
@@ -158,6 +176,22 @@ A Laravel 13 + TailAdmin admin panel lets staff manage astrologers, services, pr
 | Geocoding/timezone lookup | Accurate birth chart timezone from place of birth | Needed for correct chart calculation |
 | Video hosting (YouTube/Vimeo unlisted, or S3+CDN) | Recorded course lessons | Avoids heavy storage/bandwidth cost of self-hosting video |
 | Google Analytics / Search Console | SEO tracking | You'll need/verify a Google account for the domain |
+
+---
+
+## 10a. Tenancy Model — Single-Tenant Template (not multi-tenant SaaS)
+
+Confirmed decision: this is built as **one reusable, well-structured Laravel codebase** that gets **deployed fresh per astrology-business client** — each client gets their own database, their own domain/hosting, their own branding/content. It is *not* a shared multi-tenant SaaS where multiple businesses share one running install.
+
+Why this over multi-tenant SaaS:
+- Matches the actual need: a small number of bespoke client deployments, not a self-serve signup product.
+- No cross-tenant data isolation, per-tenant billing/subscription, or super-admin-over-tenants layer to build — meaningfully smaller and faster to ship well.
+- Each client can be customized (branding, enabled features, astrology-system defaults per §8) without affecting others, and can be hosted independently per their own requirements.
+
+What this means practically for the build:
+- Branding/theme (logo, colors, site name, contact info) lives in admin **Settings**, so re-skinning for a new client is configuration, not code changes.
+- Demo content (see §1) is seeded as the first "reference" deployment; a new client engagement = fresh deploy + admin-panel content entry + branding, not a rebuild.
+- If real demand later emerges for a true shared multi-tenant SaaS (multiple businesses self-signing-up on one install), that is a distinct, larger project to be scoped separately — not part of this build.
 
 ---
 
@@ -183,36 +217,32 @@ Reasoning:
 
 - **Manual INR + USD pricing (not auto-converted):** admin sets both prices explicitly per service/course. Avoids exchange-rate drift causing under/over-charging, and keeps pricing intentional (e.g., round USD numbers for international clients) rather than a raw FX conversion.
 - **"Confirmed on request, pay later" booking flow:** since there's no gateway, a booking is provisionally created immediately (so the slot is held and the client gets clear next steps), then flipped to Confirmed once you manually verify the UPI payment. This is simpler and more transparent for clients than only accepting a transaction ID with no visible next step.
-- **Multi-astrologer architecture from day one:** even if you launch with a single astrologer, the data model treats "astrologer" as a first-class, repeatable entity, so adding more later requires no re-architecture — just adding records.
+- **Multi-astrologer architecture from day one:** even if a given deployment launches with a single astrologer, the data model treats "astrologer" as a first-class, repeatable entity, so adding more later requires no re-architecture — just adding records.
+- **Single-tenant template, not multi-tenant SaaS:** see §10a — one codebase redeployed per client keeps scope and data isolation simple; each client's branding/content lives entirely in that deployment's admin Settings + CMS.
+- **Vedic/Indian as the default astrology system, with visitor choice + region-aware recommendation:** see §8. Defaulting to sidereal/Lahiri matches the primary market, while the override + recommendation logic keeps the product usable and credible for visitors expecting Western tropical charts, without forcing a system on anyone.
+- **Build against realistic demo content first:** with no real client yet, a fully-populated fictional demo (astrologer, services, pricing, courses, blog) makes the product demoable/sellable immediately and doubles as the reference content structure for onboarding each real client later.
 
 ---
 
 ## 12. Prerequisites Needed From You Before Implementation Starts
 
-**Infrastructure**
-1. Domain name (registered, or tell us your preferred name so we can advise on registering it).
-2. Hosting: you indicated you don't have this yet. Recommendation: a VPS (e.g., DigitalOcean/Hetzner/AWS Lightsail) with a control panel (e.g., Ploi, Forge, or plain Nginx) sized for Laravel — we can provision this for you if you grant access/budget, or you can provision it and hand over SSH access. Minimum: PHP 8.3+, MySQL 8, Redis (recommended), 2GB+ RAM.
-3. SSL certificate — typically automatic via Let's Encrypt once domain + hosting are set up.
+Because this build now proceeds with **demo content** (§1) rather than a real client's material, most content-collection items below are **deferred to "when a real client is onboarded"** rather than blocking today. What's actually needed to start building:
 
-**Accounts/Access**
-4. A Google account for: Google Cloud project (Calendar API + OAuth, if using calendar sync), Google Analytics, Search Console.
-5. An email-sending provider account (e.g., a transactional email service) for booking/enrollment notification emails, or an existing business email/SMTP you want us to use.
-6. Your UPI ID and a UPI QR code image to display at checkout.
-7. (Optional) WhatsApp Business number if you want a click-to-chat button.
+**Blocking now**
+1. **GitHub write access** — the session currently cannot push to `nikul-patel/lara-astro` (permission denied). Needs to be granted before any commits can reach the remote.
+2. **Hosting for the demo/staging deployment**: you indicated no domain/hosting yet. Recommendation: a VPS (e.g., DigitalOcean/Hetzner/AWS Lightsail) sized for Laravel — minimum PHP 8.3+, MySQL 8, Redis (recommended), 2GB+ RAM — used to host the demo build so it's reviewable/demoable. A throwaway/staging domain (or subdomain) is fine for now; production domain can come later per real client.
 
-**Content & Branding**
-8. Logo, brand colors, and any existing brand guidelines.
-9. Astrologer profile(s): name(s), photo(s), bio, qualifications, languages spoken, specialties.
-10. Service list with descriptions, durations, and INR/USD pricing.
-11. Course list: for each course — curriculum/syllabus, whether recorded or live, pricing, and either the actual video files (or links to where they're hosted) or a placeholder plan for producing them.
-12. Legal page content: Privacy Policy, Terms & Conditions, Refund/Cancellation Policy (we can draft templates for your review, but you should have final sign-off since these are legal documents).
-13. Initial blog/SEO content ideas or existing articles, plus any target keywords or competitor sites you want us to reference for SEO strategy.
-14. Testimonials/reviews, if you have existing ones to seed the site.
+**Needed before a specific client goes live (not blocking the demo build)**
+3. That client's domain, SSL (typically automatic via Let's Encrypt once domain + hosting are set), UPI ID + QR code image, logo/brand colors, astrologer profile(s), service list + pricing, course content, legal page copy (Privacy/Terms/Refund — we can draft templates, client signs off), blog/SEO content, testimonials.
+4. Google account access if that client wants Google Calendar sync, Analytics, or Search Console.
+5. Email-sending provider (transactional email) for that deployment's booking/enrollment notifications.
+6. (Optional) WhatsApp Business number for click-to-chat.
 
-**Decisions to confirm**
-15. Vedic (sidereal/Lahiri) vs Western (tropical) astrology, and preferred chart style (North/South/East Indian) — see §8.
-16. Final language list confirmation: English, Hindi, Gujarati at launch (as discussed).
-17. Availability mode per astrologer: manual admin-set slots vs Google Calendar sync (can differ per astrologer).
+**Resolved (previously open, now decided)**
+- ~~Vedic vs Western astrology, chart style~~ → resolved in §8: Vedic/Indian default, region-aware recommendation, visitor override, per-deployment configurable.
+- ~~Single practice vs multi-astrologer~~ → resolved: multi-astrologer-capable architecture (§10a, §11).
+- ~~Tenancy model~~ → resolved: single-tenant template, redeployed per client (§10a).
+- Language list (English, Hindi, Gujarati) confirmed for the template's launch languages.
 
 ---
 
@@ -220,25 +250,25 @@ Reasoning:
 
 | Phase | Deliverable |
 |---|---|
-| 0 | This PRD signed off; prerequisites (§12) provided; hosting/domain ready |
+| 0 | This PRD signed off; blocking prerequisites (§12) resolved: GitHub push access + staging hosting |
 | 1 | Laravel 13 + TailAdmin scaffold, auth, roles, base admin panel deployed to staging |
 | 2 | Public site skeleton: layout, i18n routing (en/hi/gu), currency switcher, CMS pages, SEO base (sitemap, meta, schema) |
 | 3 | Astrologer/Service management + booking flow (pending→confirmed UPI flow) |
-| 4 | Birth chart engine integration + chart display |
+| 4 | Birth chart engine integration (Vedic default + region-aware recommendation + Western override, per §8) |
 | 5 | Courses (recorded + live) + enrollment flow |
-| 6 | Content population (with your material from §12), blog, testimonials |
-| 7 | QA pass (functional, SEO, performance, cross-browser/mobile), UAT with you |
-| 8 | Production deployment, DNS cutover, post-launch monitoring |
+| 6 | **Demo content population** — fictional astrology practice: astrologer profile, services/pricing, courses, blog posts, testimonials (§1) |
+| 7 | QA pass (functional, SEO, performance, cross-browser/mobile), demo review with you |
+| 8 | Demo deployed to staging/demo domain. **Per-client rollout (future, repeatable):** fresh deploy → real branding/content/pricing via admin panel → that client's domain/hosting → go live |
 
 ---
 
 ## 14. Open Questions Log
 
-- Astrology tradition/chart style (Vedic vs Western; North/South/East Indian layout) — **needs your answer**.
 - Do you want client accounts to be mandatory, or is guest booking/enrollment acceptable? (Current assumption: guest allowed, account optional.)
-- Video hosting preference for recorded courses: YouTube/Vimeo unlisted (simplest, free/cheap) vs self-hosted S3+CDN (more control, more cost)?
-- Any existing brand/design reference sites you like the look of?
+- Video hosting preference for recorded courses: YouTube/Vimeo unlisted (simplest, free/cheap) vs self-hosted S3+CDN (more control, more cost)? (Current assumption for demo: YouTube/Vimeo unlisted.)
+- Any existing brand/design reference sites you like the look of, for the demo's visual style?
+- Staging/demo domain: do you want to register one now (e.g. a generic name like "yoursite-demo.com") or use a subdomain of something you already control?
 
 ---
 
-*Once hosting/domain (or a decision to have us provision them), the astrology-tradition decision, and initial content/branding are available, implementation can begin per the phase plan above.*
+*Once GitHub push access and staging hosting (§12) are available, implementation can begin per the phase plan above, building against demo content and finalizing per-client rollout details as real clients are onboarded.*
