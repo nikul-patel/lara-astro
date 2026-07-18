@@ -7,5 +7,25 @@
   "Metadata": {
     "title": "Astrology Platform",
     "description": "Astrology consultations, birth charts and courses."
+  },
+  "Navigation": {
+    "primaryNavigation": "Primary navigation",
+    "home": "Home",
+    "astrologers": "Astrologers",
+    "birthChart": "Birth chart",
+    "courses": "Courses",
+    "blog": "Blog",
+    "contact": "Contact",
+    "language": "Language",
+    "currency": "Currency"
+  },
+  "Footer": {
+    "description": "Personal astrology guidance, practical learning and trusted consultations.",
+    "contact": "Contact",
+    "legal": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms and conditions",
+    "refund": "Refund and cancellation",
+    "copyright": "© {year} {siteName}. All rights reserved."
   }
 }

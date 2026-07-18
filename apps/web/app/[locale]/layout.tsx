@@ -5,6 +5,10 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getSiteUrl } from "@/i18n/metadata";
 import { routing } from "@/i18n/routing";
+import { CurrencyProvider } from "@/components/site/currency-provider";
+import { SiteFooter } from "@/components/site/site-footer";
+import { SiteHeader } from "@/components/site/site-header";
+import { getSiteSettings } from "@/lib/site-settings";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -43,6 +47,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
+  const settings = await getSiteSettings();
 
   return (
     <html
@@ -50,7 +55,13 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <CurrencyProvider defaultCurrency={settings.default_currency}>
+            <SiteHeader settings={settings} />
+            {children}
+            <SiteFooter settings={settings} />
+          </CurrencyProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -7,5 +7,25 @@
   "Metadata": {
     "title": "જ્યોતિષ મંચ",
     "description": "જ્યોતિષ પરામર્શ, જન્મકુંડળી અને અભ્યાસક્રમો."
+  },
+  "Navigation": {
+    "primaryNavigation": "મુખ્ય નેવિગેશન",
+    "home": "હોમ",
+    "astrologers": "જ્યોતિષીઓ",
+    "birthChart": "જન્મકુંડળી",
+    "courses": "અભ્યાસક્રમો",
+    "blog": "બ્લોગ",
+    "contact": "સંપર્ક",
+    "language": "ભાષા",
+    "currency": "ચલણ"
+  },
+  "Footer": {
+    "description": "વ્યક્તિગત જ્યોતિષ માર્ગદર્શન, વ્યવહારુ શિક્ષણ અને વિશ્વસનીય પરામર્શ.",
+    "contact": "સંપર્ક",
+    "legal": "કાનૂની",
+    "privacy": "ગોપનીયતા નીતિ",
+    "terms": "નિયમો અને શરતો",
+    "refund": "રિફંડ અને રદ કરવાની નીતિ",
+    "copyright": "© {year} {siteName}. સર્વ અધિકારો સુરક્ષિત."
   }
 }

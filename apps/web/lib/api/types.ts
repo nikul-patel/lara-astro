@@ -128,6 +128,23 @@ export interface Testimonial {
   rating?: number;
 }
 
+export interface ContactSettings {
+  email?: string;
+  phone?: string;
+  address?: string;
+  whatsapp_url?: string;
+}
+
+export interface SocialLink {
+  label: string;
+  url: string;
+}
+
+export interface LegalLink {
+  label: string;
+  slug: string;
+}
+
 export interface Settings {
   site_name: string;
   logo_url?: string | null;
@@ -136,6 +153,9 @@ export interface Settings {
   upi_qr_url?: string | null;
   default_currency?: Currency;
   currencies?: Currency[];
+  contact?: ContactSettings;
+  social_links?: SocialLink[] | Record<string, string>;
+  legal_links?: LegalLink[];
   seo?: Record<string, unknown>;
   [key: string]: unknown;
 }
