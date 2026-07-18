@@ -14,7 +14,7 @@ export type HomeData = {
   posts: Post[];
 };
 
-const fallbackContent: Record<AppLocale, HomeData> = {
+export const demoHomeData: Record<AppLocale, HomeData> = {
   en: {
     services: [
       {
@@ -60,6 +60,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["Career", "Life direction", "Dashas"],
         languages: ["Hindi", "English"],
+        experience_years: 14,
       },
       {
         id: -2,
@@ -69,6 +70,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["Relationships", "Compatibility", "Wellbeing"],
         languages: ["Gujarati", "Hindi", "English"],
+        experience_years: 10,
       },
     ],
     testimonials: [
@@ -169,6 +171,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["करियर", "जीवन दिशा", "दशा"],
         languages: ["हिंदी", "अंग्रेज़ी"],
+        experience_years: 14,
       },
       {
         id: -2,
@@ -178,6 +181,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["रिश्ते", "अनुकूलता", "कल्याण"],
         languages: ["गुजराती", "हिंदी", "अंग्रेज़ी"],
+        experience_years: 10,
       },
     ],
     testimonials: [
@@ -260,6 +264,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["કારકિર્દી", "જીવન દિશા", "દશા"],
         languages: ["હિન્દી", "અંગ્રેજી"],
+        experience_years: 14,
       },
       {
         id: -2,
@@ -269,6 +274,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
         photo_url: null,
         specialties: ["સંબંધો", "સુસંગતતા", "સુખાકારી"],
         languages: ["ગુજરાતી", "હિન્દી", "અંગ્રેજી"],
+        experience_years: 10,
       },
     ],
     testimonials: [
@@ -310,7 +316,7 @@ const fallbackContent: Record<AppLocale, HomeData> = {
 
 export async function getHomeData(locale: AppLocale): Promise<HomeData> {
   const localizedApi = apiForLocale(locale);
-  const fallback = fallbackContent[locale];
+  const fallback = demoHomeData[locale];
 
   const [services, astrologers, testimonials, posts] = await Promise.all([
     localizedApi.services

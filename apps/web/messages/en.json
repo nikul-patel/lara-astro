@@ -32,7 +32,8 @@
     "astrologers": {
       "eyebrow": "Your guides",
       "title": "Experienced, thoughtful astrologers",
-      "description": "Meet practitioners who combine classical knowledge with calm, respectful communication."
+      "description": "Meet practitioners who combine classical knowledge with calm, respectful communication.",
+      "viewProfile": "View profile"
     },
     "testimonials": { "eyebrow": "Client experiences", "title": "Guidance that feels clear and human" },
     "insights": {
@@ -45,6 +46,31 @@
       "description": "Explore a consultation that matches what you want to understand right now.",
       "cta": "View consultations"
     }
+  },
+  "AstrologersPage": {
+    "metaTitle": "Astrologers",
+    "metaDescription": "Meet our experienced Vedic astrologers and find the right guide for your questions.",
+    "eyebrow": "Meet the practitioners",
+    "title": "Choose a guide who understands your questions",
+    "description": "Explore each astrologer's approach, specialties, languages and consultations before you book.",
+    "yearsExperience": "{years}+ years of experience",
+    "viewProfile": "View full profile",
+    "photoAlt": "Portrait of {name}"
+  },
+  "AstrologerProfile": {
+    "eyebrow": "Astrologer profile",
+    "allAstrologers": "All astrologers",
+    "photoAlt": "Portrait of {name}",
+    "yearsExperience": "Years of experience",
+    "languages": "Languages spoken",
+    "aboutEyebrow": "About your guide",
+    "aboutTitle": "A thoughtful, personal approach",
+    "servicesEyebrow": "Consultations",
+    "servicesTitle": "Services offered",
+    "servicesDescription": "Choose a focused consultation with {name}. You can confirm your service and preferred time in the next step.",
+    "from": "From",
+    "minutes": "min",
+    "noServices": "No consultations are currently available for this astrologer."
   },
   "Metadata": {
     "title": "Astrology Platform",
