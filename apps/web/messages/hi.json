@@ -7,5 +7,25 @@
   "Metadata": {
     "title": "ज्योतिष मंच",
     "description": "ज्योतिष परामर्श, जन्म कुंडली और पाठ्यक्रम।"
+  },
+  "Navigation": {
+    "primaryNavigation": "मुख्य नेविगेशन",
+    "home": "होम",
+    "astrologers": "ज्योतिषी",
+    "birthChart": "जन्म कुंडली",
+    "courses": "पाठ्यक्रम",
+    "blog": "ब्लॉग",
+    "contact": "संपर्क",
+    "language": "भाषा",
+    "currency": "मुद्रा"
+  },
+  "Footer": {
+    "description": "व्यक्तिगत ज्योतिष मार्गदर्शन, व्यावहारिक शिक्षा और विश्वसनीय परामर्श।",
+    "contact": "संपर्क",
+    "legal": "कानूनी",
+    "privacy": "गोपनीयता नीति",
+    "terms": "नियम और शर्तें",
+    "refund": "धनवापसी और रद्दीकरण",
+    "copyright": "© {year} {siteName}। सर्वाधिकार सुरक्षित।"
   }
 }
