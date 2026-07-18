@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
+use App\Models\Astrologer;
+use App\Models\AvailabilitySlot;
 use App\Models\BirthChart;
 use App\Models\Booking;
 use App\Models\Client;
@@ -12,6 +14,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -66,19 +69,30 @@ class BookingController extends Controller
             }
         }
 
-        if ($this->slotIsTaken($validated['astrologer_id'], $validated['slot'], $service->duration_minutes)) {
-            throw ValidationException::withMessages(['slot' => 'This slot is no longer available.']);
+        if (! $this->slotIsWithinAvailability($validated['astrologer_id'], CarbonImmutable::parse($validated['slot']), $service->duration_minutes)) {
+            throw ValidationException::withMessages(['slot' => 'This slot is not available.']);
         }
 
-        $booking = Booking::create([
-            'astrologer_id' => $validated['astrologer_id'],
-            'service_id' => $validated['service_id'],
-            'client_id' => $client->id,
-            'slot' => $validated['slot'],
-            'status' => 'pending_payment',
-            'birth_details' => $validated['birth_details'] ?? null,
-            'birth_chart_id' => $validated['birth_chart_id'] ?? null,
-        ]);
+        // Lock the astrologer row for the duration of the overlap-check +
+        // insert so two concurrent requests for the same slot can't both
+        // pass slotIsTaken() before either has written its booking.
+        $booking = DB::transaction(function () use ($validated, $client, $service) {
+            Astrologer::query()->whereKey($validated['astrologer_id'])->lockForUpdate()->first();
+
+            if ($this->slotIsTaken($validated['astrologer_id'], $validated['slot'], $service->duration_minutes)) {
+                throw ValidationException::withMessages(['slot' => 'This slot is no longer available.']);
+            }
+
+            return Booking::create([
+                'astrologer_id' => $validated['astrologer_id'],
+                'service_id' => $validated['service_id'],
+                'client_id' => $client->id,
+                'slot' => $validated['slot'],
+                'status' => 'pending_payment',
+                'birth_details' => $validated['birth_details'] ?? null,
+                'birth_chart_id' => $validated['birth_chart_id'] ?? null,
+            ]);
+        });
 
         return (new BookingResource($booking->load('client')))
             ->response()
@@ -109,6 +123,33 @@ class BookingController extends Controller
             ->get();
 
         return BookingResource::collection($bookings);
+    }
+
+    /**
+     * A booking can only be placed on a slot that AvailabilityController
+     * would actually generate: same weekday window, within the window's
+     * start/end time, and starting on a duration_minutes boundary from the
+     * window's start (matching generateDaySlots()'s slot cadence).
+     */
+    private function slotIsWithinAvailability(int $astrologerId, CarbonImmutable $start, int $durationMinutes): bool
+    {
+        $end = $start->addMinutes($durationMinutes);
+
+        return AvailabilitySlot::query()
+            ->where('astrologer_id', $astrologerId)
+            ->where('is_active', true)
+            ->where('weekday', $start->dayOfWeek)
+            ->get()
+            ->contains(function (AvailabilitySlot $window) use ($start, $end, $durationMinutes) {
+                $windowStart = $start->setTimeFromTimeString($window->start_time);
+                $windowEnd = $start->setTimeFromTimeString($window->end_time);
+
+                if ($start->lessThan($windowStart) || $end->greaterThan($windowEnd)) {
+                    return false;
+                }
+
+                return $windowStart->diffInMinutes($start) % $durationMinutes === 0;
+            });
     }
 
     /**

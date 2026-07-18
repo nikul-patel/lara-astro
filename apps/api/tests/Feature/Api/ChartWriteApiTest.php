@@ -25,6 +25,22 @@ test('an authenticated client can save a calculated chart', function () {
     expect(BirthChart::where('client_id', $client->id)->count())->toBe(1);
 });
 
+test('saving a chart without an overridden system falls back to the result\'s system', function () {
+    $client = Client::factory()->create();
+    $token = $client->createToken('test')->plainTextToken;
+
+    $response = $this->postJson('/api/v1/charts', [
+        'name' => 'Ananya Singh',
+        'dob' => '1994-05-12',
+        'time' => '14:30',
+        'place' => 'Jaipur, India',
+        'result' => ['timezone' => 'Asia/Kolkata', 'system' => 'vedic', 'planetary_positions' => [], 'houses' => []],
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(201)->assertJsonPath('input.system', 'vedic');
+    expect(BirthChart::where('client_id', $client->id)->firstOrFail()->system)->toBe('vedic');
+});
+
 test('saving a chart requires authentication', function () {
     $this->postJson('/api/v1/charts', [
         'name' => 'Ananya Singh',

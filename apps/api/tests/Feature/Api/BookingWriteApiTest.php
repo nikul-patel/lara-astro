@@ -1,18 +1,34 @@
 <?php
 
 use App\Models\Astrologer;
+use App\Models\AvailabilitySlot;
 use App\Models\BirthChart;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\Setting;
+use Carbon\CarbonImmutable;
 
 function bookingPayload(Astrologer $astrologer, Service $service, array $overrides = []): array
 {
+    $slot = $overrides['slot'] ?? now()->addDays(3)->setTime(10, 0)->toIso8601String();
+
+    // The slot must fall inside a published availability window (see
+    // BookingController::slotIsWithinAvailability) — create one covering
+    // whichever weekday/time this payload's slot lands on.
+    AvailabilitySlot::query()->firstOrCreate([
+        'astrologer_id' => $astrologer->id,
+        'weekday' => CarbonImmutable::parse($slot)->dayOfWeek,
+    ], [
+        'start_time' => '10:00:00',
+        'end_time' => '18:00:00',
+        'is_active' => true,
+    ]);
+
     return array_merge([
         'astrologer_id' => $astrologer->id,
         'service_id' => $service->id,
-        'slot' => now()->addDays(3)->setTime(10, 0)->toIso8601String(),
+        'slot' => $slot,
         'client' => [
             'name' => 'Riya Mehta',
             'email' => 'riya@example.com',
@@ -100,6 +116,37 @@ test('booking an already-taken slot is rejected', function () {
     $this->postJson('/api/v1/bookings', bookingPayload($astrologer, $service, [
         'slot' => $slot->toIso8601String(),
     ]))->assertJsonValidationErrors('slot');
+});
+
+test('booking a slot with no published availability is rejected', function () {
+    $astrologer = Astrologer::factory()->create();
+    $service = Service::factory()->for($astrologer)->create(['duration_minutes' => 30]);
+
+    $this->postJson('/api/v1/bookings', [
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $service->id,
+        'slot' => now()->addDays(3)->setTime(10, 0)->toIso8601String(),
+        'client' => ['name' => 'Riya Mehta', 'email' => 'riya@example.com', 'phone' => '+91 90000 00000'],
+    ])->assertJsonValidationErrors('slot');
+});
+
+test('booking a slot outside the published window\'s hours is rejected', function () {
+    $astrologer = Astrologer::factory()->create();
+    $service = Service::factory()->for($astrologer)->create(['duration_minutes' => 30]);
+    $slot = now()->addDays(3)->setTime(10, 0);
+
+    AvailabilitySlot::factory()->for($astrologer)->create([
+        'weekday' => $slot->dayOfWeek,
+        'start_time' => '10:00:00',
+        'end_time' => '18:00:00',
+    ]);
+
+    $this->postJson('/api/v1/bookings', [
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $service->id,
+        'slot' => $slot->setTime(20, 0)->toIso8601String(),
+        'client' => ['name' => 'Riya Mehta', 'email' => 'riya@example.com', 'phone' => '+91 90000 00000'],
+    ])->assertJsonValidationErrors('slot');
 });
 
 test('a birth chart belonging to someone else cannot be attached', function () {
