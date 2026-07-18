@@ -57,6 +57,11 @@ class AstrologerController extends Controller
 
     public function destroy(Astrologer $astrologer): RedirectResponse
     {
+        if ($astrologer->bookings()->exists()) {
+            return redirect()->route('astrologers.index')
+                ->with('error', 'Cannot delete an astrologer with existing bookings. Deactivate them instead.');
+        }
+
         $astrologer->delete();
 
         return redirect()->route('astrologers.index')->with('status', 'Astrologer removed.');

@@ -10,6 +10,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="rounded-lg border border-error-500 bg-error-50 px-4 py-3 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <x-common.component-card title="Services">
             <div class="mb-4 flex justify-end">
                 <a href="{{ route('services.create') }}"

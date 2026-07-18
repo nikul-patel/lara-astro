@@ -51,6 +51,11 @@ class ServiceController extends Controller
 
     public function destroy(Service $service): RedirectResponse
     {
+        if ($service->bookings()->exists()) {
+            return redirect()->route('services.index')
+                ->with('error', 'Cannot delete a service with existing bookings. Deactivate it instead.');
+        }
+
         $service->delete();
 
         return redirect()->route('services.index')->with('status', 'Service removed.');
@@ -66,8 +71,8 @@ class ServiceController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'duration_minutes' => ['required', 'integer', 'min:5', 'max:480'],
-            'price_inr' => ['required', 'numeric', 'min:0'],
-            'price_usd' => ['required', 'numeric', 'min:0'],
+            'price_inr' => ['required', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
+            'price_usd' => ['required', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 

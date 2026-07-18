@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Astrologer;
+use App\Models\Booking;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 
@@ -90,4 +91,15 @@ test('an admin can delete an astrologer', function () {
         ->assertRedirect('/astrologers');
 
     expect(Astrologer::find($astrologer->id))->toBeNull();
+});
+
+test('an admin cannot delete an astrologer with existing bookings', function () {
+    $astrologer = Astrologer::factory()->create();
+    Booking::factory()->create(['astrologer_id' => $astrologer->id]);
+
+    $this->actingAs($this->admin)
+        ->delete("/astrologers/{$astrologer->id}")
+        ->assertRedirect('/astrologers');
+
+    expect(Astrologer::find($astrologer->id))->not->toBeNull();
 });

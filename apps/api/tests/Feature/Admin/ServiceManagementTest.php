@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Astrologer;
+use App\Models\Booking;
 use App\Models\Service;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
@@ -86,4 +87,27 @@ test('an admin can delete a service', function () {
         ->assertRedirect('/services');
 
     expect(Service::find($service->id))->toBeNull();
+});
+
+test('an admin cannot delete a service with existing bookings', function () {
+    $service = Service::factory()->create();
+    Booking::factory()->create(['service_id' => $service->id, 'astrologer_id' => $service->astrologer_id]);
+
+    $this->actingAs($this->admin)
+        ->delete("/services/{$service->id}")
+        ->assertRedirect('/services');
+
+    expect(Service::find($service->id))->not->toBeNull();
+});
+
+test('service prices must fit the decimal(10,2) columns', function () {
+    $astrologer = Astrologer::factory()->create();
+
+    $this->actingAs($this->admin)->post('/services', [
+        'astrologer_id' => $astrologer->id,
+        'name' => 'Overpriced Service',
+        'duration_minutes' => 30,
+        'price_inr' => 100000000000,
+        'price_usd' => 12.999,
+    ])->assertSessionHasErrors(['price_inr', 'price_usd']);
 });
