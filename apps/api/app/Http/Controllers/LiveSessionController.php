@@ -11,6 +11,11 @@ class LiveSessionController extends Controller
 {
     public function store(Request $request, Course $course): RedirectResponse
     {
+        if ($course->type !== 'live') {
+            return redirect()->route('courses.edit', $course)
+                ->with('error', 'Live sessions can only be added to live courses.');
+        }
+
         $course->liveSessions()->create($this->validated($request));
 
         return redirect()->route('courses.edit', $course)->with('status', 'Live session added.');
@@ -18,6 +23,11 @@ class LiveSessionController extends Controller
 
     public function update(Request $request, LiveSession $liveSession): RedirectResponse
     {
+        if ($liveSession->course->type !== 'live') {
+            return redirect()->route('courses.edit', $liveSession->course_id)
+                ->with('error', 'Live sessions can only be edited on live courses.');
+        }
+
         $liveSession->update($this->validated($request));
 
         return redirect()->route('courses.edit', $liveSession->course_id)->with('status', 'Live session updated.');

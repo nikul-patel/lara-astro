@@ -37,9 +37,17 @@ class CourseModuleController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+        // Field is named "module_title" (not "title") so a failed
+        // validation doesn't flash into the unrelated course-title field
+        // via a shared old('title') on the same edit page.
+        $validated = $request->validate([
+            'module_title' => ['required', 'string', 'max:255'],
             'order' => ['required', 'integer', 'min:0'],
         ]);
+
+        return [
+            'title' => $validated['module_title'],
+            'order' => $validated['order'],
+        ];
     }
 }

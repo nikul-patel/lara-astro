@@ -17,7 +17,7 @@ test('an admin can add, edit, and delete a course module', function () {
     $course = Course::factory()->create();
 
     $this->actingAs($this->admin)->post("/courses/{$course->id}/modules", [
-        'title' => 'Module One',
+        'module_title' => 'Module One',
         'order' => 0,
     ])->assertRedirect(route('courses.edit', $course));
 
@@ -25,7 +25,7 @@ test('an admin can add, edit, and delete a course module', function () {
     expect($module->title)->toBe('Module One');
 
     $this->actingAs($this->admin)->put("/modules/{$module->id}", [
-        'title' => 'Module One (Updated)',
+        'module_title' => 'Module One (Updated)',
         'order' => 1,
     ])->assertRedirect(route('courses.edit', $course));
 
@@ -41,7 +41,7 @@ test('an admin can add, edit, and delete a lesson within a module', function () 
     $module = CourseModule::factory()->create();
 
     $this->actingAs($this->admin)->post("/modules/{$module->id}/lessons", [
-        'title' => 'Lesson One',
+        'lesson_title' => 'Lesson One',
         'video_url' => 'https://example.com/video.mp4',
         'duration_minutes' => 12,
         'order' => 0,
@@ -51,7 +51,7 @@ test('an admin can add, edit, and delete a lesson within a module', function () 
     expect($lesson->title)->toBe('Lesson One');
 
     $this->actingAs($this->admin)->put("/lessons/{$lesson->id}", [
-        'title' => 'Lesson One (Updated)',
+        'lesson_title' => 'Lesson One (Updated)',
         'video_url' => 'https://example.com/video2.mp4',
         'duration_minutes' => 15,
         'order' => 1,
@@ -101,4 +101,27 @@ test('a live session end time must be after its start time', function () {
         'starts_at' => $startsAt->format('Y-m-d\TH:i'),
         'ends_at' => $startsAt->copy()->subHour()->format('Y-m-d\TH:i'),
     ])->assertSessionHasErrors('ends_at');
+});
+
+test('a live session cannot be added to a recorded course', function () {
+    $course = Course::factory()->create(['type' => 'recorded']);
+    $startsAt = now()->addWeek();
+
+    $this->actingAs($this->admin)->post("/courses/{$course->id}/live-sessions", [
+        'starts_at' => $startsAt->format('Y-m-d\TH:i'),
+    ])->assertRedirect(route('courses.edit', $course));
+
+    expect(LiveSession::count())->toBe(0);
+});
+
+test('a live session cannot be edited after its course becomes recorded', function () {
+    $liveSession = LiveSession::factory()->create();
+    $liveSession->course->update(['type' => 'recorded']);
+    $newStart = now()->addWeek();
+
+    $this->actingAs($this->admin)->put("/live-sessions/{$liveSession->id}", [
+        'starts_at' => $newStart->format('Y-m-d\TH:i'),
+    ])->assertRedirect(route('courses.edit', $liveSession->course_id));
+
+    expect($liveSession->fresh()->starts_at->equalTo($liveSession->starts_at))->toBeTrue();
 });

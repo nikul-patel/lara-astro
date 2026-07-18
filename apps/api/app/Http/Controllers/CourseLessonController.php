@@ -36,11 +36,21 @@ class CourseLessonController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+        // Field is named "lesson_title" (not "title") so a failed
+        // validation doesn't flash into the unrelated course-title field
+        // via a shared old('title') on the same edit page.
+        $validated = $request->validate([
+            'lesson_title' => ['required', 'string', 'max:255'],
             'duration_minutes' => ['nullable', 'integer', 'min:1'],
             'video_url' => ['nullable', 'url', 'max:255'],
             'order' => ['required', 'integer', 'min:0'],
         ]);
+
+        return [
+            'title' => $validated['lesson_title'],
+            'duration_minutes' => $validated['duration_minutes'] ?? null,
+            'video_url' => $validated['video_url'] ?? null,
+            'order' => $validated['order'],
+        ];
     }
 }

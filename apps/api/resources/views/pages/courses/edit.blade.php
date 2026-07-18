@@ -15,6 +15,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="rounded-lg border border-error-500 bg-error-50 px-4 py-3 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <x-common.component-card title="Edit {{ $course->title }}">
             <form method="POST" action="{{ route('courses.update', $course) }}">
                 @csrf
@@ -32,7 +38,7 @@
                             @method('PUT')
                             <div class="flex-1">
                                 <label class="{{ $labelClass }}">Module Title</label>
-                                <input type="text" name="title" value="{{ $module->title }}" required class="{{ $inputClass }}" />
+                                <input type="text" name="module_title" value="{{ $module->title }}" required class="{{ $inputClass }}" />
                             </div>
                             <div class="w-24">
                                 <label class="{{ $labelClass }}">Order</label>
@@ -53,7 +59,7 @@
                                     @method('PUT')
                                     <div class="flex-1">
                                         <label class="{{ $labelClass }}">Lesson Title</label>
-                                        <input type="text" name="title" value="{{ $lesson->title }}" required class="{{ $inputClass }}" />
+                                        <input type="text" name="lesson_title" value="{{ $lesson->title }}" required class="{{ $inputClass }}" />
                                     </div>
                                     <div class="w-40">
                                         <label class="{{ $labelClass }}">Video URL</label>
@@ -80,7 +86,7 @@
                                 @csrf
                                 <div class="flex-1">
                                     <label class="{{ $labelClass }}">New Lesson Title</label>
-                                    <input type="text" name="title" required class="{{ $inputClass }}" />
+                                    <input type="text" name="lesson_title" required class="{{ $inputClass }}" />
                                 </div>
                                 <div class="w-40">
                                     <label class="{{ $labelClass }}">Video URL</label>
@@ -106,7 +112,7 @@
                     @csrf
                     <div class="flex-1">
                         <label class="{{ $labelClass }}">New Module Title</label>
-                        <input type="text" name="title" required class="{{ $inputClass }}" />
+                        <input type="text" name="module_title" required class="{{ $inputClass }}" />
                     </div>
                     <div class="w-24">
                         <label class="{{ $labelClass }}">Order</label>
@@ -117,6 +123,7 @@
             </div>
         </x-common.component-card>
 
+        @if ($course->type === 'live' || $course->liveSessions->isNotEmpty())
         <x-common.component-card title="Live Sessions">
             <div class="space-y-4">
                 @forelse ($course->liveSessions as $liveSession)
@@ -146,23 +153,28 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">No live sessions scheduled yet.</p>
                 @endforelse
 
-                <form method="POST" action="{{ route('courses.live-sessions.store', $course) }}" class="flex flex-wrap items-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
-                    @csrf
-                    <div>
-                        <label class="{{ $labelClass }}">Starts At</label>
-                        <input type="datetime-local" name="starts_at" required class="{{ $inputClass }}" />
-                    </div>
-                    <div>
-                        <label class="{{ $labelClass }}">Ends At</label>
-                        <input type="datetime-local" name="ends_at" class="{{ $inputClass }}" />
-                    </div>
-                    <div class="flex-1">
-                        <label class="{{ $labelClass }}">Meeting URL</label>
-                        <input type="url" name="meeting_url" class="{{ $inputClass }}" />
-                    </div>
-                    <button type="submit" class="h-10 rounded-lg border border-gray-300 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">Add Live Session</button>
-                </form>
+                @if ($course->type === 'live')
+                    <form method="POST" action="{{ route('courses.live-sessions.store', $course) }}" class="flex flex-wrap items-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
+                        @csrf
+                        <div>
+                            <label class="{{ $labelClass }}">Starts At</label>
+                            <input type="datetime-local" name="starts_at" required class="{{ $inputClass }}" />
+                        </div>
+                        <div>
+                            <label class="{{ $labelClass }}">Ends At</label>
+                            <input type="datetime-local" name="ends_at" class="{{ $inputClass }}" />
+                        </div>
+                        <div class="flex-1">
+                            <label class="{{ $labelClass }}">Meeting URL</label>
+                            <input type="url" name="meeting_url" class="{{ $inputClass }}" />
+                        </div>
+                        <button type="submit" class="h-10 rounded-lg border border-gray-300 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300">Add Live Session</button>
+                    </form>
+                @else
+                    <p class="border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">Switch this course's type to "Live" to schedule new sessions.</p>
+                @endif
             </div>
         </x-common.component-card>
+        @endif
     </div>
 @endsection
