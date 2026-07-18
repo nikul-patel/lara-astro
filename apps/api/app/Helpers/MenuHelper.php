@@ -37,6 +37,16 @@ class MenuHelper
                 ],
             ],
             [
+                'name' => 'CMS',
+                'icon' => 'pages',
+                'subItems' => [
+                    ['name' => 'Pages', 'path' => '/pages', 'pro' => false],
+                    ['name' => 'Blog Posts', 'path' => '/posts', 'pro' => false],
+                    ['name' => 'Testimonials', 'path' => '/testimonials', 'pro' => false],
+                    ['name' => 'Settings', 'path' => '/settings', 'pro' => false],
+                ],
+            ],
+            [
                 'name' => 'Forms',
                 'icon' => 'forms',
                 'subItems' => [
