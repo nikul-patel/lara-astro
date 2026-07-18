@@ -47,4 +47,14 @@ class Astrologer extends Model
     {
         return $this->hasOne(GoogleCalendarConnection::class);
     }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
+    }
 }

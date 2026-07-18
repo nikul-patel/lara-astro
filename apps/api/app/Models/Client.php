@@ -44,4 +44,14 @@ class Client extends Authenticatable
     {
         return $this->hasMany(BirthChart::class);
     }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
 }
