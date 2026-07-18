@@ -21,6 +21,14 @@ class AvailabilityController extends Controller
 
     private const MAX_RANGE_DAYS = 60;
 
+    /**
+     * Longest a single existing booking can run (Service.duration_minutes
+     * is capped at 480 by ServiceController's admin validation), used to
+     * widen the busy-booking query so a booking that starts before the
+     * requested range but overlaps into it isn't missed.
+     */
+    private const MAX_BOOKING_DURATION_MINUTES = 480;
+
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -33,6 +41,8 @@ class AvailabilityController extends Controller
         $service = Service::query()
             ->where('id', $validated['service_id'])
             ->where('astrologer_id', $validated['astrologer_id'])
+            ->where('is_active', true)
+            ->whereHas('astrologer', fn ($query) => $query->where('is_active', true))
             ->firstOrFail();
 
         $from = CarbonImmutable::parse($validated['from'])->startOfDay();
@@ -51,7 +61,12 @@ class AvailabilityController extends Controller
         $busyRanges = Booking::query()
             ->where('astrologer_id', $validated['astrologer_id'])
             ->whereIn('status', self::BLOCKING_STATUSES)
-            ->whereBetween('slot', [$from, $to])
+            // A booking starting before $from can still run into the
+            // requested range, so look back far enough to catch it, then
+            // let the per-slot overlap check in generateDaySlots() do the
+            // precise filtering.
+            ->where('slot', '>=', $from->subMinutes(self::MAX_BOOKING_DURATION_MINUTES))
+            ->where('slot', '<', $to)
             ->with('service:id,duration_minutes')
             ->get()
             ->map(fn (Booking $booking) => [

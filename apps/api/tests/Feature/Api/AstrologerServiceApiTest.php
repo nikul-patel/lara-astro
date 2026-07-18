@@ -52,6 +52,16 @@ test('it lists only active services and can filter by astrologer', function () {
     expect($response->json('data'))->toHaveCount(1);
 });
 
+test('services owned by an inactive astrologer are hidden even though the service itself is active', function () {
+    $astrologer = Astrologer::factory()->create(['is_active' => false]);
+    Service::factory()->for($astrologer)->create(['is_active' => true]);
+
+    $response = $this->getJson('/api/v1/services');
+
+    $response->assertOk();
+    expect($response->json('data'))->toHaveCount(0);
+});
+
 test('service prices are numeric floats, not decimal strings', function () {
     $astrologer = Astrologer::factory()->create();
     Service::factory()->for($astrologer)->create(['price_inr' => 1999.50, 'price_usd' => 24.25]);

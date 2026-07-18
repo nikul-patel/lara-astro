@@ -14,6 +14,7 @@ class ServiceController extends Controller
     {
         $services = Service::query()
             ->where('is_active', true)
+            ->whereHas('astrologer', fn ($query) => $query->where('is_active', true))
             ->when(
                 $request->integer('astrologer_id'),
                 fn ($query, $astrologerId) => $query->where('astrologer_id', $astrologerId)

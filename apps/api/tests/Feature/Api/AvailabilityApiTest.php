@@ -145,3 +145,63 @@ test('the service must belong to the requested astrologer', function () {
         'to' => now()->addDay()->toDateString(),
     ]))->assertNotFound();
 });
+
+test('an inactive service 404s', function () {
+    $astrologer = Astrologer::factory()->create();
+    $service = Service::factory()->for($astrologer)->create(['is_active' => false]);
+
+    $this->getJson('/api/v1/availability?'.http_build_query([
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $service->id,
+        'from' => now()->toDateString(),
+        'to' => now()->addDay()->toDateString(),
+    ]))->assertNotFound();
+});
+
+test('a service owned by an inactive astrologer 404s', function () {
+    $astrologer = Astrologer::factory()->create(['is_active' => false]);
+    $service = Service::factory()->for($astrologer)->create(['is_active' => true]);
+
+    $this->getJson('/api/v1/availability?'.http_build_query([
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $service->id,
+        'from' => now()->toDateString(),
+        'to' => now()->addDay()->toDateString(),
+    ]))->assertNotFound();
+});
+
+test('a booking that starts before the requested range but overlaps into it still blocks the slot', function () {
+    $astrologer = Astrologer::factory()->create();
+    $service = Service::factory()->for($astrologer)->create(['duration_minutes' => 60]);
+    $day = now()->addDays(3)->startOfDay();
+
+    AvailabilitySlot::factory()->for($astrologer)->create([
+        'weekday' => $day->dayOfWeek,
+        'start_time' => '01:00:00',
+        'end_time' => '03:00:00',
+    ]);
+
+    // A 4-hour booking starting at 22:00 the previous day runs until 02:00,
+    // overlapping the 01:00-02:00 slot even though its "slot" timestamp
+    // (the start) falls before the requested range's $from.
+    $longService = Service::factory()->for($astrologer)->create(['duration_minutes' => 240]);
+    Booking::factory()->create([
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $longService->id,
+        'client_id' => Client::factory(),
+        'slot' => $day->copy()->subDay()->setTime(22, 0),
+        'status' => 'confirmed',
+    ]);
+
+    $response = $this->getJson('/api/v1/availability?'.http_build_query([
+        'astrologer_id' => $astrologer->id,
+        'service_id' => $service->id,
+        'from' => $day->toDateString(),
+        'to' => $day->toDateString(),
+    ]));
+
+    $response->assertOk();
+    expect($response->json())->toHaveCount(1);
+    $start = CarbonImmutable::parse($response->json('0.start'));
+    expect($start->format('H:i'))->toBe('02:00');
+});
