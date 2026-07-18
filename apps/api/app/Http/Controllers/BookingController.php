@@ -39,10 +39,16 @@ class BookingController extends Controller
             'admin_notes' => ['nullable', 'string'],
         ]);
 
-        if ($validated['status'] === 'confirmed' && empty($validated['upi_reference']) && empty($booking->upi_reference)) {
-            return back()->withErrors([
-                'upi_reference' => 'A UPI reference is required to confirm payment.',
-            ])->withInput();
+        if ($validated['status'] === 'confirmed') {
+            // A blank submission shouldn't wipe out an already-recorded
+            // reference; only an explicit new value should overwrite it.
+            $validated['upi_reference'] = ($validated['upi_reference'] ?? null) ?: $booking->upi_reference;
+
+            if (empty($validated['upi_reference'])) {
+                return back()->withErrors([
+                    'upi_reference' => 'A UPI reference is required to confirm payment.',
+                ])->withInput();
+            }
         }
 
         $booking->update($validated);

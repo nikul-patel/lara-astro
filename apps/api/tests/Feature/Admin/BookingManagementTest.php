@@ -76,6 +76,18 @@ test('an admin can confirm a booking with a upi reference', function () {
         ->and($fresh->upi_reference)->toBe('UPI-TEST1234');
 });
 
+test('leaving the upi reference blank on an already-confirmed booking keeps the existing reference', function () {
+    $booking = Booking::factory()->confirmed()->create(['upi_reference' => 'UPI-EXISTING']);
+
+    $this->actingAs($this->admin)->put("/bookings/{$booking->id}", [
+        'status' => 'confirmed',
+        'slot' => $booking->slot->format('Y-m-d\TH:i'),
+        'upi_reference' => '',
+    ])->assertRedirect('/bookings');
+
+    expect($booking->fresh()->upi_reference)->toBe('UPI-EXISTING');
+});
+
 test('an admin can reschedule and cancel a booking with notes', function () {
     $booking = Booking::factory()->confirmed()->create();
     $newSlot = now()->addWeek();
