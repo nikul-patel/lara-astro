@@ -2,6 +2,23 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Copy the example environment file and point it at the Laravel API:
+
+```bash
+cp .env.example .env.local
+```
+
+`NEXT_PUBLIC_API_BASE_URL` defaults to the local Laravel API shown in
+`.env.example`. Set it in Vercel to the deployed API's versioned base URL.
+
+The typed client is exported from `lib/api`:
+
+```ts
+import { api } from "@/lib/api";
+
+const services = await api.services.list({ locale: "en" });
+```
+
 First, run the development server:
 
 ```bash
