@@ -57,3 +57,4 @@ Base URL (local dev): `http://localhost:8000/api/v1`. Configured via `NEXT_PUBLI
 
 - Exact chart JSON shape (planetary positions/houses) will be finalized alongside #16 (birth chart engine) — the request/response envelope above is stable, the internals of the `chart` payload may grow.
 - Availability slot shape (manual vs Google-Calendar-backed) needs confirming against #10/#17 once availability admin UI is built — the read contract here (`GET /availability`) is meant to stay stable regardless of the backing source.
+- `GET /courses/{slug}`'s curriculum outline (#14) deliberately omits `CourseLesson.video_url` and `LiveSession.meeting_url` — those are gated behind enrollment per "`GET /me/enrollments` ... includes lesson access ... live session schedule/links", so `CourseLesson`/`LiveSession` only get those fields on the authenticated learner endpoints built in #15/#28. The public shapes only expose titles/durations/schedule.
