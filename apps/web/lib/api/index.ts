@@ -135,3 +135,35 @@ export const api = {
     me: (token: string) => get<MeResponse>("/me", undefined, token),
   },
 } as const;
+
+/**
+ * Binds translatable API calls to the active route locale so callers cannot
+ * accidentally render content from a different language.
+ */
+export function apiForLocale(locale: Locale) {
+  return {
+    astrologers: {
+      list: (query: Omit<LocaleQuery, "locale"> = {}) =>
+        api.astrologers.list({ ...query, locale }),
+      get: (slug: string) => api.astrologers.get(slug, { locale }),
+    },
+    services: {
+      list: (query: Omit<ListServicesQuery, "locale"> = {}) =>
+        api.services.list({ ...query, locale }),
+    },
+    courses: {
+      list: (query: Omit<ListCoursesQuery, "locale"> = {}) =>
+        api.courses.list({ ...query, locale }),
+      get: (slug: string) => api.courses.get(slug, { locale }),
+    },
+    pages: {
+      get: (slug: string) => api.pages.get(slug, { locale }),
+    },
+    posts: {
+      list: (query: Omit<ListPostsQuery, "locale"> = {}) =>
+        api.posts.list({ ...query, locale }),
+      get: (slug: string) => api.posts.get(slug, { locale }),
+    },
+    testimonials: () => api.testimonials({ locale }),
+  } as const;
+}
