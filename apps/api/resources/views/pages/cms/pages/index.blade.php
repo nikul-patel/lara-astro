@@ -31,7 +31,11 @@
                     <tbody>
                         @forelse ($pages as $page)
                             <tr class="border-b border-gray-100 dark:border-gray-800">
-                                <td class="px-5 py-4 text-sm font-medium text-gray-800 sm:px-6 dark:text-white/90">{{ $page->title }}</td>
+                                @php
+                                    $displayTitle = $page->getTranslation('title', $defaultLocale, false)
+                                        ?: collect($page->getTranslations('title'))->filter()->first();
+                                @endphp
+                                <td class="px-5 py-4 text-sm font-medium text-gray-800 sm:px-6 dark:text-white/90">{{ $displayTitle }}</td>
                                 <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">/{{ $page->slug }}</td>
                                 <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ $page->updated_at->format('d M Y') }}</td>
                                 <td class="px-5 py-4 text-sm sm:px-6">

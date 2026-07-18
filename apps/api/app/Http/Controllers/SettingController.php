@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SettingController extends Controller
@@ -50,10 +51,18 @@ class SettingController extends Controller
 
         if ($request->hasFile('logo')) {
             $validated['logo_path'] = $request->file('logo')->store('branding', 'public');
+
+            if ($setting->logo_path) {
+                Storage::disk('public')->delete($setting->logo_path);
+            }
         }
 
         if ($request->hasFile('upi_qr')) {
             $validated['upi_qr_path'] = $request->file('upi_qr')->store('branding', 'public');
+
+            if ($setting->upi_qr_path) {
+                Storage::disk('public')->delete($setting->upi_qr_path);
+            }
         }
 
         unset($validated['logo'], $validated['upi_qr']);

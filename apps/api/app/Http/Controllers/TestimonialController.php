@@ -13,8 +13,9 @@ class TestimonialController extends Controller
     public function index(): View
     {
         $testimonials = Testimonial::query()->latest()->paginate(15);
+        $defaultLocale = $this->defaultLocale();
 
-        return view('pages.cms.testimonials.index', compact('testimonials'));
+        return view('pages.cms.testimonials.index', compact('testimonials', 'defaultLocale'));
     }
 
     public function create(): View

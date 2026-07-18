@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Page;
+use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 
@@ -35,6 +36,19 @@ test('an admin can list pages', function () {
         ->get('/pages')
         ->assertOk()
         ->assertSee($page->title);
+});
+
+test('the pages list shows the configured default locale even when english is disabled', function () {
+    Setting::current()->update(['supported_languages' => ['hi', 'gu']]);
+    $page = Page::factory()->create([
+        'title' => ['hi' => 'हमारे बारे में', 'gu' => 'અમારા વિશે'],
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get('/pages')
+        ->assertOk()
+        ->assertSee('हमारे बारे में')
+        ->assertDontSee($page->getTranslation('title', 'gu'));
 });
 
 test('an admin can create a page with per-locale content', function () {

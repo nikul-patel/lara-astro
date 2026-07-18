@@ -3,6 +3,8 @@
 use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->seed(RoleSeeder::class);
@@ -62,6 +64,23 @@ test('an admin can update settings', function () {
         ->and($setting->social_links['facebook'])->toBe('https://facebook.com/astro')
         ->and($setting->legal_links['privacy_policy'])->toBe('privacy-policy')
         ->and($setting->seo['ga_measurement_id'])->toBe('G-TEST123');
+});
+
+test('replacing the logo deletes the previous one', function () {
+    Storage::fake('public');
+    $originalPath = UploadedFile::fake()->image('old-logo.jpg')->store('branding', 'public');
+    Setting::current()->update(['logo_path' => $originalPath]);
+
+    $this->actingAs($this->admin)->put('/settings', [
+        'site_name' => 'Astrology Co.',
+        'supported_languages' => ['en'],
+        'default_currency' => 'INR',
+        'currencies' => ['INR'],
+        'logo' => UploadedFile::fake()->image('new-logo.jpg'),
+    ])->assertRedirect('/settings');
+
+    Storage::disk('public')->assertMissing($originalPath);
+    Storage::disk('public')->assertExists(Setting::current()->logo_path);
 });
 
 test('settings requires at least one supported language and one currency', function () {

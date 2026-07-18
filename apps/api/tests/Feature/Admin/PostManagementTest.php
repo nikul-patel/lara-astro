@@ -3,6 +3,8 @@
 use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->seed(RoleSeeder::class);
@@ -76,4 +78,33 @@ test('an admin can delete a post', function () {
         ->assertRedirect('/posts');
 
     expect(Post::find($post->id))->toBeNull();
+});
+
+test('replacing a featured image deletes the previous one', function () {
+    Storage::fake('public');
+    $post = Post::factory()->create();
+    $originalPath = UploadedFile::fake()->image('original.jpg')->store('posts', 'public');
+    $post->update(['featured_image_path' => $originalPath]);
+
+    $this->actingAs($this->admin)->put("/posts/{$post->id}", [
+        'slug' => $post->slug,
+        'title' => ['en' => $post->getTranslation('title', 'en')],
+        'content' => ['en' => $post->getTranslation('content', 'en')],
+        'featured_image' => UploadedFile::fake()->image('new.jpg'),
+    ])->assertRedirect('/posts');
+
+    Storage::disk('public')->assertMissing($originalPath);
+    Storage::disk('public')->assertExists($post->fresh()->featured_image_path);
+});
+
+test('deleting a post removes its featured image', function () {
+    Storage::fake('public');
+    $imagePath = UploadedFile::fake()->image('featured.jpg')->store('posts', 'public');
+    $post = Post::factory()->create(['featured_image_path' => $imagePath]);
+
+    $this->actingAs($this->admin)
+        ->delete("/posts/{$post->id}")
+        ->assertRedirect('/posts');
+
+    Storage::disk('public')->assertMissing($imagePath);
 });

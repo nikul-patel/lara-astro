@@ -14,8 +14,9 @@ class PageController extends Controller
     public function index(): View
     {
         $pages = Page::query()->latest()->paginate(15);
+        $defaultLocale = $this->defaultLocale();
 
-        return view('pages.cms.pages.index', compact('pages'));
+        return view('pages.cms.pages.index', compact('pages', 'defaultLocale'));
     }
 
     public function create(): View

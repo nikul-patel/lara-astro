@@ -31,7 +31,11 @@
                     <tbody>
                         @forelse ($posts as $post)
                             <tr class="border-b border-gray-100 dark:border-gray-800">
-                                <td class="px-5 py-4 text-sm font-medium text-gray-800 sm:px-6 dark:text-white/90">{{ $post->title }}</td>
+                                @php
+                                    $displayTitle = $post->getTranslation('title', $defaultLocale, false)
+                                        ?: collect($post->getTranslations('title'))->filter()->first();
+                                @endphp
+                                <td class="px-5 py-4 text-sm font-medium text-gray-800 sm:px-6 dark:text-white/90">{{ $displayTitle }}</td>
                                 <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">/{{ $post->slug }}</td>
                                 <td class="px-5 py-4 sm:px-6">
                                     @if ($post->published_at && $post->published_at->isPast())

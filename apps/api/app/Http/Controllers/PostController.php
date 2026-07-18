@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -14,8 +15,9 @@ class PostController extends Controller
     public function index(): View
     {
         $posts = Post::query()->latest('published_at')->paginate(15);
+        $defaultLocale = $this->defaultLocale();
 
-        return view('pages.cms.posts.index', compact('posts'));
+        return view('pages.cms.posts.index', compact('posts', 'defaultLocale'));
     }
 
     public function create(): View
@@ -50,7 +52,12 @@ class PostController extends Controller
         $data = $this->validated($request, $post);
 
         if ($request->hasFile('featured_image')) {
+            $previousImage = $post->featured_image_path;
             $data['featured_image_path'] = $request->file('featured_image')->store('posts', 'public');
+
+            if ($previousImage) {
+                Storage::disk('public')->delete($previousImage);
+            }
         }
 
         $post->update($data);
@@ -60,6 +67,10 @@ class PostController extends Controller
 
     public function destroy(Post $post): RedirectResponse
     {
+        if ($post->featured_image_path) {
+            Storage::disk('public')->delete($post->featured_image_path);
+        }
+
         $post->delete();
 
         return redirect()->route('posts.index')->with('status', 'Post removed.');

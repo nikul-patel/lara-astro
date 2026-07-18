@@ -32,8 +32,12 @@
                     <tbody>
                         @forelse ($testimonials as $testimonial)
                             <tr class="border-b border-gray-100 dark:border-gray-800">
+                                @php
+                                    $displayQuote = $testimonial->getTranslation('quote', $defaultLocale, false)
+                                        ?: collect($testimonial->getTranslations('quote'))->filter()->first();
+                                @endphp
                                 <td class="px-5 py-4 text-sm font-medium text-gray-800 sm:px-6 dark:text-white/90">{{ $testimonial->name }}</td>
-                                <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ \Illuminate\Support\Str::limit($testimonial->quote, 60) }}</td>
+                                <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ \Illuminate\Support\Str::limit($displayQuote, 60) }}</td>
                                 <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ $testimonial->rating ?? '—' }}</td>
                                 <td class="px-5 py-4 sm:px-6">
                                     @if ($testimonial->is_active)
