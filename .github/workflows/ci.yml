@@ -6,29 +6,85 @@ on:
   pull_request:
 
 jobs:
-  build:
+  api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Check for Laravel app
         id: check
-        run: echo "has_composer=$([ -f composer.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        run: echo "exists=$([ -f apps/api/composer.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
       - name: Set up PHP
-        if: steps.check.outputs.has_composer == 'true'
+        if: steps.check.outputs.exists == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
 
-      - name: Install dependencies
-        if: steps.check.outputs.has_composer == 'true'
+      - name: Install PHP dependencies
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/api
         run: composer install --prefer-dist --no-interaction
 
+      - name: Generate app key
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/api
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Set up Node (for Vite asset build)
+        if: steps.check.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Build frontend assets
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/api
+        run: npm ci && npm run build
+
       - name: Run tests
-        if: steps.check.outputs.has_composer == 'true'
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/api
         run: php artisan test
 
       - name: No app yet
-        if: steps.check.outputs.has_composer == 'false'
-        run: echo "No Laravel app in the repo yet — CI placeholder passes. This step is replaced by real test runs once composer.json lands."
+        if: steps.check.outputs.exists == 'false'
+        run: echo "No apps/api yet — placeholder pass."
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for Next.js app
+        id: check
+        run: echo "exists=$([ -f apps/web/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        if: steps.check.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Lint
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/web
+        run: npm run lint
+
+      - name: Build
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/web
+        run: npm run build
+
+      - name: No app yet
+        if: steps.check.outputs.exists == 'false'
+        run: echo "No apps/web yet — placeholder pass."
