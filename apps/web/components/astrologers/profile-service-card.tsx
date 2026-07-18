@@ -1,26 +1,20 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
 import type { Service } from "@/lib/api";
 import { useCurrency } from "@/components/site/currency-provider";
 
 type ProfileServiceCardProps = {
-  astrologerSlug: string;
   service: Service;
-  bookLabel: string;
   durationLabel: string;
   fromLabel: string;
 };
 
 export function ProfileServiceCard({
-  astrologerSlug,
   service,
-  bookLabel,
   durationLabel,
   fromLabel,
 }: ProfileServiceCardProps) {
   const { formatPrice } = useCurrency();
-  const bookingHref = `/booking?astrologer=${encodeURIComponent(astrologerSlug)}&service=${encodeURIComponent(service.slug)}`;
 
   return (
     <article className="flex h-full flex-col rounded-3xl border border-stone-200 bg-white p-7 shadow-sm">
@@ -41,12 +35,6 @@ export function ProfileServiceCard({
           {service.duration_minutes} {durationLabel}
         </p>
       </div>
-      <Link
-        href={bookingHref}
-        className="mt-6 rounded-full bg-amber-800 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-amber-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-800"
-      >
-        {bookLabel}
-      </Link>
     </article>
   );
 }

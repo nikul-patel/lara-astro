@@ -158,9 +158,7 @@ export default async function AstrologerProfilePage({
               {astrologer.services.map((service) => (
                 <ProfileServiceCard
                   key={service.id}
-                  astrologerSlug={astrologer.slug}
                   service={service}
-                  bookLabel={t("bookService")}
                   durationLabel={t("minutes")}
                   fromLabel={t("from")}
                 />
