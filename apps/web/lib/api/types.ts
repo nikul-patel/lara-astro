@@ -60,10 +60,11 @@ export interface Astrologer {
   id: number;
   slug: string;
   name: string;
-  bio: string;
+  bio: string | null;
   photo_url: string | null;
-  specialties: string[];
-  languages: string[];
+  specialties: string[] | null;
+  languages: string[] | null;
+  experience_years?: number;
   services?: Service[];
 }
 

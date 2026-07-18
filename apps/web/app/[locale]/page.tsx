@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ServiceCard } from "@/components/home/service-card";
 import { getLocalizedAlternates } from "@/i18n/metadata";
+import { Link } from "@/i18n/navigation";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { getHomeData } from "@/lib/home-data";
 
@@ -201,7 +202,14 @@ export default async function HomePage({ params }: HomePageProps) {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-stone-950">{astrologer.name}</h3>
+                  <h3 className="text-xl font-bold text-stone-950">
+                    <Link
+                      href={`/astrologers/${astrologer.slug}`}
+                      className="hover:text-amber-800"
+                    >
+                      {astrologer.name}
+                    </Link>
+                  </h3>
                   <p className="mt-2 text-sm leading-6 text-stone-600">{astrologer.bio}</p>
                   <ul className="mt-4 flex flex-wrap gap-2">
                     {(astrologer.specialties ?? []).map((specialty) => (
@@ -216,6 +224,12 @@ export default async function HomePage({ params }: HomePageProps) {
                   <p className="mt-4 text-xs font-medium text-stone-500">
                     {(astrologer.languages ?? []).join(" · ")}
                   </p>
+                  <Link
+                    href={`/astrologers/${astrologer.slug}`}
+                    className="mt-5 inline-flex text-sm font-bold text-amber-800 hover:text-amber-950"
+                  >
+                    {t("astrologers.viewProfile")} →
+                  </Link>
                 </div>
               </article>
             ))}
