@@ -36,6 +36,21 @@ const diamondPositions = [
   [125, 200],
 ] as const;
 
+const eastIndianPositions = [
+  [85, 40],
+  [40, 85],
+  [200, 66],
+  [315, 40],
+  [360, 85],
+  [334, 200],
+  [360, 315],
+  [315, 360],
+  [200, 334],
+  [85, 360],
+  [40, 315],
+  [66, 200],
+] as const;
+
 function chartLines(style: ChartResult["chart_style"]) {
   if (style === "south_indian") {
     return (
@@ -84,7 +99,9 @@ export function ChartSvg({ result, title }: ChartSvgProps) {
   const positions =
     resolvedStyle === "north_indian"
       ? diamondPositions
-      : perimeterPositions;
+      : resolvedStyle === "east_indian"
+        ? eastIndianPositions
+        : perimeterPositions;
 
   return (
     <svg

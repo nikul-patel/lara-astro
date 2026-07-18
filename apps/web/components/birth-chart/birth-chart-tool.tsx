@@ -21,11 +21,11 @@ import {
 const PREFERENCE_KEY = "lara-astro-chart-preference";
 const PREFERENCE_EVENT = "lara-astro-chart-preference-change";
 const AUTH_TOKEN_KEY = "lara-astro-auth-token";
-const PENDING_CHART_KEY = "lara-astro-pending-chart";
 
 type ChartPreference = {
   system: AstrologySystem;
   chartStyle: ChartStyle;
+  overridden: boolean;
 };
 
 type CompletedChart = {
@@ -69,9 +69,14 @@ function parsePreference(value: string): ChartPreference {
       )
         ? (parsed.chartStyle as ChartStyle)
         : "north_indian",
+      overridden: parsed.overridden === true,
     };
   } catch {
-    return { system: "vedic", chartStyle: "north_indian" };
+    return {
+      system: "vedic",
+      chartStyle: "north_indian",
+      overridden: false,
+    };
   }
 }
 
@@ -80,6 +85,7 @@ export function BirthChartTool() {
   const defaultPreference = JSON.stringify({
     system: "vedic",
     chartStyle: "north_indian",
+    overridden: false,
   } satisfies ChartPreference);
   const preferenceValue = useSyncExternalStore(
     subscribeToPreference,
@@ -99,10 +105,23 @@ export function BirthChartTool() {
   const [notice, setNotice] = useState<string | null>(null);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
 
-  function updatePreference(next: Partial<ChartPreference>) {
-    const value = JSON.stringify({ ...preference, ...next });
+  function storePreference(next: ChartPreference) {
+    const value = JSON.stringify(next);
     window.localStorage.setItem(PREFERENCE_KEY, value);
     window.dispatchEvent(new Event(PREFERENCE_EVENT));
+  }
+
+  function updatePreference(next: Partial<ChartPreference>) {
+    storePreference({ ...preference, ...next, overridden: true });
+  }
+
+  function useAutomaticRecommendation() {
+    const recommendation = completedChart?.result.recommendation;
+    storePreference({
+      system: recommendation?.system ?? "vedic",
+      chartStyle: recommendation?.chart_style ?? "north_indian",
+      overridden: false,
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -113,14 +132,26 @@ export function BirthChartTool() {
 
     const input: ChartInput = {
       ...details,
-      system: preference.system,
+      system: preference.overridden ? preference.system : undefined,
       chart_style:
-        preference.system === "vedic" ? preference.chartStyle : undefined,
+        preference.overridden && preference.system === "vedic"
+          ? preference.chartStyle
+          : undefined,
     };
 
     try {
       const result = await api.charts.calculate(input);
       setCompletedChart({ input, result, isDemo: false });
+      if (!preference.overridden) {
+        storePreference({
+          system: result.recommendation.system,
+          chartStyle:
+            result.recommendation.chart_style ??
+            result.chart_style ??
+            "north_indian",
+          overridden: false,
+        });
+      }
     } catch (error) {
       if (error instanceof ApiError && error.status === 422) {
         setCompletedChart(null);
@@ -154,22 +185,7 @@ export function BirthChartTool() {
     }
   }
 
-  function attachToBooking() {
-    if (!completedChart || completedChart.isDemo) return;
-    window.sessionStorage.setItem(
-      PENDING_CHART_KEY,
-      JSON.stringify({
-        input: completedChart.input,
-        result: completedChart.result,
-      }),
-    );
-    setActionStatus(t("attached"));
-  }
-
-  const isOverride =
-    preference.system !== "vedic" ||
-    (preference.system === "vedic" &&
-      preference.chartStyle !== "north_indian");
+  const isOverride = preference.overridden;
   const planets = completedChart
     ? getPlanetaryPositions(completedChart.result.planetary_positions)
     : [];
@@ -309,9 +325,16 @@ export function BirthChartTool() {
           )}
 
           {isOverride && (
-            <p className="mt-4 rounded-xl border border-amber-300 bg-white px-4 py-3 text-xs font-semibold text-amber-900">
-              {t("overrideNotice")}
-            </p>
+            <div className="mt-4 rounded-xl border border-amber-300 bg-white px-4 py-3 text-xs font-semibold text-amber-900">
+              <p>{t("overrideNotice")}</p>
+              <button
+                type="button"
+                onClick={useAutomaticRecommendation}
+                className="mt-2 font-bold underline underline-offset-2"
+              >
+                {t("useRecommendation")}
+              </button>
+            </div>
           )}
         </div>
 
@@ -434,7 +457,7 @@ export function BirthChartTool() {
               <p className="mt-2 text-sm leading-6 text-stone-600">
                 {t("nextStepsDescription")}
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5">
                 <button
                   type="button"
                   onClick={saveChart}
@@ -442,14 +465,6 @@ export function BirthChartTool() {
                   className="rounded-full bg-amber-800 px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {t("save")}
-                </button>
-                <button
-                  type="button"
-                  onClick={attachToBooking}
-                  disabled={completedChart.isDemo}
-                  className="rounded-full border border-amber-800/20 px-5 py-3 text-sm font-bold text-amber-900 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {t("attach")}
                 </button>
               </div>
               {completedChart.isDemo && (
