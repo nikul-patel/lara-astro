@@ -204,7 +204,7 @@ export default async function HomePage({ params }: HomePageProps) {
                   <h3 className="text-xl font-bold text-stone-950">{astrologer.name}</h3>
                   <p className="mt-2 text-sm leading-6 text-stone-600">{astrologer.bio}</p>
                   <ul className="mt-4 flex flex-wrap gap-2">
-                    {astrologer.specialties.map((specialty) => (
+                    {(astrologer.specialties ?? []).map((specialty) => (
                       <li
                         key={specialty}
                         className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
@@ -214,7 +214,7 @@ export default async function HomePage({ params }: HomePageProps) {
                     ))}
                   </ul>
                   <p className="mt-4 text-xs font-medium text-stone-500">
-                    {astrologer.languages.join(" · ")}
+                    {(astrologer.languages ?? []).join(" · ")}
                   </p>
                 </div>
               </article>
