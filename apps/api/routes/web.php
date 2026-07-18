@@ -4,6 +4,11 @@ use App\Http\Controllers\AstrologerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AvailabilitySlotController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseLessonController;
+use App\Http\Controllers\CourseModuleController;
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\LiveSessionController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -101,6 +106,21 @@ Route::middleware('auth')->group(function () {
         // Bookings are created by clients via the public API; the admin panel
         // only lists/filters, views detail, and drives status transitions.
         Route::resource('bookings', BookingController::class)->only(['index', 'edit', 'update']);
+
+        // Courses + curriculum builder (modules/lessons/live sessions) — all
+        // managed from the course edit screen — and enrollments, which
+        // follow the same pending->confirmed UPI workflow as bookings.
+        Route::resource('courses', CourseController::class)->except('show');
+        Route::post('courses/{course}/modules', [CourseModuleController::class, 'store'])->name('courses.modules.store');
+        Route::put('modules/{module}', [CourseModuleController::class, 'update'])->name('modules.update');
+        Route::delete('modules/{module}', [CourseModuleController::class, 'destroy'])->name('modules.destroy');
+        Route::post('modules/{module}/lessons', [CourseLessonController::class, 'store'])->name('modules.lessons.store');
+        Route::put('lessons/{lesson}', [CourseLessonController::class, 'update'])->name('lessons.update');
+        Route::delete('lessons/{lesson}', [CourseLessonController::class, 'destroy'])->name('lessons.destroy');
+        Route::post('courses/{course}/live-sessions', [LiveSessionController::class, 'store'])->name('courses.live-sessions.store');
+        Route::put('live-sessions/{liveSession}', [LiveSessionController::class, 'update'])->name('live-sessions.update');
+        Route::delete('live-sessions/{liveSession}', [LiveSessionController::class, 'destroy'])->name('live-sessions.destroy');
+        Route::resource('enrollments', EnrollmentController::class)->only(['index', 'edit', 'update']);
     });
 });
 

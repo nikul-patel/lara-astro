@@ -32,6 +32,8 @@ class MenuHelper
                     ['name' => 'Services', 'path' => '/services', 'pro' => false],
                     ['name' => 'Availability', 'path' => '/availability', 'pro' => false],
                     ['name' => 'Bookings', 'path' => '/bookings', 'pro' => false],
+                    ['name' => 'Courses', 'path' => '/courses', 'pro' => false],
+                    ['name' => 'Enrollments', 'path' => '/enrollments', 'pro' => false],
                 ],
             ],
             [
