@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for Laravel app
+        id: check
+        run: echo "has_composer=$([ -f composer.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up PHP
+        if: steps.check.outputs.has_composer == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install dependencies
+        if: steps.check.outputs.has_composer == 'true'
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run tests
+        if: steps.check.outputs.has_composer == 'true'
+        run: php artisan test
+
+      - name: No app yet
+        if: steps.check.outputs.has_composer == 'false'
+        run: echo "No Laravel app in the repo yet — CI placeholder passes. This step is replaced by real test runs once composer.json lands."
