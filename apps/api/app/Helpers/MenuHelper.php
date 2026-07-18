@@ -31,6 +31,7 @@ class MenuHelper
                     ['name' => 'Astrologers', 'path' => '/astrologers', 'pro' => false],
                     ['name' => 'Services', 'path' => '/services', 'pro' => false],
                     ['name' => 'Availability', 'path' => '/availability', 'pro' => false],
+                    ['name' => 'Bookings', 'path' => '/bookings', 'pro' => false],
                 ],
             ],
             [

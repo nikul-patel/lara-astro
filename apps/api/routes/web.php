@@ -3,6 +3,7 @@
 use App\Http\Controllers\AstrologerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AvailabilitySlotController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +98,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('astrologers', AstrologerController::class)->except('show');
         Route::resource('services', ServiceController::class)->except('show');
         Route::resource('availability', AvailabilitySlotController::class)->except('show');
+        // Bookings are created by clients via the public API; the admin panel
+        // only lists/filters, views detail, and drives status transitions.
+        Route::resource('bookings', BookingController::class)->only(['index', 'edit', 'update']);
     });
 });
 
