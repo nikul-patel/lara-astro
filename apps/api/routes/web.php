@@ -9,7 +9,11 @@ use App\Http\Controllers\CourseLessonController;
 use App\Http\Controllers\CourseModuleController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LiveSessionController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TestimonialController;
 use Illuminate\Support\Facades\Route;
 
 // authentication pages
@@ -121,6 +125,18 @@ Route::middleware('auth')->group(function () {
         Route::put('live-sessions/{liveSession}', [LiveSessionController::class, 'update'])->name('live-sessions.update');
         Route::delete('live-sessions/{liveSession}', [LiveSessionController::class, 'destroy'])->name('live-sessions.destroy');
         Route::resource('enrollments', EnrollmentController::class)->only(['index', 'edit', 'update']);
+
+        // Settings is site-wide config (branding, UPI, SEO defaults) —
+        // Admin only, unlike the CMS below.
+        Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
+        Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+    });
+
+    // CMS — Admin or Editor (PRD §5.2: "Editor (blog/content only)").
+    Route::middleware('role:Admin|Editor')->group(function () {
+        Route::resource('pages', PageController::class)->except('show');
+        Route::resource('posts', PostController::class)->except('show');
+        Route::resource('testimonials', TestimonialController::class)->except('show');
     });
 });
 
