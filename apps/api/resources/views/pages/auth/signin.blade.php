@@ -26,7 +26,7 @@
                         </div>
                         <div>
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                                <button
+                                <button type="button"
                                     class="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +45,7 @@
                                     </svg>
                                     Sign in with Google
                                 </button>
-                                <button
+                                <button type="button"
                                     class="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                                     <svg width="21" class="fill-current" height="20" viewBox="0 0 21 20"
                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,14 +64,20 @@
                                     <span class="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">Or</span>
                                 </div>
                             </div>
-                            <form>
+                            @if ($errors->any())
+                                <div class="mb-5 rounded-lg border border-error-500 bg-error-50 px-4 py-3 text-sm text-error-600 dark:bg-error-500/10">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
                                 <div class="space-y-5">
                                     <!-- Email -->
                                     <div>
                                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                             Email<span class="text-error-500">*</span>
                                         </label>
-                                        <input type="email" id="email" name="email" placeholder="info@gmail.com"
+                                        <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="info@gmail.com"
                                             class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                                     </div>
                                     <!-- Password -->
@@ -81,6 +87,7 @@
                                         </label>
                                         <div x-data="{ showPassword: false }" class="relative">
                                             <input :type="showPassword ? 'text' : 'password'"
+                                                id="password" name="password" required
                                                 placeholder="Enter your password"
                                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-11 pl-4 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                                             <span @click="showPassword = !showPassword"
@@ -102,7 +109,7 @@
                                             <label for="checkboxLabelOne"
                                                 class="flex cursor-pointer items-center text-sm font-normal text-gray-700 select-none dark:text-gray-400">
                                                 <div class="relative">
-                                                    <input type="checkbox" id="checkboxLabelOne" class="sr-only" @change="checkboxToggle = !checkboxToggle" />
+                                                    <input type="checkbox" id="checkboxLabelOne" name="remember" class="sr-only" @change="checkboxToggle = !checkboxToggle" />
                                                     <div :class="checkboxToggle ? 'border-brand-500 bg-brand-500' :
                                                         'bg-transparent border-gray-300 dark:border-gray-700'"
                                                         class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]">
@@ -122,7 +129,7 @@
                                     </div>
                                     <!-- Button -->
                                     <div>
-                                        <button
+                                        <button type="submit"
                                             class="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition">
                                             Sign In
                                         </button>
