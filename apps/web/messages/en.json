@@ -1,8 +1,50 @@
 {
   "HomePage": {
-    "eyebrow": "Astrology platform",
-    "title": "Guidance, consultations and learning in your language",
-    "description": "The multilingual web experience is ready for services, birth charts, bookings and courses."
+    "eyebrow": "Vedic wisdom for modern life",
+    "title": "Clarity for the choices that shape your life",
+    "description": "Personal astrology consultations, accurate birth-chart insights and guided learning—available in English, Hindi and Gujarati.",
+    "primaryCta": "Explore consultations",
+    "secondaryCta": "Meet our astrologers",
+    "heroCard": "Traditional insight. Thoughtful guidance. Your choices remain yours.",
+    "trustLabel": "Why clients trust us",
+    "trust": {
+      "languages": { "value": "3", "label": "Languages" },
+      "systems": { "value": "Vedic", "label": "Rooted in tradition" },
+      "pricing": { "value": "₹ / $", "label": "Transparent pricing" },
+      "privacy": { "value": "100%", "label": "Private and respectful" }
+    },
+    "value": {
+      "eyebrow": "A better consultation",
+      "title": "Insight that helps you move forward",
+      "items": {
+        "personal": { "title": "Personal to your chart", "description": "Every consultation begins with your details, questions and current life context." },
+        "practical": { "title": "Clear and practical", "description": "Complex chart patterns are translated into grounded guidance you can actually use." },
+        "accessible": { "title": "Built around you", "description": "Choose your language, currency and consultation focus without unnecessary friction." }
+      }
+    },
+    "services": {
+      "eyebrow": "Featured consultations",
+      "title": "Start with the guidance you need",
+      "description": "Choose a focused consultation with clear duration and pricing. Your astrologer will tailor the conversation to your questions.",
+      "from": "From",
+      "minutes": "min"
+    },
+    "astrologers": {
+      "eyebrow": "Your guides",
+      "title": "Experienced, thoughtful astrologers",
+      "description": "Meet practitioners who combine classical knowledge with calm, respectful communication."
+    },
+    "testimonials": { "eyebrow": "Client experiences", "title": "Guidance that feels clear and human" },
+    "insights": {
+      "eyebrow": "Astrology, explained",
+      "title": "Latest insights",
+      "description": "Practical articles that help you understand your chart and prepare for a useful consultation."
+    },
+    "closing": {
+      "title": "Ready to begin with a clearer question?",
+      "description": "Explore a consultation that matches what you want to understand right now.",
+      "cta": "View consultations"
+    }
   },
   "Metadata": {
     "title": "Astrology Platform",
