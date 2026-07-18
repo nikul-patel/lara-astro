@@ -26,6 +26,11 @@ jobs:
         working-directory: apps/api
         run: composer install --prefer-dist --no-interaction
 
+      - name: Generate app key
+        if: steps.check.outputs.exists == 'true'
+        working-directory: apps/api
+        run: cp .env.example .env && php artisan key:generate
+
       - name: Set up Node (for Vite asset build)
         if: steps.check.outputs.exists == 'true'
         uses: actions/setup-node@v4
