@@ -13,6 +13,12 @@
 /.zed
 /auth.json
 /database/database.sqlite
+*.sqlite
+*.sqlite3
+# Stray local sqlite file created when DB_DATABASE names a mysql db but
+# DB_CONNECTION is switched to sqlite for local testing (no extension, so
+# the *.sqlite patterns above don't catch it).
+/tailadmin_laravel
 /node_modules
 /public/build
 /public/hot
