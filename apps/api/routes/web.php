@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AstrologerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AvailabilitySlotController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 // authentication pages
@@ -88,6 +91,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/videos', function () {
         return view('pages.ui-elements.videos', ['title' => 'Videos']);
     })->name('videos');
+
+    // Astrologer/Service/Availability management — Admin only (PRD §5.2).
+    Route::middleware('role:Admin')->group(function () {
+        Route::resource('astrologers', AstrologerController::class)->except('show');
+        Route::resource('services', ServiceController::class)->except('show');
+        Route::resource('availability', AvailabilitySlotController::class)->except('show');
+    });
 });
 
 // error pages (public — not behind auth)

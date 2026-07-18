@@ -1,0 +1,77 @@
+@extends('layouts.app')
+
+@section('content')
+    <x-common.page-breadcrumb pageTitle="Services" />
+
+    <div class="space-y-6">
+        @if (session('status'))
+            <div class="rounded-lg border border-success-500 bg-success-50 px-4 py-3 text-sm text-success-700 dark:bg-success-500/10 dark:text-success-400">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <x-common.component-card title="Services">
+            <div class="mb-4 flex justify-end">
+                <a href="{{ route('services.create') }}"
+                    class="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition">
+                    Add Service
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[800px]">
+                    <thead>
+                        <tr class="border-b border-gray-100 dark:border-gray-800">
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Service</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Astrologer</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Duration</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Price</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Status</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 sm:px-6 dark:text-gray-400">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($services as $service)
+                            <tr class="border-b border-gray-100 dark:border-gray-800">
+                                <td class="px-5 py-4 sm:px-6">
+                                    <span class="font-medium text-gray-800 dark:text-white/90">{{ $service->name }}</span>
+                                    <span class="block text-xs text-gray-400">{{ $service->slug }}</span>
+                                </td>
+                                <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ $service->astrologer?->name ?? '—' }}</td>
+                                <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">{{ $service->duration_minutes }} min</td>
+                                <td class="px-5 py-4 text-sm text-gray-600 sm:px-6 dark:text-gray-300">
+                                    ₹{{ number_format((float) $service->price_inr, 2) }} / ${{ number_format((float) $service->price_usd, 2) }}
+                                </td>
+                                <td class="px-5 py-4 sm:px-6">
+                                    @if ($service->is_active)
+                                        <span class="rounded-full bg-success-50 px-2.5 py-0.5 text-xs font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400">Active</span>
+                                    @else
+                                        <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/5 dark:text-gray-400">Inactive</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-4 text-sm sm:px-6">
+                                    <div class="flex items-center gap-3">
+                                        <a href="{{ route('services.edit', $service) }}" class="text-brand-500 hover:text-brand-600">Edit</a>
+                                        <form method="POST" action="{{ route('services.destroy', $service) }}" onsubmit="return confirm('Delete this service?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-error-500 hover:text-error-600">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-5 py-6 text-center text-sm text-gray-500 sm:px-6">No services yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                {{ $services->links() }}
+            </div>
+        </x-common.component-card>
+    </div>
+@endsection
