@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/i18n/metadata";
 import { routing } from "@/i18n/routing";
 import { getAstrologers } from "@/lib/astrologer-data";
+import { apiForLocale, type Astrologer } from "@/lib/api";
 import { getCourses } from "@/lib/course-data";
 import { cmsPageSlugs, getPosts } from "@/lib/content-data";
 import { getSiteSettings } from "@/lib/site-settings";
@@ -25,8 +26,27 @@ async function allPostSlugs(): Promise<Array<{ slug: string; publishedAt?: strin
   return result;
 }
 
+async function allAstrologers(): Promise<Astrologer[]> {
+  try {
+    const result: Astrologer[] = [];
+    let page = 1;
+    let lastPage = 1;
+
+    do {
+      const response = await apiForLocale("en").astrologers.list({ page });
+      result.push(...response.data);
+      lastPage = response.meta.last_page;
+      page += 1;
+    } while (page <= lastPage);
+
+    return result.length > 0 ? result : getAstrologers("en");
+  } catch {
+    return getAstrologers("en");
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [astrologers, courses, posts, settings] = await Promise.all([getAstrologers("en"), getCourses("en"), allPostSlugs(), getSiteSettings()]);
+  const [astrologers, courses, posts, settings] = await Promise.all([allAstrologers(), getCourses("en"), allPostSlugs(), getSiteSettings()]);
   const pageSlugs = new Set([...cmsPageSlugs, ...(settings.legal_links?.map((link) => link.slug) ?? [])]);
   const staticPaths = ["", "astrologers", "birth-chart", "courses", "blog", ...pageSlugs];
   return [

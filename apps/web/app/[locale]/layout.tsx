@@ -58,7 +58,7 @@ export default async function LocaleLayout({
   const settings = await getSiteSettings();
   const businessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": settings.seo?.schema_business_type || "LocalBusiness",
     name: settings.seo?.schema_business_name || settings.site_name,
     url: new URL(`/${locale}`, getSiteUrl()).toString(),
     logo: settings.logo_url || undefined,
