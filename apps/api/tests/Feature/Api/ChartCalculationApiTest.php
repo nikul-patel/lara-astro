@@ -74,6 +74,23 @@ test('a deployment can force a specific chart style regardless of region', funct
         ->assertJsonPath('recommendation.chart_style', 'south_indian');
 });
 
+test('a forced chart style overrides an explicit request chart_style, not just the recommendation', function () {
+    Setting::current()->update(['astrology_forced_chart_style' => 'south_indian']);
+
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Chennai, India',
+        'chart_style' => 'north_indian',
+    ]);
+
+    $response->assertJsonPath('chart_style', 'south_indian');
+});
+
+test('an invalid time returns a validation error instead of a server error', function () {
+    $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => 'not-a-time', 'place' => 'Delhi, India',
+    ])->assertJsonValidationErrors('time');
+});
+
 test('vedic and western produce different (ayanamsa-shifted) planetary longitudes for the same birth details', function () {
     $payload = ['name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India'];
 

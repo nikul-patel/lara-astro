@@ -21,7 +21,11 @@ class ChartCalculationController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'dob' => ['required', 'date'],
-            'time' => ['required', 'string', 'max:20'],
+            // Matches the <input type="time">'s native "HH:MM" value
+            // (apps/web's birth-chart-tool.tsx) — validated strictly here
+            // since BirthChartCalculator feeds it straight into
+            // CarbonImmutable::parse(), which throws on anything else.
+            'time' => ['required', 'date_format:H:i'],
             'place' => ['required', 'string', 'max:255'],
             'system' => ['nullable', 'string', 'in:vedic,western'],
             'chart_style' => ['nullable', 'string', 'in:north_indian,south_indian,east_indian'],

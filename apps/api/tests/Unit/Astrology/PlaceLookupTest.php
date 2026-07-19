@@ -26,3 +26,21 @@ test('falls back to Delhi for an unrecognized place, flagged as unmatched', func
         'matched' => false,
     ]);
 });
+
+test('resolves cities added for the frontend\'s place suggestions', function () {
+    expect(PlaceLookup::resolve('Vadodara, Gujarat, India'))->toMatchArray(['state' => 'Gujarat', 'matched' => true])
+        ->and(PlaceLookup::resolve('Rajkot, Gujarat, India'))->toMatchArray(['state' => 'Gujarat', 'matched' => true]);
+});
+
+test('does not match a same-named place in a different country', function () {
+    // Neither has an entry in the gazetteer, so both should fall through
+    // to the documented "unmatched" default rather than being mistaken for
+    // the unrelated same-named Indian/UK cities.
+    expect(PlaceLookup::resolve('London, Ontario, Canada')['matched'])->toBeFalse()
+        ->and(PlaceLookup::resolve('Delhi, Louisiana, USA')['matched'])->toBeFalse();
+});
+
+test('still matches the real London and Delhi without a conflicting qualifier', function () {
+    expect(PlaceLookup::resolve('London, United Kingdom'))->toMatchArray(['country' => 'United Kingdom', 'matched' => true])
+        ->and(PlaceLookup::resolve('New Delhi, India'))->toMatchArray(['state' => 'Delhi', 'matched' => true]);
+});

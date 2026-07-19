@@ -45,8 +45,13 @@ class BirthChartCalculator
             ]);
         }
 
+        // A deployment-forced style (PRD §8 point 4) overrides even an
+        // explicit request override — that's the point of forcing it.
+        // $recommendation['chart_style'] already reflects the forced style
+        // when set (see RegionRecommendation), so it takes precedence here
+        // rather than the request's own chart_style.
         $chartStyle = $system === 'vedic'
-            ? ($input['chart_style'] ?? $recommendation['chart_style'])
+            ? ($setting->astrology_forced_chart_style ?? $input['chart_style'] ?? $recommendation['chart_style'])
             : null;
 
         $localDateTime = CarbonImmutable::parse("{$input['dob']} {$input['time']}", $location['timezone']);

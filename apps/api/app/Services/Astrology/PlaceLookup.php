@@ -11,19 +11,22 @@ namespace App\Services\Astrology;
  * lists "Geocoding/timezone lookup" as a third-party integration to wire
  * up per-deployment) and no IANA timezone-boundary dataset bundled, so
  * this ships a small offline gazetteer instead: the state/city examples
- * named in PRD §8's region table, plus enough other major Indian and
- * international cities to make the demo useful. Unmatched places fall back
- * to Delhi/Asia-Kolkata (documented via `matched: false` on the result) —
- * swapping in a real geocoding provider only means replacing this class.
+ * named in PRD §8's region table, every place apps/web's birth chart tool
+ * suggests, and enough other major Indian and international cities to
+ * make the demo useful. Unmatched places fall back to Delhi/Asia-Kolkata
+ * (documented via `matched: false` on the result) — swapping in a real
+ * geocoding provider only means replacing this class.
  */
 class PlaceLookup
 {
     /**
-     * @var list<array{names: list<string>, latitude: float, longitude: float, timezone: string, state: ?string, country: string}>
+     * @var list<array{names: list<string>, latitude: float, longitude: float, timezone: string, state: ?string, country: string, conflicts?: list<string>}>
      */
     private const GAZETTEER = [
         // North Indian states (PRD §8: recommend Vedic, North Indian style)
-        ['names' => ['delhi', 'new delhi'], 'latitude' => 28.6139, 'longitude' => 77.2090, 'timezone' => 'Asia/Kolkata', 'state' => 'Delhi', 'country' => 'India'],
+        // "Delhi" is also a real place in Louisiana/New York/Ohio, USA —
+        // only match this entry if the input doesn't name one of those.
+        ['names' => ['delhi', 'new delhi'], 'latitude' => 28.6139, 'longitude' => 77.2090, 'timezone' => 'Asia/Kolkata', 'state' => 'Delhi', 'country' => 'India', 'conflicts' => ['louisiana', 'new york', 'ohio', 'usa', 'united states']],
         ['names' => ['lucknow'], 'latitude' => 26.8467, 'longitude' => 80.9462, 'timezone' => 'Asia/Kolkata', 'state' => 'Uttar Pradesh', 'country' => 'India'],
         ['names' => ['kanpur'], 'latitude' => 26.4499, 'longitude' => 80.3319, 'timezone' => 'Asia/Kolkata', 'state' => 'Uttar Pradesh', 'country' => 'India'],
         ['names' => ['varanasi'], 'latitude' => 25.3176, 'longitude' => 82.9739, 'timezone' => 'Asia/Kolkata', 'state' => 'Uttar Pradesh', 'country' => 'India'],
@@ -61,6 +64,8 @@ class PlaceLookup
         ['names' => ['pune'], 'latitude' => 18.5204, 'longitude' => 73.8567, 'timezone' => 'Asia/Kolkata', 'state' => 'Maharashtra', 'country' => 'India'],
         ['names' => ['ahmedabad'], 'latitude' => 23.0225, 'longitude' => 72.5714, 'timezone' => 'Asia/Kolkata', 'state' => 'Gujarat', 'country' => 'India'],
         ['names' => ['surat'], 'latitude' => 21.1702, 'longitude' => 72.8311, 'timezone' => 'Asia/Kolkata', 'state' => 'Gujarat', 'country' => 'India'],
+        ['names' => ['vadodara', 'baroda'], 'latitude' => 22.3072, 'longitude' => 73.1812, 'timezone' => 'Asia/Kolkata', 'state' => 'Gujarat', 'country' => 'India'],
+        ['names' => ['rajkot'], 'latitude' => 22.3039, 'longitude' => 70.8022, 'timezone' => 'Asia/Kolkata', 'state' => 'Gujarat', 'country' => 'India'],
         ['names' => ['patna'], 'latitude' => 25.5941, 'longitude' => 85.1376, 'timezone' => 'Asia/Kolkata', 'state' => 'Bihar', 'country' => 'India'],
         ['names' => ['chandigarh'], 'latitude' => 30.7333, 'longitude' => 76.7794, 'timezone' => 'Asia/Kolkata', 'state' => 'Chandigarh', 'country' => 'India'],
 
@@ -68,7 +73,8 @@ class PlaceLookup
         ['names' => ['new york', 'nyc'], 'latitude' => 40.7128, 'longitude' => -74.0060, 'timezone' => 'America/New_York', 'state' => null, 'country' => 'United States'],
         ['names' => ['los angeles'], 'latitude' => 34.0522, 'longitude' => -118.2437, 'timezone' => 'America/Los_Angeles', 'state' => null, 'country' => 'United States'],
         ['names' => ['toronto'], 'latitude' => 43.6532, 'longitude' => -79.3832, 'timezone' => 'America/Toronto', 'state' => null, 'country' => 'Canada'],
-        ['names' => ['london'], 'latitude' => 51.5074, 'longitude' => -0.1278, 'timezone' => 'Europe/London', 'state' => null, 'country' => 'United Kingdom'],
+        // "London" is also a real place in Ontario, Canada — same conflict guard as Delhi above.
+        ['names' => ['london'], 'latitude' => 51.5074, 'longitude' => -0.1278, 'timezone' => 'Europe/London', 'state' => null, 'country' => 'United Kingdom', 'conflicts' => ['ontario', 'canada']],
         ['names' => ['dubai'], 'latitude' => 25.2048, 'longitude' => 55.2708, 'timezone' => 'Asia/Dubai', 'state' => null, 'country' => 'United Arab Emirates'],
         ['names' => ['singapore'], 'latitude' => 1.3521, 'longitude' => 103.8198, 'timezone' => 'Asia/Singapore', 'state' => null, 'country' => 'Singapore'],
         ['names' => ['sydney'], 'latitude' => -33.8688, 'longitude' => 151.2093, 'timezone' => 'Australia/Sydney', 'state' => null, 'country' => 'Australia'],
@@ -82,6 +88,10 @@ class PlaceLookup
         $normalized = self::normalize($place);
 
         foreach (self::GAZETTEER as $entry) {
+            if (self::hasConflictingQualifier($normalized, $entry['conflicts'] ?? [])) {
+                continue;
+            }
+
             foreach ($entry['names'] as $name) {
                 if ($normalized === $name || str_contains($normalized, $name)) {
                     return [
@@ -104,6 +114,20 @@ class PlaceLookup
             'country' => 'India',
             'matched' => false,
         ];
+    }
+
+    /**
+     * @param  list<string>  $conflicts
+     */
+    private static function hasConflictingQualifier(string $normalizedPlace, array $conflicts): bool
+    {
+        foreach ($conflicts as $conflict) {
+            if (str_contains($normalizedPlace, $conflict)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function normalize(string $place): string

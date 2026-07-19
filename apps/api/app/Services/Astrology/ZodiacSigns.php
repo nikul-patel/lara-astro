@@ -25,9 +25,14 @@ class ZodiacSigns
         $wholeDegrees = (int) floor($degreeInSign);
         $minutes = (int) round(($degreeInSign - $wholeDegrees) * 60);
 
+        // Rounding the last half-minute of a sign up to 60' would either
+        // print an out-of-range "30° 00′" (30 is the next sign's 0°, but
+        // `sign` — computed separately from the unrounded longitude — still
+        // names this one) or, at the very end of Pisces, roll past 29° into
+        // a nonexistent 30th degree. Clamp instead of carrying the rollover
+        // into the degree.
         if ($minutes === 60) {
-            $minutes = 0;
-            $wholeDegrees++;
+            $minutes = 59;
         }
 
         return sprintf('%02d° %02d′', $wholeDegrees, $minutes);
