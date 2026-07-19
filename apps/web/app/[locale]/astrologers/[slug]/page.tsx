@@ -161,6 +161,8 @@ export default async function AstrologerProfilePage({
                   service={service}
                   durationLabel={t("minutes")}
                   fromLabel={t("from")}
+                  astrologerSlug={astrologer.slug}
+                  bookLabel={t("book")}
                 />
               ))}
             </div>
