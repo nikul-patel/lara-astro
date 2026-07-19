@@ -189,6 +189,7 @@
     "courses": "Courses",
     "blog": "Blog",
     "contact": "Contact",
+    "account": "My account",
     "language": "Language",
     "currency": "Currency"
   },
@@ -249,6 +250,32 @@
     "demoNext": "Choose a live course record to create a real enrollment.",
     "nextReview": "The practice manually verifies payment against your reference.",
     "nextAccess": "Confirmed learners receive recorded access or the live class schedule."
+  },
+  "Account": {
+    "metaTitle": "My Account",
+    "metaDescription": "Access your astrology courses, consultations and saved birth charts.",
+    "eyebrow": "Client account",
+    "title": "Your learning and consultations in one place",
+    "description": "Sign in to access confirmed lessons and live classes, review bookings and see saved birth charts.",
+    "loading": "Loading your account…",
+    "loadError": "Your account data could not be loaded. Your session is still active.", "retry": "Try again",
+    "login": "Sign in", "register": "Create account", "loginTitle": "Welcome back", "registerTitle": "Create your client account",
+    "optionalAccount": "An account is optional. You can still book consultations and enroll as a guest.",
+    "name": "Full name", "phone": "Phone", "email": "Email", "password": "Password", "confirmPassword": "Confirm password",
+    "submitting": "Please wait…", "authError": "We could not access your account. Please try again.",
+    "signedInAs": "Signed in as", "accountNavigation": "Account navigation", "logout": "Sign out",
+    "sections": { "courses": "My learning", "bookings": "Consultations", "charts": "Saved charts" },
+    "summary": { "activeCourses": "Confirmed courses", "bookings": "Consultations", "charts": "Saved charts" },
+    "courseFallback": "Course", "reference": "Reference: {reference}", "accessPending": "Course access unlocks after the practice confirms your payment.",
+    "progress": "Lesson progress", "lessonsComplete": "{complete} of {total} complete", "deviceProgress": "Progress is saved on this device until server-side syncing is available.",
+    "watchLesson": "Watch lesson", "liveClasses": "Live classes", "joinClass": "Join class",
+    "birthDate": "Birth date", "birthPlace": "Birth place", "system": "System",
+    "statuses": { "pending_payment": "Pending payment", "confirmed": "Confirmed", "completed": "Completed", "cancelled": "Cancelled", "no_show": "No show" },
+    "empty": {
+      "coursesTitle": "No course enrollments yet", "coursesBody": "Explore recorded and live courses, then return here after enrolling.", "browseCourses": "Browse courses",
+      "bookingsTitle": "No consultations yet", "bookingsBody": "Choose an astrologer, service and available time when you are ready.", "bookConsultation": "Book a consultation",
+      "chartsTitle": "No saved birth charts yet", "chartsBody": "Calculate a chart and save it to this account for future consultations.", "createChart": "Create a birth chart"
+    }
   },
   "Footer": {
     "description": "Personal astrology guidance, practical learning and trusted consultations.",
