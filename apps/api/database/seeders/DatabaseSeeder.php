@@ -15,10 +15,19 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoleSeeder::class);
 
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-        ]);
+        $admin = User::query()->firstOrNew(['email' => 'admin@example.com']);
+
+        if (! $admin->exists) {
+            $admin->fill(User::factory()->raw([
+                'name' => 'Admin',
+                'email' => 'admin@example.com',
+            ]));
+            $admin->save();
+        }
+
         $admin->assignRole('Admin');
+
+        // Fictional "Jyotish Path" demo dataset (issue #19 / PRD §1).
+        $this->call(DemoContentSeeder::class);
     }
 }
