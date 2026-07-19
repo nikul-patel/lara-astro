@@ -53,4 +53,17 @@ class Setting extends Model
             'currencies' => ['INR', 'USD'],
         ]);
     }
+
+    /**
+     * Recipient for admin alert emails (new booking/enrollment). Prefers the
+     * tenant's configured contact email, falling back to MAIL_ADMIN_ADDRESS
+     * and finally the global "from" address so an alert is never dropped for
+     * lack of a destination.
+     */
+    public function adminEmail(): string
+    {
+        return $this->contact['email']
+            ?? config('mail.admin_address')
+            ?? config('mail.from.address');
+    }
 }

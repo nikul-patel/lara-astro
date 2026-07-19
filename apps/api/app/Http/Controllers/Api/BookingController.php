@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
+use App\Mail\BookingReceivedMail;
+use App\Mail\NewBookingAdminMail;
 use App\Models\Astrologer;
 use App\Models\AvailabilitySlot;
 use App\Models\BirthChart;
@@ -15,6 +17,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -93,6 +96,11 @@ class BookingController extends Controller
                 'birth_chart_id' => $validated['birth_chart_id'] ?? null,
             ]);
         });
+
+        // Queued (Mailables implement ShouldQueue): client confirmation with
+        // UPI details + admin alert on the new pending booking (issue #18).
+        Mail::to($client->email)->send(new BookingReceivedMail($booking));
+        Mail::to(Setting::current()->adminEmail())->send(new NewBookingAdminMail($booking));
 
         return (new BookingResource($booking->load('client')))
             ->response()

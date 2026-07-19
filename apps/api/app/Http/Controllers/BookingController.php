@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingConfirmedMail;
 use App\Models\Booking;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class BookingController extends Controller
@@ -51,7 +53,18 @@ class BookingController extends Controller
             }
         }
 
+        // Capture the transition before writing so the payment-confirmed email
+        // fires only once, when a booking first becomes confirmed — re-saving
+        // an already-confirmed booking must not resend it.
+        $justConfirmed = $validated['status'] === 'confirmed' && $booking->status !== 'confirmed';
+
         $booking->update($validated);
+
+        if ($justConfirmed) {
+            // Queued (BookingConfirmedMail implements ShouldQueue): payment
+            // verified, sends the client their confirmation + meeting details.
+            Mail::to($booking->client->email)->send(new BookingConfirmedMail($booking));
+        }
 
         return redirect()->route('bookings.index')->with('status', 'Booking updated.');
     }

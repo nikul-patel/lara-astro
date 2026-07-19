@@ -115,4 +115,17 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Alert Address
+    |--------------------------------------------------------------------------
+    |
+    | Fallback recipient for admin alert emails (new booking / new enrollment)
+    | when the tenant's Settings contact email is not set. See
+    | App\Models\Setting::adminEmail().
+    |
+    */
+
+    'admin_address' => env('MAIL_ADMIN_ADDRESS'),
+
 ];

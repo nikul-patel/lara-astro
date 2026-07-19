@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\EnrollmentResource;
+use App\Mail\EnrollmentReceivedMail;
+use App\Mail\NewEnrollmentAdminMail;
 use App\Models\Client;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
@@ -50,6 +53,11 @@ class EnrollmentController extends Controller
             'client_id' => $client->id,
             'status' => 'pending_payment',
         ]);
+
+        // Queued (Mailables implement ShouldQueue): client confirmation with
+        // UPI details + admin alert on the new pending enrollment (issue #18).
+        Mail::to($client->email)->send(new EnrollmentReceivedMail($enrollment));
+        Mail::to(Setting::current()->adminEmail())->send(new NewEnrollmentAdminMail($enrollment));
 
         return (new EnrollmentResource($enrollment->load('client')))
             ->response()

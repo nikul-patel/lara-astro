@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EnrollmentConfirmedMail;
 use App\Models\Enrollment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class EnrollmentController extends Controller
@@ -50,7 +52,17 @@ class EnrollmentController extends Controller
             }
         }
 
+        // Capture the transition before writing so the confirmation email
+        // fires only once, when an enrollment first becomes confirmed.
+        $justConfirmed = $validated['status'] === 'confirmed' && $enrollment->status !== 'confirmed';
+
         $enrollment->update($validated);
+
+        if ($justConfirmed) {
+            // Queued (EnrollmentConfirmedMail implements ShouldQueue): payment
+            // verified, unlocks course content and notifies the client.
+            Mail::to($enrollment->client->email)->send(new EnrollmentConfirmedMail($enrollment));
+        }
 
         return redirect()->route('enrollments.index')->with('status', 'Enrollment updated.');
     }

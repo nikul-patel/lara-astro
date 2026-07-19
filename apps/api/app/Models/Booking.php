@@ -25,6 +25,7 @@ class Booking extends Model
         'birth_details',
         'upi_reference',
         'admin_notes',
+        'reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -32,6 +33,7 @@ class Booking extends Model
         return [
             'slot' => 'datetime',
             'birth_details' => 'array',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
