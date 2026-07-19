@@ -16,7 +16,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function ContactForm({ toEmail, whatsappUrl }: ContactFormProps) {
   const t = useTranslations("Contact");
   const baseId = useId();
-  const [values, setValues] = useState({ name: "", email: "", message: "" });
+  const [values, setValues] = useState({ name: "", email: "", topic: "", reference: "", message: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -38,8 +38,15 @@ export function ContactForm({ toEmail, whatsappUrl }: ContactFormProps) {
     // No contact API endpoint exists yet, so the message is handed off to the
     // visitor's email client as a graceful fallback (see note below the form).
     if (toEmail) {
-      const subject = encodeURIComponent(t("mailtoSubject", { name: values.name.trim() }));
-      const body = encodeURIComponent(`${values.message.trim()}\n\n— ${values.name.trim()} (${values.email.trim()})`);
+      const name = values.name.trim();
+      const topic = values.topic.trim();
+      const reference = values.reference.trim();
+      const subject = encodeURIComponent(
+        topic ? t("mailtoSubjectTopic", { name, topic }) : t("mailtoSubject", { name }),
+      );
+      const bodyLines = [values.message.trim(), "", `— ${name} (${values.email.trim()})`];
+      if (reference) bodyLines.push(`${t("reference")}: ${reference}`);
+      const body = encodeURIComponent(bodyLines.join("\n"));
       window.location.href = `mailto:${toEmail}?subject=${subject}&body=${body}`;
     }
     setSubmitted(true);
@@ -86,6 +93,36 @@ export function ContactForm({ toEmail, whatsappUrl }: ContactFormProps) {
             className={fieldClass(Boolean(errors.email))}
           />
           {errors.email && <p id={`${baseId}-email-error`} className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
+        </div>
+
+        <div>
+          <label htmlFor={`${baseId}-topic`} className="block text-sm font-bold text-stone-800">{t("topic")}</label>
+          <input
+            id={`${baseId}-topic`}
+            name="topic"
+            type="text"
+            value={values.topic}
+            onChange={(e) => setValues({ ...values, topic: e.target.value })}
+            placeholder={t("topicPlaceholder")}
+            className={fieldClass(false)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor={`${baseId}-reference`} className="block text-sm font-bold text-stone-800">{t("reference")}</label>
+          <input
+            id={`${baseId}-reference`}
+            name="reference"
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            value={values.reference}
+            onChange={(e) => setValues({ ...values, reference: e.target.value })}
+            aria-describedby={`${baseId}-reference-help`}
+            placeholder={t("referencePlaceholder")}
+            className={fieldClass(false)}
+          />
+          <p id={`${baseId}-reference-help`} className="mt-1.5 text-xs leading-5 text-stone-500">{t("referenceHelp")}</p>
         </div>
 
         <div>

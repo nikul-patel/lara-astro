@@ -18,8 +18,21 @@ async function getLocale(params: ContactPageProps["params"]): Promise<AppLocale>
   return locale;
 }
 
+// Only allow http/https URLs so a misconfigured setting can't inject javascript:
+// or other unexpected schemes into the WhatsApp link.
+function safeHttpUrl(value?: string): string | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function toWhatsappUrl(whatsappUrl?: string, phone?: string): string | undefined {
-  if (whatsappUrl) return whatsappUrl;
+  const safe = safeHttpUrl(whatsappUrl);
+  if (safe) return safe;
   const digits = phone?.replace(/[^\d]/g, "");
   return digits && digits.length >= 8 ? `https://wa.me/${digits}` : undefined;
 }
@@ -52,8 +65,22 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null;
   const mapLinkUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${mapQuery}` : null;
 
+  const contactJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: page.title,
+    mainEntity: {
+      "@type": settings.seo?.schema_business_type || "LocalBusiness",
+      name: settings.seo?.schema_business_name || settings.site_name,
+      email: contact.email,
+      telephone: contact.phone,
+      address: contact.address,
+    },
+  };
+
   return (
     <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(contactJsonLd).replace(/</g, "\\u003c") }} />
       <header className="border-b border-amber-900/10 bg-amber-50">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:py-24">
           <h1 className="text-4xl font-bold tracking-tight text-amber-950 sm:text-5xl">{page.title}</h1>
