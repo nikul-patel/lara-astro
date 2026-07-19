@@ -21,6 +21,8 @@ export function AstrologerPhoto({
           alt={alt}
           width={480}
           height={600}
+          loading="lazy"
+          decoding="async"
           className={className}
         />
       </>

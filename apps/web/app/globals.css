@@ -34,3 +34,28 @@ select,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Visible keyboard focus for any interactive element that does not already
+   define its own focus-visible treatment. Keeps keyboard navigation usable
+   without adding an outline for mouse/touch users. */
+:focus-visible {
+  outline: 2px solid #b45309;
+  outline-offset: 2px;
+}
+
+/* Programmatic focus target for the skip link should not show an outline. */
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -41,7 +41,7 @@ export default async function BirthChartPage({ params }: BirthChartPageProps) {
   const t = await getTranslations("BirthChart");
 
   return (
-    <main className="flex-1 bg-[#fffcf7] text-stone-900">
+    <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
       <section className="border-b border-amber-900/10 bg-amber-50">
         <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-amber-700">

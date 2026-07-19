@@ -25,7 +25,7 @@ export default async function AccountPage({ params }: AccountPageProps) {
   setRequestLocale(locale);
   const t = await getTranslations("Account");
   return (
-    <main className="flex-1 bg-[#fffcf7] text-stone-900">
+    <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
       <section className="border-b border-amber-900/10 bg-amber-50"><div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8"><p className="text-sm font-bold uppercase tracking-[0.22em] text-amber-700">{t("eyebrow")}</p><h1 className="mt-4 text-4xl font-bold tracking-tight text-amber-950 sm:text-5xl">{t("title")}</h1><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-stone-600">{t("description")}</p></div></section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"><AccountDashboard /></section>
     </main>
