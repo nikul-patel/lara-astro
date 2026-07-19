@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/content/contact-form";
 import { ContentBody } from "@/components/content/content-body";
-import { FaqBody, getFaqEntries } from "@/components/content/faq-body";
+import { FaqBody, getFaqBlocks, getFaqEntries } from "@/components/content/faq-body";
 import { getLocalizedAlternates } from "@/i18n/metadata";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { cmsPageSlugs, getCmsPage } from "@/lib/content-data";
@@ -30,7 +30,7 @@ export default async function CmsPage({ params }: CmsPageProps) {
   if (slug === "contact") {
     const [settings, t] = await Promise.all([getSiteSettings(), getTranslations("Contact")]);
     const contact = settings.contact;
-    const whatsappUrl = safeHttpUrl(contact?.whatsapp_url) || whatsappFromPhone(contact?.phone);
+    const whatsappUrl = configuredWhatsappUrl(settings.social_links) || whatsappFromPhone(contact?.phone);
     const mapUrl = contact?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}` : undefined;
     const contactJsonLd = {
       "@context": "https://schema.org",
@@ -66,11 +66,12 @@ export default async function CmsPage({ params }: CmsPageProps) {
   }
 
   if (slug === "faq") {
-    const entries = getFaqEntries(page.content);
+    const blocks = getFaqBlocks(page.content);
+    const entries = getFaqEntries(blocks);
     const faqJsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: entries.map((entry) => ({ "@type": "Question", name: entry.question, acceptedAnswer: { "@type": "Answer", text: entry.answer } })) };
     return <PageShell title={page.title} description={page.meta_description}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }} />
-      {entries.length > 0 ? <FaqBody entries={entries} /> : <ContentBody content={page.content} />}
+      <FaqBody blocks={blocks} />
     </PageShell>;
   }
   return <main className="flex-1 bg-[#fffcf7] text-stone-900"><header className="border-b border-amber-900/10 bg-amber-50"><div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:py-24"><h1 className="text-4xl font-bold tracking-tight text-amber-950 sm:text-5xl">{page.title}</h1>{page.meta_description && <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-stone-600">{page.meta_description}</p>}</div></header><article className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:py-20"><ContentBody content={page.content} /></article></main>;
@@ -93,4 +94,11 @@ function safeHttpUrl(value?: string): string | undefined {
 function whatsappFromPhone(phone?: string): string | undefined {
   const digits = phone?.replace(/\D/g, "");
   return digits && digits.length >= 8 ? `https://wa.me/${digits}` : undefined;
+}
+
+function configuredWhatsappUrl(socialLinks: import("@/lib/api").Settings["social_links"]): string | undefined {
+  const configured = Array.isArray(socialLinks)
+    ? socialLinks.find((link) => link.label.toLowerCase() === "whatsapp")?.url
+    : Object.entries(socialLinks ?? {}).find(([label]) => label.toLowerCase() === "whatsapp")?.[1];
+  return safeHttpUrl(configured);
 }
