@@ -2,17 +2,22 @@
 
 import type { Service } from "@/lib/api";
 import { useCurrency } from "@/components/site/currency-provider";
+import { Link } from "@/i18n/navigation";
 
 type ProfileServiceCardProps = {
   service: Service;
   durationLabel: string;
   fromLabel: string;
+  astrologerSlug: string;
+  bookLabel: string;
 };
 
 export function ProfileServiceCard({
   service,
   durationLabel,
   fromLabel,
+  astrologerSlug,
+  bookLabel,
 }: ProfileServiceCardProps) {
   const { formatPrice } = useCurrency();
 
@@ -31,9 +36,17 @@ export function ProfileServiceCard({
             {formatPrice(service.price_inr, service.price_usd)}
           </p>
         </div>
-        <p className="text-sm font-medium text-stone-500">
-          {service.duration_minutes} {durationLabel}
-        </p>
+        <div className="text-right">
+          <p className="text-sm font-medium text-stone-500">
+            {service.duration_minutes} {durationLabel}
+          </p>
+          <Link
+            href={{ pathname: "/booking", query: { astrologer: astrologerSlug, service: service.slug } }}
+            className="mt-3 inline-block rounded-full bg-amber-800 px-4 py-2 text-sm font-bold text-white hover:bg-amber-900"
+          >
+            {bookLabel}
+          </Link>
+        </div>
       </div>
     </article>
   );

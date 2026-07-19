@@ -31,6 +31,7 @@ type QueryValue = string | number | boolean | undefined;
 
 interface LocaleQuery extends Record<string, QueryValue> {
   locale?: Locale;
+  page?: number;
 }
 
 interface ListServicesQuery extends LocaleQuery {
