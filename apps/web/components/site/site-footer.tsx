@@ -29,7 +29,7 @@ export async function SiteFooter({ settings }: { settings: Settings }) {
 
   return (
     <footer className="mt-auto border-t border-stone-200 bg-stone-950 text-stone-300">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
         <div>
           <h2 className="text-xl font-bold text-white">{settings.site_name}</h2>
           <p className="mt-3 max-w-sm text-sm leading-6 text-stone-400">
@@ -76,20 +76,38 @@ export async function SiteFooter({ settings }: { settings: Settings }) {
           )}
         </div>
 
-        <div>
+        <nav aria-label={t("help")}>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-amber-400">
+            {t("help")}
+          </h2>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li>
+              <Link href="/faq" className="rounded hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+                {t("faq")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="rounded hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
+                {t("contactPage")}
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        <nav aria-label={t("legal")}>
           <h2 className="text-sm font-bold uppercase tracking-wider text-amber-400">
             {t("legal")}
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {legalLinks.map((link) => (
               <li key={link.slug}>
-                <Link href={`/${link.slug}`} className="hover:text-white">
+                <Link href={`/${link.slug}`} className="rounded hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400">
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
       </div>
 
       <div className="border-t border-stone-800 px-4 py-5 text-center text-xs text-stone-500">

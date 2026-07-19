@@ -184,6 +184,7 @@
   },
   "Navigation": {
     "primaryNavigation": "Primary navigation",
+    "skipToContent": "Skip to main content",
     "home": "Home",
     "about": "About",
     "astrologers": "Astrologers",
@@ -298,9 +299,45 @@
     "description": "Personal astrology guidance, practical learning and trusted consultations.",
     "contact": "Contact",
     "legal": "Legal",
+    "help": "Help",
+    "faq": "FAQ",
+    "contactPage": "Contact us",
     "privacy": "Privacy policy",
     "terms": "Terms and conditions",
     "refund": "Refund and cancellation",
     "copyright": "© {year} {siteName}. All rights reserved."
+  },
+  "LegalNotice": {
+    "label": "Placeholder policy.",
+    "body": "This is demonstration text. Final legal copy is pending client sign-off before production use."
+  },
+  "Contact": {
+    "metaTitle": "Contact us",
+    "metaDescription": "Get in touch by form, WhatsApp, email or phone, and find us on the map.",
+    "detailsHeading": "Our contact details",
+    "formTitle": "Send us a message",
+    "formDescription": "Fill in the form and we will get back to you. Please do not share sensitive birth details here.",
+    "name": "Your name",
+    "email": "Email address",
+    "message": "Message",
+    "privacy": "We use your details only to respond to your enquiry.",
+    "submit": "Send message",
+    "success": "Thank you. Your email app should open with your message ready to send.",
+    "successWhatsapp": "Prefer to chat on WhatsApp?",
+    "fallbackNote": "Note: online message delivery is not connected yet, so this opens your email app addressed to us. You can also reach us on WhatsApp, email or phone.",
+    "mailtoSubject": "Website enquiry from {name}",
+    "errors": {
+      "name": "Please enter your name.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "message": "Please enter a message of at least 10 characters."
+    },
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "addressLabel": "Address",
+    "whatsapp": "Chat on WhatsApp",
+    "mapHeading": "Find us",
+    "mapTitle": "Map showing our location",
+    "mapLink": "Open in Google Maps"
   }
 }
