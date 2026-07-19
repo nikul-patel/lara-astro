@@ -36,7 +36,7 @@ Base URL (local dev): `http://localhost:8000/api/v1`. Configured via `NEXT_PUBLI
 
 ### Courses & Enrollments
 - `GET /courses?type=recorded|live&locale=` → list. `GET /courses/{slug}?locale=` → detail with curriculum/modules.
-- `POST /enrollments` → same pending→confirmed pattern as bookings, body: `{ course_id, client: {...}, guest: boolean }`.
+- `POST /enrollments` → same pending→confirmed pattern as bookings, body: `{ course_id, client: {...}, guest: boolean }`. Response includes the same `upi_id`/`upi_qr_url` (read live from Settings) as `BookingResource`, for the confirmation screen.
 - `GET /me/enrollments` (authenticated) → includes lesson access / progress for recorded courses, live session schedule/links for live courses.
 
 ### Birth Chart

@@ -6,6 +6,7 @@ use App\Models\CourseLesson;
 use App\Models\CourseModule;
 use App\Models\Enrollment;
 use App\Models\LiveSession;
+use App\Models\Setting;
 
 test('a guest can create an enrollment', function () {
     $course = Course::factory()->create(['is_active' => true]);
@@ -20,6 +21,16 @@ test('a guest can create an enrollment', function () {
         ->assertJsonPath('client.email', 'kunal@example.com');
 
     expect(Client::where('email', 'kunal@example.com')->exists())->toBeTrue();
+});
+
+test('enrolling returns the current UPI payment details, same as booking', function () {
+    Setting::current()->update(['upi_id' => 'astro@upi']);
+    $course = Course::factory()->create(['is_active' => true]);
+
+    $this->postJson('/api/v1/enrollments', [
+        'course_id' => $course->id,
+        'client' => ['name' => 'Kunal Patel', 'email' => 'kunal3@example.com', 'phone' => '9000000000'],
+    ])->assertJsonPath('upi_id', 'astro@upi');
 });
 
 test('enrolling in an inactive course is rejected', function () {
