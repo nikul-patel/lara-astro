@@ -46,6 +46,7 @@ interface AvailabilityQuery extends Record<string, QueryValue> {
 }
 
 interface ListCoursesQuery extends LocaleQuery {
+  page?: number;
   type?: CourseType;
 }
 
