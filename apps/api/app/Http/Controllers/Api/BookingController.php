@@ -10,10 +10,10 @@ use App\Models\BirthChart;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Service;
+use App\Models\Setting;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -114,7 +114,7 @@ class BookingController extends Controller
         return (new BookingResource($booking))->response();
     }
 
-    public function mine(Request $request): AnonymousResourceCollection
+    public function mine(Request $request): JsonResponse
     {
         $bookings = Booking::query()
             ->where('client_id', $request->user('sanctum')->id)
@@ -122,7 +122,17 @@ class BookingController extends Controller
             ->latest('slot')
             ->get();
 
-        return BookingResource::collection($bookings);
+        // Resolves Settings once and passes it into every resource instead
+        // of using BookingResource::collection() (which would call
+        // BookingResource::toArray() — and its own Setting::current()
+        // lookup — once per booking).
+        $setting = Setting::current();
+
+        return response()->json(
+            $bookings
+                ->map(fn (Booking $booking) => (new BookingResource($booking, $setting))->resolve($request))
+                ->values()
+        );
     }
 
     /**

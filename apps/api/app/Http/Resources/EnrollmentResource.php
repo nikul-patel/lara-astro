@@ -12,11 +12,22 @@ use Illuminate\Support\Facades\Storage;
 class EnrollmentResource extends JsonResource
 {
     /**
+     * @param  Enrollment  $resource
+     */
+    public function __construct($resource, private readonly ?Setting $setting = null)
+    {
+        parent::__construct($resource);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
-        $setting = Setting::current();
+        // Accepting an already-resolved Setting avoids one query per row
+        // when serializing a collection (see EnrollmentController::mine())
+        // — every enrollment reads the same singleton Settings row.
+        $setting = $this->setting ?? Setting::current();
 
         return [
             'id' => $this->id,
