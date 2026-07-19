@@ -6,6 +6,8 @@ use App\Models\CourseLesson;
 use App\Models\CourseModule;
 use App\Models\Enrollment;
 use App\Models\LiveSession;
+use App\Models\Setting;
+use Illuminate\Support\Facades\DB;
 
 test('a guest can create an enrollment', function () {
     $course = Course::factory()->create(['is_active' => true]);
@@ -20,6 +22,16 @@ test('a guest can create an enrollment', function () {
         ->assertJsonPath('client.email', 'kunal@example.com');
 
     expect(Client::where('email', 'kunal@example.com')->exists())->toBeTrue();
+});
+
+test('enrolling returns the current UPI payment details, same as booking', function () {
+    Setting::current()->update(['upi_id' => 'astro@upi']);
+    $course = Course::factory()->create(['is_active' => true]);
+
+    $this->postJson('/api/v1/enrollments', [
+        'course_id' => $course->id,
+        'client' => ['name' => 'Kunal Patel', 'email' => 'kunal3@example.com', 'phone' => '9000000000'],
+    ])->assertJsonPath('upi_id', 'astro@upi');
 });
 
 test('enrolling in an inactive course is rejected', function () {
@@ -53,4 +65,19 @@ test('a confirmed enrollment exposes lesson video and live session links, a pend
         ->and($pendingEntry['course']['live_sessions'][0])->not->toHaveKey('meeting_url')
         ->and($confirmedEntry['course']['modules'][0]['lessons'][0])->toHaveKey('video_url')
         ->and($confirmedEntry['course']['live_sessions'][0])->toHaveKey('meeting_url');
+});
+
+test('listing enrollments queries Settings once, not once per enrollment', function () {
+    Setting::current(); // pre-create the singleton row so the assertion below isolates the read path
+    $course = Course::factory()->create(['is_active' => true]);
+    $client = Client::factory()->create();
+    $token = $client->createToken('test')->plainTextToken;
+    Enrollment::factory()->count(3)->create(['course_id' => $course->id, 'client_id' => $client->id]);
+
+    DB::enableQueryLog();
+    $this->getJson('/api/v1/me/enrollments', ['Authorization' => "Bearer {$token}"])->assertOk();
+    $settingsQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], '"settings"'));
+    DB::disableQueryLog();
+
+    expect($settingsQueries)->toHaveCount(1);
 });

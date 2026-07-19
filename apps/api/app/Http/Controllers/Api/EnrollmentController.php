@@ -7,9 +7,9 @@ use App\Http\Resources\EnrollmentResource;
 use App\Models\Client;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
@@ -56,7 +56,7 @@ class EnrollmentController extends Controller
             ->setStatusCode(201);
     }
 
-    public function mine(Request $request): AnonymousResourceCollection
+    public function mine(Request $request): JsonResponse
     {
         $enrollments = Enrollment::query()
             ->where('client_id', $request->user('sanctum')->id)
@@ -64,6 +64,16 @@ class EnrollmentController extends Controller
             ->latest()
             ->get();
 
-        return EnrollmentResource::collection($enrollments);
+        // Resolves Settings once and passes it into every resource instead
+        // of using EnrollmentResource::collection() (which would call
+        // EnrollmentResource::toArray() — and its own Setting::current()
+        // lookup — once per enrollment).
+        $setting = Setting::current();
+
+        return response()->json(
+            $enrollments
+                ->map(fn (Enrollment $enrollment) => (new EnrollmentResource($enrollment, $setting))->resolve($request))
+                ->values()
+        );
     }
 }

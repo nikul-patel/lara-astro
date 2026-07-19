@@ -12,11 +12,21 @@ use Illuminate\Support\Facades\Storage;
 class BookingResource extends JsonResource
 {
     /**
+     * @param  Booking  $resource
+     */
+    public function __construct($resource, private readonly ?Setting $setting = null)
+    {
+        parent::__construct($resource);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
-        $setting = Setting::current();
+        // Accepting an already-resolved Setting avoids one query per row
+        // when serializing a collection (see BookingController::mine()).
+        $setting = $this->setting ?? Setting::current();
 
         return [
             'id' => $this->id,
