@@ -14,6 +14,7 @@ export async function SiteHeader({ settings }: { settings: Settings }) {
     { href: "/courses", label: t("courses") },
     { href: "/blog", label: t("blog") },
     { href: "/contact", label: t("contact") },
+    { href: "/account", label: t("account") },
   ] as const;
 
   return (
