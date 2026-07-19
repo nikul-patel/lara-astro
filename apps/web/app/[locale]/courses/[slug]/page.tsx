@@ -35,7 +35,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   setRequestLocale(locale);
   const [t, course, settings] = await Promise.all([getTranslations("CourseDetail"), getCourse(locale, slug), getSiteSettings()]);
   if (!course) notFound();
-  const jsonLd = { "@context": "https://schema.org", "@type": "Course", name: course.title, description: course.description, url: new URL(`/${locale}/courses/${slug}`, getSiteUrl()).toString(), provider: { "@type": "Organization", name: settings.site_name }, offers: [{ "@type": "Offer", price: course.price_inr, priceCurrency: "INR" }, { "@type": "Offer", price: course.price_usd, priceCurrency: "USD" }] };
+  const jsonLd = { "@context": "https://schema.org", "@type": "Course", name: course.title, description: course.description, url: new URL(`/${locale}/courses/${slug}`, getSiteUrl()).toString(), provider: { "@type": "Organization", name: settings.site_name }, offers: [{ "@type": "Offer", price: course.price_inr, priceCurrency: "INR" }, { "@type": "Offer", price: course.price_usd, priceCurrency: "USD" }], aggregateRating: course.reviews.length ? { "@type": "AggregateRating", ratingValue: course.reviews.reduce((sum, review) => sum + review.rating, 0) / course.reviews.length, reviewCount: course.reviews.length } : undefined, review: course.reviews.map((review) => ({ "@type": "Review", author: { "@type": "Person", name: review.name }, reviewBody: review.quote, reviewRating: { "@type": "Rating", ratingValue: review.rating, bestRating: 5 } })) };
 
   return (
     <main className="flex-1 bg-[#fffcf7] text-stone-900">

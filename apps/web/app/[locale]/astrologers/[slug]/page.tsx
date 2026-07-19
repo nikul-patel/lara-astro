@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AstrologerPhoto } from "@/components/astrologers/astrologer-photo";
 import { ProfileServiceCard } from "@/components/astrologers/profile-service-card";
-import { getLocalizedAlternates } from "@/i18n/metadata";
+import { getLocalizedAlternates, getSiteUrl } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { routing, type AppLocale } from "@/i18n/routing";
 import {
@@ -63,9 +63,27 @@ export default async function AstrologerProfilePage({
   if (!astrologer) {
     notFound();
   }
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: astrologer.name,
+    description: astrologer.bio,
+    image: astrologer.photo_url || undefined,
+    url: new URL(`/${locale}/astrologers/${slug}`, getSiteUrl()).toString(),
+    knowsLanguage: astrologer.languages ?? undefined,
+    makesOffer: astrologer.services.map((service) => ({
+      "@type": "Offer",
+      priceSpecification: [
+        { "@type": "PriceSpecification", price: service.price_inr, priceCurrency: "INR" },
+        { "@type": "PriceSpecification", price: service.price_usd, priceCurrency: "USD" },
+      ],
+      itemOffered: { "@type": "Service", name: service.name, description: service.description, duration: `PT${service.duration_minutes}M` },
+    })),
+  };
 
   return (
     <main className="flex-1 bg-[#fffcf7] text-stone-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <section className="border-b border-amber-900/10 bg-amber-50">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Link

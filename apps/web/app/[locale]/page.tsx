@@ -303,13 +303,14 @@ export default async function HomePage({ params }: HomePageProps) {
                     </time>
                   )}
                   <h3 className="mt-4 text-xl font-bold leading-7 text-stone-950">
-                    {post.title}
+                    <Link href={`/blog/${post.slug}`} className="hover:text-amber-800">{post.title}</Link>
                   </h3>
                   {post.excerpt && (
                     <p className="mt-3 text-sm leading-6 text-stone-600">
                       {post.excerpt}
                     </p>
                   )}
+                  <Link href={`/blog/${post.slug}`} className="mt-5 inline-flex text-sm font-bold text-amber-800">{t("insights.readArticle")} →</Link>
                 </div>
               </article>
             ))}

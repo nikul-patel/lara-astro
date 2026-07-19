@@ -9,6 +9,7 @@ export async function SiteHeader({ settings }: { settings: Settings }) {
 
   const links = [
     { href: "/", label: t("home") },
+    { href: "/about", label: t("about") },
     { href: "/astrologers", label: t("astrologers") },
     { href: "/birth-chart", label: t("birthChart") },
     { href: "/courses", label: t("courses") },
