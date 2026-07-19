@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/i18n/routing";
 import {
+  ApiError,
   apiForLocale,
   type Course,
   type PaginatedResponse,
@@ -97,7 +98,9 @@ export async function getCourse(locale: AppLocale, slug: string): Promise<Course
   try {
     const course = await apiForLocale(locale).courses.get(slug);
     return { ...course, reviews: [] };
-  } catch {
-    return fallback ?? null;
+  } catch (error) {
+    if (fallback) return fallback;
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
   }
 }

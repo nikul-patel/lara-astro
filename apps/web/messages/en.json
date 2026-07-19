@@ -216,6 +216,7 @@
     "minutes": "min",
     "curriculumPending": "The detailed curriculum will be published shortly.",
     "liveSchedule": "Live class schedule",
+    "localTimezone": "Times are shown in your device's local timezone.",
     "schedulePending": "The next cohort schedule will be announced shortly.",
     "reviewsTitle": "Learner reviews",
     "rating": "{rating} out of 5 stars",

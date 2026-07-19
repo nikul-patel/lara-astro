@@ -64,7 +64,8 @@ const post = <T>(path: string, body?: unknown, token?: string) =>
   apiRequest<T>(path, { method: "POST", body, token });
 
 export const api = {
-  settings: () => get<Settings>("/settings"),
+  settings: (options: Pick<RequestInit, "cache"> = {}) =>
+    apiRequest<Settings>("/settings", options),
 
   astrologers: {
     list: (query: LocaleQuery = {}) =>

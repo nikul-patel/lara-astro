@@ -199,6 +199,8 @@ export interface Enrollment {
   status: PaymentStatus;
   reference_number: string;
   guest_token?: string;
+  upi_id?: string | null;
+  upi_qr_url?: string | null;
   client?: Client;
   course?: Course;
 }
