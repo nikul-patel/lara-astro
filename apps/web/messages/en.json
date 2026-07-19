@@ -39,7 +39,8 @@
     "insights": {
       "eyebrow": "Astrology, explained",
       "title": "Latest insights",
-      "description": "Practical articles that help you understand your chart and prepare for a useful consultation."
+      "description": "Practical articles that help you understand your chart and prepare for a useful consultation.",
+      "readArticle": "Read article"
     },
     "closing": {
       "title": "Ready to begin with a clearer question?",
@@ -184,6 +185,7 @@
   "Navigation": {
     "primaryNavigation": "Primary navigation",
     "home": "Home",
+    "about": "About",
     "astrologers": "Astrologers",
     "birthChart": "Birth chart",
     "courses": "Courses",
@@ -276,6 +278,21 @@
       "bookingsTitle": "No consultations yet", "bookingsBody": "Choose an astrologer, service and available time when you are ready.", "bookConsultation": "Book a consultation",
       "chartsTitle": "No saved birth charts yet", "chartsBody": "Calculate a chart and save it to this account for future consultations.", "createChart": "Create a birth chart"
     }
+  },
+  "Blog": {
+    "metaTitle": "Astrology Articles & Insights",
+    "metaDescription": "Read practical articles about Vedic astrology, birth charts and preparing for consultations.",
+    "eyebrow": "Astrology, explained",
+    "title": "Insights for a clearer conversation",
+    "description": "Approachable articles about charts, traditions and making thoughtful use of an astrology consultation.",
+    "readArticle": "Read article",
+    "allArticles": "All articles",
+    "empty": "No articles have been published yet.",
+    "pagination": "Blog pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}",
+    "disclaimer": "Astrology content is offered for reflection and education. It is not medical, legal, financial or emergency advice."
   },
   "Footer": {
     "description": "Personal astrology guidance, practical learning and trusted consultations.",

@@ -146,6 +146,15 @@ export interface LegalLink {
   slug: string;
 }
 
+export interface SeoSettings {
+  default_meta_title?: string;
+  default_meta_description?: string;
+  ga_measurement_id?: string;
+  search_console_verification?: string;
+  schema_business_name?: string;
+  schema_business_type?: string;
+}
+
 export interface Settings {
   site_name: string;
   logo_url?: string | null;
@@ -157,7 +166,7 @@ export interface Settings {
   contact?: ContactSettings;
   social_links?: SocialLink[] | Record<string, string>;
   legal_links?: LegalLink[];
-  seo?: Record<string, unknown>;
+  seo?: SeoSettings;
   [key: string]: unknown;
 }
 

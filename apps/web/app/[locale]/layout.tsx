@@ -21,10 +21,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: getSiteUrl(),
-};
-
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -35,6 +31,18 @@ type LocaleLayoutProps = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 };
+
+export async function generateMetadata({ params }: Pick<LocaleLayoutProps, "params">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  const settings = await getSiteSettings();
+  return {
+    metadataBase: getSiteUrl(),
+    title: { default: settings.seo?.default_meta_title || settings.site_name, template: `%s | ${settings.site_name}` },
+    description: settings.seo?.default_meta_description,
+    verification: settings.seo?.search_console_verification ? { google: settings.seo.search_console_verification } : undefined,
+  };
+}
 
 export default async function LocaleLayout({
   children,
@@ -48,6 +56,16 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const settings = await getSiteSettings();
+  const businessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": settings.seo?.schema_business_type || "LocalBusiness",
+    name: settings.seo?.schema_business_name || settings.site_name,
+    url: new URL(`/${locale}`, getSiteUrl()).toString(),
+    logo: settings.logo_url || undefined,
+    email: settings.contact?.email,
+    telephone: settings.contact?.phone,
+    address: settings.contact?.address ? { "@type": "PostalAddress", streetAddress: settings.contact.address } : undefined,
+  };
 
   return (
     <html
@@ -55,6 +73,7 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd).replace(/</g, "\\u003c") }} />
         <NextIntlClientProvider>
           <CurrencyProvider defaultCurrency={settings.default_currency}>
             <SiteHeader settings={settings} />
