@@ -23,6 +23,8 @@ class Setting extends Model
         'social_links',
         'legal_links',
         'seo',
+        'astrology_western_enabled',
+        'astrology_forced_chart_style',
     ];
 
     protected function casts(): array
@@ -34,6 +36,7 @@ class Setting extends Model
             'social_links' => 'array',
             'legal_links' => 'array',
             'seo' => 'array',
+            'astrology_western_enabled' => 'boolean',
         ];
     }
 

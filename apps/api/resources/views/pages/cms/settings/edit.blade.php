@@ -187,6 +187,25 @@
                 </div>
             </x-common.component-card>
 
+            <x-common.component-card title="Astrology Engine">
+                <div class="space-y-5">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="astrology_western_enabled" value="1" @checked(old('astrology_western_enabled', $setting->astrology_western_enabled)) class="h-5 w-5 rounded border-gray-300" />
+                        <span class="text-sm text-gray-700 dark:text-gray-400">Offer Western (tropical) as an override alongside the default Vedic system</span>
+                    </label>
+                    <div>
+                        <label class="{{ $labelClass }}">Force Chart Style</label>
+                        <select name="astrology_forced_chart_style" class="{{ $inputClass }}">
+                            <option value="">Auto (region-recommended)</option>
+                            <option value="north_indian" @selected(old('astrology_forced_chart_style', $setting->astrology_forced_chart_style) === 'north_indian')>North Indian</option>
+                            <option value="south_indian" @selected(old('astrology_forced_chart_style', $setting->astrology_forced_chart_style) === 'south_indian')>South Indian</option>
+                            <option value="east_indian" @selected(old('astrology_forced_chart_style', $setting->astrology_forced_chart_style) === 'east_indian')>East Indian</option>
+                        </select>
+                        <p class="mt-1.5 text-xs text-gray-400">When set, every visitor is recommended this chart style instead of the birth place's region-based detection.</p>
+                    </div>
+                </div>
+            </x-common.component-card>
+
             <div>
                 <button type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-lg px-5 py-3 text-sm font-medium text-white transition">
                     Save Settings

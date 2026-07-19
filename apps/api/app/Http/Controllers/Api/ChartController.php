@@ -29,11 +29,13 @@ class ChartController extends Controller
             'result' => ['required', 'array'],
         ]);
 
-        // Omitted at the top level when the user hasn't overridden the
+        // Both omitted at the top level when the user hasn't overridden the
         // automatic recommendation (see apps/web's birth-chart-tool.tsx);
-        // result.system (the system the calculation actually used) is
-        // always present in that flow and is the fallback here.
+        // result.system/result.chart_style (what the calculation actually
+        // used, see BirthChartCalculator) are always present in that flow
+        // and are the fallback here.
         $system = $validated['system'] ?? ($validated['result']['system'] ?? null);
+        $chartStyle = $validated['chart_style'] ?? ($validated['result']['chart_style'] ?? null);
 
         if (! in_array($system, self::VALID_SYSTEMS, true)) {
             throw ValidationException::withMessages(['system' => 'A valid astrology system is required.']);
@@ -46,7 +48,7 @@ class ChartController extends Controller
             'time' => $validated['time'],
             'place' => $validated['place'],
             'system' => $system,
-            'chart_style' => $validated['chart_style'] ?? null,
+            'chart_style' => $chartStyle,
             'result' => $validated['result'],
         ]);
 

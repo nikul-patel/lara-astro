@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AstrologerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\ChartCalculationController;
 use App\Http\Controllers\Api\ChartController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\EnrollmentController;
@@ -43,8 +44,8 @@ Route::post('enrollments', [EnrollmentController::class, 'store']);
 Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
 
-// POST /chart (calculate) belongs to #16 — this PR only adds the
-// authenticated "save an already-calculated chart" endpoint below.
+Route::post('chart', [ChartCalculationController::class, 'calculate']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
