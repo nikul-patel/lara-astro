@@ -43,7 +43,7 @@ test('registering with an email that already has a password is rejected', functi
     ])->assertJsonValidationErrors('email')->assertStatus(422);
 });
 
-test('registering upgrades an existing guest client instead of erroring', function () {
+test('registering with an email that belongs to an existing guest is rejected', function () {
     $guest = Client::factory()->guest()->create(['email' => 'guest@example.com', 'name' => 'Guest Name']);
 
     $response = $this->postJson('/api/v1/auth/register', [
@@ -53,11 +53,10 @@ test('registering upgrades an existing guest client instead of erroring', functi
         'password_confirmation' => 'password123',
     ]);
 
-    $response->assertStatus(201);
-    expect(Client::query()->where('email', 'guest@example.com')->count())->toBe(1);
-    $upgraded = $guest->fresh();
-    expect($upgraded->name)->toBe('Real Name')
-        ->and($upgraded->password)->not->toBeNull();
+    $response->assertJsonValidationErrors('email')->assertStatus(422);
+    $unchanged = $guest->fresh();
+    expect($unchanged->name)->toBe('Guest Name')
+        ->and($unchanged->password)->toBeNull();
 });
 
 test('a client can log in with correct credentials', function () {

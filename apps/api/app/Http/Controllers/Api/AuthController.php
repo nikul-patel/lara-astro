@@ -21,24 +21,28 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $client = Client::where('email', $validated['email'])->first();
+        $existing = Client::where('email', $validated['email'])->first();
 
-        if ($client && $client->password) {
+        if ($existing) {
+            // A guest Client (password null) from a prior booking/enrollment
+            // can't self-upgrade here: registering with just the email would
+            // let anyone who knows it take over the guest's booking/
+            // enrollment history. Blocked until email verification (#18)
+            // lands; track in epic #3's known limitations.
             throw ValidationException::withMessages([
-                'email' => 'An account with this email already exists.',
+                'email' => $existing->password
+                    ? 'An account with this email already exists.'
+                    : 'An account associated with this email already exists. Please contact support to verify and activate it.',
             ]);
         }
 
-        // A guest Client (password null) from a prior booking/enrollment
-        // upgrades into a full account instead of erroring as a duplicate
-        // email — see App\Models\Client's docblock.
-        $client ??= new Client(['email' => $validated['email']]);
+        $client = new Client(['email' => $validated['email']]);
         $client->fill([
             'name' => $validated['name'],
             // phone is optional on RegisterInput but NOT NULL in the
-            // clients table; fall back to the existing value (guest
-            // upgrade) or an empty string rather than erroring.
-            'phone' => $validated['phone'] ?? $client->phone ?? '',
+            // clients table; fall back to an empty string rather than
+            // erroring.
+            'phone' => $validated['phone'] ?? '',
             'password' => $validated['password'],
         ])->save();
 
