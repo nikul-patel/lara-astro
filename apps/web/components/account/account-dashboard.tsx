@@ -10,11 +10,16 @@ import { api, ApiError, type Booking, type Client, type Enrollment, type SavedCh
 const AUTH_TOKEN_KEY = "lara-astro-auth-token";
 const authListeners = new Set<() => void>();
 
-type DashboardData = { client: Client; bookings: Booking[]; enrollments: Enrollment[]; charts: SavedChart[] };
+type DashboardData = { authToken: string; client: Client; bookings: Booking[]; enrollments: Enrollment[]; charts: SavedChart[] };
 type Section = "courses" | "bookings" | "charts";
 
 function progressKey(clientId: number) { return `lara-astro-progress-${clientId}`; }
-function subscribeAuth(listener: () => void) { authListeners.add(listener); return () => authListeners.delete(listener); }
+function subscribeAuth(listener: () => void) {
+  const handleStorage = (event: StorageEvent) => { if (event.key === AUTH_TOKEN_KEY) listener(); };
+  authListeners.add(listener);
+  window.addEventListener("storage", handleStorage);
+  return () => { authListeners.delete(listener); window.removeEventListener("storage", handleStorage); };
+}
 function getAuthToken() { return window.localStorage.getItem(AUTH_TOKEN_KEY); }
 function storeAuthToken(token: string | null) { if (token) window.localStorage.setItem(AUTH_TOKEN_KEY, token); else window.localStorage.removeItem(AUTH_TOKEN_KEY); authListeners.forEach((listener) => listener()); }
 function readProgress(clientId: number): Set<number> {
@@ -40,15 +45,25 @@ export function AccountDashboard() {
 
   const loadDashboard = useCallback(async (token: string) => {
     const [me, bookings, enrollments, charts] = await Promise.all([api.auth.me(token), api.bookings.mine(token), api.enrollments.mine(token), api.charts.mine(token)]);
-    setData({ client: me.client, bookings, enrollments, charts });
+    if (getAuthToken() !== token) return;
+    setData({ authToken: token, client: me.client, bookings, enrollments, charts });
     setCompletedLessons(readProgress(me.client.id));
   }, []);
 
   useEffect(() => {
-    if (!token || data || loadFailed) return;
+    if (token) return;
+    // Remove account-scoped data after local or cross-tab logout.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setData(null);
+    setCompletedLessons(new Set());
+    setLoadFailed(false);
+  }, [token]);
+
+  useEffect(() => {
+    if (!token || data?.authToken === token || loadFailed) return;
     // Synchronize authenticated API data when the external token store changes.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadDashboard(token).catch((error) => { if (error instanceof ApiError && error.status === 401) storeAuthToken(null); else setLoadFailed(true); });
+    loadDashboard(token).catch((error) => { if (error instanceof ApiError && error.status === 401) { storeAuthToken(null); setData(null); } else setLoadFailed(true); });
   }, [data, loadDashboard, loadFailed, token]);
 
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
@@ -57,7 +72,6 @@ export function AccountDashboard() {
       const result = authMode === "login"
         ? await api.auth.login({ email: credentials.email, password: credentials.password })
         : await api.auth.register({ name: credentials.name, email: credentials.email, phone: credentials.phone, password: credentials.password, password_confirmation: credentials.passwordConfirmation });
-      await loadDashboard(result.token);
       storeAuthToken(result.token);
     } catch (error) {
       setNotice(error instanceof ApiError ? error.errors ? Object.values(error.errors).flat()[0] ?? error.message : error.message : t("authError"));
@@ -79,10 +93,10 @@ export function AccountDashboard() {
 
   const confirmedEnrollments = useMemo(() => data?.enrollments.filter((item) => item.status === "confirmed") ?? [], [data]);
 
-  if (token && !data && loadFailed) return <div className="rounded-3xl bg-white p-8 text-center"><p className="text-stone-600" role="alert">{t("loadError")}</p><button type="button" onClick={() => setLoadFailed(false)} className="mt-5 rounded-full bg-amber-800 px-5 py-3 text-sm font-bold text-white">{t("retry")}</button></div>;
-  if (token && !data) return <p className="rounded-3xl bg-white p-8 text-center text-stone-600" aria-live="polite">{t("loading")}</p>;
+  if (token && data?.authToken !== token && loadFailed) return <div className="rounded-3xl bg-white p-8 text-center"><p className="text-stone-600" role="alert">{t("loadError")}</p><button type="button" onClick={() => setLoadFailed(false)} className="mt-5 rounded-full bg-amber-800 px-5 py-3 text-sm font-bold text-white">{t("retry")}</button></div>;
+  if (token && data?.authToken !== token) return <p className="rounded-3xl bg-white p-8 text-center text-stone-600" aria-live="polite">{t("loading")}</p>;
 
-  if (!data) return (
+  if (!token || !data) return (
     <div className="mx-auto max-w-2xl rounded-[2rem] border border-stone-200 bg-white p-7 shadow-sm sm:p-10">
       <div className="grid grid-cols-2 rounded-full bg-stone-100 p-1"><button type="button" onClick={() => { setAuthMode("login"); setNotice(null); }} className={`rounded-full px-4 py-3 text-sm font-bold ${authMode === "login" ? "bg-amber-800 text-white" : "text-stone-600"}`}>{t("login")}</button><button type="button" onClick={() => { setAuthMode("register"); setNotice(null); }} className={`rounded-full px-4 py-3 text-sm font-bold ${authMode === "register" ? "bg-amber-800 text-white" : "text-stone-600"}`}>{t("register")}</button></div>
       <h2 className="mt-7 text-2xl font-bold text-stone-950">{authMode === "login" ? t("loginTitle") : t("registerTitle")}</h2><p className="mt-2 text-sm leading-6 text-stone-600">{t("optionalAccount")}</p>
