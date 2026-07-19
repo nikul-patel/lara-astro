@@ -41,6 +41,22 @@ test('saving a chart without an overridden system falls back to the result\'s sy
     expect(BirthChart::where('client_id', $client->id)->firstOrFail()->system)->toBe('vedic');
 });
 
+test('saving a chart without an overridden chart_style falls back to the result\'s chart_style', function () {
+    $client = Client::factory()->create();
+    $token = $client->createToken('test')->plainTextToken;
+
+    $response = $this->postJson('/api/v1/charts', [
+        'name' => 'Ananya Singh',
+        'dob' => '1994-05-12',
+        'time' => '14:30',
+        'place' => 'Jaipur, India',
+        'result' => ['timezone' => 'Asia/Kolkata', 'system' => 'vedic', 'chart_style' => 'south_indian', 'planetary_positions' => [], 'houses' => []],
+    ], ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertStatus(201)->assertJsonPath('input.chart_style', 'south_indian');
+    expect(BirthChart::where('client_id', $client->id)->firstOrFail()->chart_style)->toBe('south_indian');
+});
+
 test('saving a chart requires authentication', function () {
     $this->postJson('/api/v1/charts', [
         'name' => 'Ananya Singh',

@@ -47,7 +47,11 @@ class SettingController extends Controller
             'seo.search_console_verification' => ['nullable', 'string', 'max:255'],
             'seo.schema_business_name' => ['nullable', 'string', 'max:255'],
             'seo.schema_business_type' => ['nullable', 'string', 'max:255'],
+            'astrology_western_enabled' => ['sometimes', 'boolean'],
+            'astrology_forced_chart_style' => ['nullable', 'string', 'in:north_indian,south_indian,east_indian'],
         ]);
+
+        $validated['astrology_western_enabled'] = $request->boolean('astrology_western_enabled');
 
         if ($request->hasFile('logo')) {
             $validated['logo_path'] = $request->file('logo')->store('branding', 'public');

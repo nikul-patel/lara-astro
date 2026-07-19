@@ -41,7 +41,8 @@ Base URL (local dev): `http://localhost:8000/api/v1`. Configured via `NEXT_PUBLI
 
 ### Birth Chart
 - `POST /chart` → body: `{ name, dob, time, place, system?: "vedic"|"western", chart_style?: "north_indian"|"south_indian"|"east_indian" }`. If `system`/`chart_style` omitted, the API returns its region-based recommendation (derived from `place` geocoding, per PRD §8) alongside the calculated chart, so the frontend can pre-select it and show the override control.
-- Response includes: resolved timezone, planetary positions, houses, the system/style actually used, and the recommended system/style (so the frontend can show "recommended" vs "your selection" if they differ).
+- Response shape (finalized in #16): `{ timezone, system, chart_style: string|null, recommendation: { system, chart_style }, planetary_positions: [{ name, sign, degree, longitude }], houses: [{ number, sign, planets: string[] }] (always 12, whole-sign), ascendant: { sign, degree }, location_matched: boolean }`. `chart_style` is `null` for the western system. `location_matched` is `false` when the birth place couldn't be resolved (falls back to Delhi/`Asia/Kolkata`) — see "Open items" below on geocoding.
+- Requesting `system: "western"` when the deployment's Settings has disabled it (PRD §8 point 4) returns a 422 on the `system` field.
 - `POST /charts` (authenticated) → save a chart to the client's account. `GET /me/charts`.
 
 ### CMS
@@ -55,6 +56,6 @@ Base URL (local dev): `http://localhost:8000/api/v1`. Configured via `NEXT_PUBLI
 
 ## Open items (flag if these need to change)
 
-- Exact chart JSON shape (planetary positions/houses) will be finalized alongside #16 (birth chart engine) — the request/response envelope above is stable, the internals of the `chart` payload may grow.
+- Chart JSON shape is finalized above (#16). The calculation engine itself is a self-hosted, dependency-free implementation (Meeus low-precision Sun/Moon series, Standish's Keplerian planetary elements, whole-sign houses) rather than a Swiss Ephemeris binding — this build environment had no route to install/download one (no C compiler, no network access to Swiss Ephemeris's data files). Accuracy is good for correct sign/house placement, not arc-second precision. Geocoding is a small bundled gazetteer (PRD §8's named states/cities plus other major Indian/international cities) rather than a live geocoding API, for the same reason — unrecognized places fall back to Delhi/`Asia/Kolkata` (`location_matched: false`). Swapping either for the real thing later is contained to `app/Services/Astrology/`.
 - Availability slot shape (manual vs Google-Calendar-backed) needs confirming against #10/#17 once availability admin UI is built — the read contract here (`GET /availability`) is meant to stay stable regardless of the backing source.
 - `GET /courses/{slug}`'s curriculum outline (#14) deliberately omits `CourseLesson.video_url` and `LiveSession.meeting_url` — those are gated behind enrollment per "`GET /me/enrollments` ... includes lesson access ... live session schedule/links", so `CourseLesson`/`LiveSession` only get those fields on the authenticated learner endpoints built in #15/#28. The public shapes only expose titles/durations/schedule.
