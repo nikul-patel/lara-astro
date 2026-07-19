@@ -294,6 +294,22 @@
     "page": "Page {current} of {total}",
     "disclaimer": "Astrology content is offered for reflection and education. It is not medical, legal, financial or emergency advice."
   },
+  "Contact": {
+    "formTitle": "Send an enquiry",
+    "formDescription": "Complete the form and your email app will open with a prepared message. Review it before sending.",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "reference": "Booking or enrollment reference (optional)",
+    "topic": "How can we help?",
+    "message": "Message",
+    "privacy": "Do not include sensitive birth, medical, financial or identity information. This form does not send anything until you confirm it in your email app.",
+    "submit": "Open email app",
+    "emailSubject": "Website enquiry: {topic}",
+    "whatsapp": "Chat on WhatsApp",
+    "map": "View on map",
+    "emailUnavailable": "Email enquiries are not configured yet. Please use the phone or WhatsApp contact shown here."
+  },
   "Footer": {
     "description": "Personal astrology guidance, practical learning and trusted consultations.",
     "contact": "Contact",
