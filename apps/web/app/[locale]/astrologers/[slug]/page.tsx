@@ -98,6 +98,7 @@ export default async function AstrologerProfilePage({
               <AstrologerPhoto
                 astrologer={astrologer}
                 alt={t("photoAlt", { name: astrologer.name })}
+                priority
               />
             </div>
 
