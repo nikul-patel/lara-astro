@@ -51,6 +51,18 @@ const demoPosts = Object.fromEntries(Object.entries(postCopy).map(([locale, post
 export const demoPostSlugs = demoPosts.en.map((post) => post.slug);
 export const cmsPageSlugs = Object.keys(pageCopy.en);
 
+// Contact and FAQ have dedicated routes (form/map/accordion), so they are
+// served there instead of the generic CMS catch-all to avoid duplicate pages.
+export const dedicatedCmsSlugs = ["contact", "faq"] as const;
+// Legal pages remain CMS-driven; final policy copy needs client sign-off.
+export const legalPageSlugs = ["privacy-policy", "terms-and-conditions", "refund-cancellation-policy"] as const;
+export const catchAllPageSlugs = cmsPageSlugs.filter(
+  (slug) => !dedicatedCmsSlugs.includes(slug as (typeof dedicatedCmsSlugs)[number]),
+);
+export function isLegalPageSlug(slug: string): boolean {
+  return legalPageSlugs.includes(slug as (typeof legalPageSlugs)[number]);
+}
+
 export async function getPosts(locale: AppLocale, page = 1): Promise<PaginatedResponse<Post>> {
   try {
     const response = await apiForLocale(locale).posts.list({ page });
