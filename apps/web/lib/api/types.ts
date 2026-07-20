@@ -133,7 +133,6 @@ export interface ContactSettings {
   email?: string;
   phone?: string;
   address?: string;
-  whatsapp_url?: string;
 }
 
 export interface SocialLink {

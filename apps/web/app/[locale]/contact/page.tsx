@@ -60,7 +60,10 @@ export default async function ContactPage({ params }: ContactPageProps) {
   if (!page) notFound();
 
   const contact = settings.contact ?? {};
-  const whatsappUrl = toWhatsappUrl(contact.whatsapp_url, contact.phone);
+  const configuredWhatsappUrl = Array.isArray(settings.social_links)
+    ? settings.social_links.find(({ label }) => label.toLowerCase() === "whatsapp")?.url
+    : settings.social_links?.whatsapp;
+  const whatsappUrl = toWhatsappUrl(configuredWhatsappUrl, contact.phone);
   const mapQuery = contact.address ? encodeURIComponent(contact.address) : null;
   const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null;
   const mapLinkUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${mapQuery}` : null;
