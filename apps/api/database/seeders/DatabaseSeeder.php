@@ -18,28 +18,32 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
 
         $email = config('app.admin_email');
-        $password = config('app.admin_password');
-        $generatedPassword = null;
+        $configuredPassword = config('app.admin_password');
+        $admin = User::where('email', $email)->first();
 
-        if (! $password) {
-            $generatedPassword = Str::password(16);
-            $password = $generatedPassword;
+        if ($admin) {
+            // Re-running `db:seed` against an already-seeded database must not
+            // silently rotate the admin's password out from under them. Only
+            // touch it when ADMIN_PASSWORD is explicitly set to a new value.
+            if ($configuredPassword) {
+                $admin->update(['password' => Hash::make($configuredPassword)]);
+            }
+        } else {
+            $generatedPassword = $configuredPassword ?: Str::password(16);
+            $admin = User::create([
+                'name' => 'Admin',
+                'email' => $email,
+                'password' => Hash::make($generatedPassword),
+            ]);
+
+            if (! $configuredPassword) {
+                $this->command?->warn("Admin user created: {$email} / {$generatedPassword}");
+                $this->command?->warn('Set ADMIN_PASSWORD in .env to pin this instead of generating a new one on every fresh seed.');
+            }
         }
-
-        // updateOrCreate keeps this safe to re-run (e.g. `db:seed` against an
-        // already-seeded database), unlike a plain factory create().
-        $admin = User::updateOrCreate(
-            ['email' => $email],
-            ['name' => 'Admin', 'password' => Hash::make($password)]
-        );
 
         if (! $admin->hasRole('Admin')) {
             $admin->assignRole('Admin');
-        }
-
-        if ($generatedPassword) {
-            $this->command?->warn("Admin user created: {$email} / {$generatedPassword}");
-            $this->command?->warn('Set ADMIN_PASSWORD in .env to pin this instead of generating a new one on every fresh seed.');
         }
     }
 }
