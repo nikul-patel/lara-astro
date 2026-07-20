@@ -4,12 +4,14 @@ type AstrologerPhotoProps = {
   astrologer: Astrologer;
   alt: string;
   className?: string;
+  priority?: boolean;
 };
 
 export function AstrologerPhoto({
   astrologer,
   alt,
   className = "size-full object-cover",
+  priority = false,
 }: AstrologerPhotoProps) {
   if (astrologer.photo_url) {
     return (
@@ -21,6 +23,9 @@ export function AstrologerPhoto({
           alt={alt}
           width={480}
           height={600}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
+          decoding="async"
           className={className}
         />
       </>

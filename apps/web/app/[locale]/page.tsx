@@ -47,7 +47,7 @@ export default async function HomePage({ params }: HomePageProps) {
   ]);
 
   return (
-    <main className="flex-1 bg-[#fffcf7] text-stone-900">
+    <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
       <section className="relative isolate overflow-hidden border-b border-amber-900/10 bg-amber-50">
         <div
           aria-hidden="true"
@@ -195,6 +195,8 @@ export default async function HomePage({ params }: HomePageProps) {
                       alt=""
                       width={96}
                       height={96}
+                      loading="lazy"
+                      decoding="async"
                       className="size-full object-cover"
                     />
                   ) : (

@@ -263,7 +263,7 @@ export function BookingFlow({
             {confirmationQrUrl && (
               // The tenant-controlled QR URL comes from the Settings/booking API.
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={confirmationQrUrl} alt={t("qrAlt")} className="size-40 rounded-2xl border border-amber-200 bg-white object-contain p-2" />
+              <img src={confirmationQrUrl} alt={t("qrAlt")} width={160} height={160} loading="lazy" decoding="async" className="size-40 rounded-2xl border border-amber-200 bg-white object-contain p-2" />
             )}
           </div>
         ) : !isDemoBooking ? (
