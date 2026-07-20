@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getSiteUrl } from "@/i18n/metadata";
 import { routing } from "@/i18n/routing";
@@ -55,7 +55,10 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const settings = await getSiteSettings();
+  const [settings, tNavigation] = await Promise.all([
+    getSiteSettings(),
+    getTranslations("Navigation"),
+  ]);
   const businessJsonLd = {
     "@context": "https://schema.org",
     "@type": settings.seo?.schema_business_type || "LocalBusiness",
@@ -73,6 +76,12 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-amber-800 focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-2 focus:outline-offset-2 focus:outline-amber-950"
+        >
+          {tNavigation("skipToContent")}
+        </a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd).replace(/</g, "\\u003c") }} />
         <NextIntlClientProvider>
           <CurrencyProvider defaultCurrency={settings.default_currency}>

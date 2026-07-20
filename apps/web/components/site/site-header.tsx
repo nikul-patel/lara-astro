@@ -33,6 +33,7 @@ export async function SiteHeader({ settings }: { settings: Settings }) {
               alt=""
               width={40}
               height={40}
+              decoding="async"
               className="size-10 rounded-full object-contain"
             />
           ) : (

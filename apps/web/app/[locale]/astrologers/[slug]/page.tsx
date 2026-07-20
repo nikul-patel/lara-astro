@@ -82,7 +82,7 @@ export default async function AstrologerProfilePage({
   };
 
   return (
-    <main className="flex-1 bg-[#fffcf7] text-stone-900">
+    <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <section className="border-b border-amber-900/10 bg-amber-50">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

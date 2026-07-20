@@ -36,7 +36,7 @@ export default async function CoursesPage({ params, searchParams }: CoursesPageP
   const filteredCourses = selectedType === "all" ? courses : courses.filter((course) => course.type === selectedType);
 
   return (
-    <main className="flex-1 bg-[#fffcf7] text-stone-900">
+    <main id="main-content" tabIndex={-1} className="flex-1 bg-[#fffcf7] text-stone-900">
       <section className="border-b border-amber-900/10 bg-amber-50"><div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8"><p className="text-sm font-bold uppercase tracking-[0.22em] text-amber-700">{t("eyebrow")}</p><h1 className="mx-auto mt-4 max-w-4xl text-4xl font-bold tracking-tight text-amber-950 sm:text-5xl">{t("title")}</h1><p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-stone-600">{t("description")}</p></div></section>
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <nav aria-label={t("filterLabel")} className="flex flex-wrap gap-3">
