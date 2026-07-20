@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Default Admin Account
+    |--------------------------------------------------------------------------
+    |
+    | Used by DatabaseSeeder to provision the initial admin-panel login on a
+    | fresh install (`php artisan migrate:fresh --seed`). Leave
+    | ADMIN_PASSWORD unset and the seeder generates + prints a random one.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+    'admin_password' => env('ADMIN_PASSWORD'),
+
 ];
