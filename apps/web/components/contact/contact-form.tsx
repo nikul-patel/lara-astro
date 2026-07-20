@@ -55,6 +55,20 @@ export function ContactForm({ toEmail, whatsappUrl }: ContactFormProps) {
   const fieldClass = (invalid: boolean) =>
     `mt-2 w-full rounded-xl border px-4 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${invalid ? "border-red-500" : "border-stone-300"}`;
 
+  if (!toEmail) {
+    return (
+      <div className="rounded-[2rem] border border-stone-200 bg-white p-7 shadow-sm">
+        <h2 className="text-2xl font-bold text-stone-950">{t("formTitle")}</h2>
+        <p className="mt-3 text-sm leading-6 text-stone-600">{t("formUnavailable")}</p>
+        {whatsappUrl && (
+          <a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">
+            {t("whatsapp")}
+          </a>
+        )}
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} noValidate aria-describedby={`${baseId}-note`} className="rounded-[2rem] border border-stone-200 bg-white p-7 shadow-sm">
       <h2 className="text-2xl font-bold text-stone-950">{t("formTitle")}</h2>

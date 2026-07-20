@@ -317,6 +317,7 @@
     "detailsHeading": "Our contact details",
     "formTitle": "Send us a message",
     "formDescription": "Fill in the form and we will get back to you. Please do not share sensitive birth details here.",
+    "formUnavailable": "Email enquiries are not configured yet. Please use the contact details or WhatsApp option on this page.",
     "name": "Your name",
     "email": "Email address",
     "topic": "Topic (optional)",
