@@ -11,6 +11,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LiveSessionController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TestimonialController;
@@ -43,64 +44,10 @@ Route::middleware('auth')->group(function () {
         return view('pages.dashboard.ecommerce', ['title' => 'E-commerce Dashboard']);
     })->name('dashboard');
 
-    // calender pages
-    Route::get('/calendar', function () {
-        return view('pages.calender', ['title' => 'Calendar']);
-    })->name('calendar');
-
-    // profile pages
-    Route::get('/profile', function () {
-        return view('pages.profile', ['title' => 'Profile']);
-    })->name('profile');
-
-    // form pages
-    Route::get('/form-elements', function () {
-        return view('pages.form.form-elements', ['title' => 'Form Elements']);
-    })->name('form-elements');
-
-    // tables pages
-    Route::get('/basic-tables', function () {
-        return view('pages.tables.basic-tables', ['title' => 'Basic Tables']);
-    })->name('basic-tables');
-
-    // pages
-    Route::get('/blank', function () {
-        return view('pages.blank', ['title' => 'Blank']);
-    })->name('blank');
-
-    // chart pages
-    Route::get('/line-chart', function () {
-        return view('pages.chart.line-chart', ['title' => 'Line Chart']);
-    })->name('line-chart');
-
-    Route::get('/bar-chart', function () {
-        return view('pages.chart.bar-chart', ['title' => 'Bar Chart']);
-    })->name('bar-chart');
-
-    // ui elements pages
-    Route::get('/alerts', function () {
-        return view('pages.ui-elements.alerts', ['title' => 'Alerts']);
-    })->name('alerts');
-
-    Route::get('/avatars', function () {
-        return view('pages.ui-elements.avatars', ['title' => 'Avatars']);
-    })->name('avatars');
-
-    Route::get('/badge', function () {
-        return view('pages.ui-elements.badges', ['title' => 'Badges']);
-    })->name('badges');
-
-    Route::get('/buttons', function () {
-        return view('pages.ui-elements.buttons', ['title' => 'Buttons']);
-    })->name('buttons');
-
-    Route::get('/image', function () {
-        return view('pages.ui-elements.images', ['title' => 'Images']);
-    })->name('images');
-
-    Route::get('/videos', function () {
-        return view('pages.ui-elements.videos', ['title' => 'Videos']);
-    })->name('videos');
+    // profile — every admin-panel user manages their own account here.
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     // Astrologer/Service/Availability management — Admin only (PRD §5.2).
     Route::middleware('role:Admin')->group(function () {
