@@ -272,7 +272,7 @@
     "courseFallback": "Course", "reference": "Reference: {reference}", "accessPending": "Course access unlocks after the practice confirms your payment.",
     "progress": "Lesson progress", "lessonsComplete": "{complete} of {total} complete", "deviceProgress": "Progress is saved on this device until server-side syncing is available.",
     "watchLesson": "Watch lesson", "liveClasses": "Live classes", "joinClass": "Join class",
-    "birthDate": "Birth date", "birthPlace": "Birth place", "system": "System",
+    "birthDate": "Birth date", "birthPlace": "Birth place", "system": "System", "viewKundali": "View detailed kundali",
     "statuses": { "pending_payment": "Pending payment", "confirmed": "Confirmed", "completed": "Completed", "cancelled": "Cancelled", "no_show": "No show" },
     "empty": {
       "coursesTitle": "No course enrollments yet", "coursesBody": "Explore recorded and live courses, then return here after enrolling.", "browseCourses": "Browse courses",
@@ -346,5 +346,77 @@
     "mapHeading": "Find us",
     "mapTitle": "Map showing our location",
     "mapLink": "Open in Google Maps"
+  },
+  "Kundali": {
+    "metaTitle": "Detailed Kundali Report",
+    "metaDescription": "View your detailed Vedic kundali with dasha, yogas, predictions, remedies and year-wise forecasts, and download it as a PDF.",
+    "eyebrow": "Detailed report",
+    "title": "Your detailed kundali",
+    "signInRequired": "Sign in to your account to view this kundali.",
+    "goToAccount": "Go to your account",
+    "loading": "Loading your kundali…",
+    "loadError": "This kundali could not be loaded.",
+    "retry": "Try again",
+    "notFound": "This saved chart could not be found.",
+    "downloadPdf": "Download PDF",
+    "downloading": "Preparing PDF…",
+    "downloadError": "The PDF could not be generated. Please try again.",
+    "sections": {
+      "summary": "Chart summary",
+      "dasha": "Vimshottari dasha",
+      "yogas": "Yogas",
+      "predictions": "Predictions",
+      "remedies": "Remedies",
+      "yearWise": "Year-wise forecast"
+    },
+    "summary": {
+      "ascendant": "Ascendant",
+      "timezone": "Timezone",
+      "nakshatra": "Moon nakshatra",
+      "nakshatraLord": "Nakshatra lord",
+      "pada": "Pada",
+      "westernNotice": "Nakshatra, dasha, yogas, predictions and remedies are Vedic-only and aren't shown for a western-system chart."
+    },
+    "dasha": {
+      "mahadasha": "Mahadasha",
+      "antardasha": "Antardasha",
+      "current": "Current",
+      "viewAntardasha": "View sub-periods",
+      "hideAntardasha": "Hide sub-periods"
+    },
+    "yogas": {
+      "empty": "No specific classical yogas were detected in this chart."
+    },
+    "predictions": {
+      "marriage": "Marriage & partnerships",
+      "career": "Career, job & business",
+      "education": "Education",
+      "foreignSettlement": "Foreign settlement"
+    },
+    "remedies": {
+      "empty": "No specific remedies are suggested — no significant afflictions were detected.",
+      "gemstone": "Gemstone",
+      "mantra": "Mantra",
+      "donation": "Donation",
+      "fastingDay": "Fasting day"
+    },
+    "yearWise": {
+      "style": "Forecast style",
+      "simplified": "Simplified",
+      "varshphal": "Full Varshphal",
+      "year": "Year",
+      "load": "Show forecast",
+      "loading": "Calculating…",
+      "error": "This forecast could not be calculated.",
+      "jupiterTransit": "Jupiter transit",
+      "saturnTransit": "Saturn transit",
+      "fromAscendant": "House {house} from Ascendant",
+      "fromMoon": "House {house} from Moon",
+      "governingDasha": "Governing dasha this year",
+      "solarReturn": "Solar return",
+      "muntha": "Muntha",
+      "varshesh": "Varshesh (year lord)",
+      "sahams": "Sahams"
+    }
   }
 }

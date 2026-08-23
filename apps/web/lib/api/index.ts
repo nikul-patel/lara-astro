@@ -1,4 +1,4 @@
-import { apiRequest } from "./client";
+import { apiDownload, apiRequest } from "./client";
 import type {
   Astrologer,
   AuthCredentials,
@@ -22,6 +22,9 @@ import type {
   Service,
   Settings,
   Testimonial,
+  YearWiseForecast,
+  YearWiseForecastResult,
+  YearWiseStyle,
 } from "./types";
 
 export * from "./client";
@@ -113,6 +116,26 @@ export const api = {
     save: (input: ChartInput & { result: ChartResult }, token: string) =>
       post<SavedChart>("/charts", input, token),
     mine: (token: string) => get<SavedChart[]>("/me/charts", undefined, token),
+    get: (id: number, token: string) =>
+      get<SavedChart>(`/charts/${id}`, undefined, token),
+    downloadReport: (
+      id: number,
+      options: { token: string; yearWiseStyle?: YearWiseStyle; year?: number },
+    ) =>
+      apiDownload(`/charts/${id}/report`, {
+        token: options.token,
+        query: { year_wise_style: options.yearWiseStyle, year: options.year },
+      }),
+  },
+
+  yearWise: {
+    calculate: (input: ChartInput & { year?: number; style?: YearWiseStyle }) =>
+      post<YearWiseForecastResult>("/year-wise", input),
+    forSavedChart: (
+      id: number,
+      query: { year?: number; style?: YearWiseStyle },
+      token: string,
+    ) => get<YearWiseForecast>(`/charts/${id}/year-wise`, query, token),
   },
 
   pages: {

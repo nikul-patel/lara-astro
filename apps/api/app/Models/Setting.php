@@ -25,6 +25,7 @@ class Setting extends Model
         'seo',
         'astrology_western_enabled',
         'astrology_forced_chart_style',
+        'astrology_predictions_enabled',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class Setting extends Model
             'legal_links' => 'array',
             'seo' => 'array',
             'astrology_western_enabled' => 'boolean',
+            'astrology_predictions_enabled' => 'boolean',
         ];
     }
 

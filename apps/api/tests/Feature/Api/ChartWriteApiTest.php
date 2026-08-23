@@ -67,6 +67,32 @@ test('saving a chart requires authentication', function () {
     ])->assertStatus(401);
 });
 
+test('an authenticated client can fetch a single saved chart they own', function () {
+    $client = Client::factory()->create();
+    $chart = BirthChart::factory()->create(['client_id' => $client->id, 'name' => 'Mine']);
+    $token = $client->createToken('test')->plainTextToken;
+
+    $response = $this->getJson("/api/v1/charts/{$chart->id}", ['Authorization' => "Bearer {$token}"]);
+
+    $response->assertOk()->assertJsonPath('name', 'Mine');
+});
+
+test('a non-owner cannot fetch another client\'s saved chart', function () {
+    $owner = Client::factory()->create();
+    $intruder = Client::factory()->create();
+    $chart = BirthChart::factory()->create(['client_id' => $owner->id]);
+    $token = $intruder->createToken('test')->plainTextToken;
+
+    $this->getJson("/api/v1/charts/{$chart->id}", ['Authorization' => "Bearer {$token}"])
+        ->assertStatus(403);
+});
+
+test('fetching a single saved chart requires authentication', function () {
+    $chart = BirthChart::factory()->create();
+
+    $this->getJson("/api/v1/charts/{$chart->id}")->assertStatus(401);
+});
+
 test('an authenticated client can list only their own saved charts', function () {
     $client = Client::factory()->create();
     $otherClient = Client::factory()->create();

@@ -64,4 +64,13 @@ class ChartController extends Controller
 
         return SavedChartResource::collection($charts);
     }
+
+    public function show(Request $request, BirthChart $birthChart): SavedChartResource
+    {
+        if ($birthChart->client_id !== $request->user('sanctum')->id) {
+            abort(403);
+        }
+
+        return new SavedChartResource($birthChart);
+    }
 }

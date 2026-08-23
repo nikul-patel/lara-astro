@@ -230,6 +230,58 @@ export interface ChartRecommendation {
   chart_style?: ChartStyle;
 }
 
+export interface Nakshatra {
+  index: number;
+  name: string;
+  lord: string;
+  pada: number;
+}
+
+export interface DashaPeriod {
+  lord: string;
+  start: string;
+  end: string;
+}
+
+export interface Mahadasha extends DashaPeriod {
+  antardashas: DashaPeriod[];
+}
+
+export interface DashaTimeline {
+  mahadasha: Mahadasha[];
+}
+
+export interface Yoga {
+  key: string;
+  name: string;
+  category: string;
+  planets: string[];
+  houses: number[];
+  description: string;
+}
+
+export interface PredictionEntry {
+  key: string;
+  text: string;
+}
+
+export interface Predictions {
+  marriage: PredictionEntry;
+  career: PredictionEntry;
+  education: PredictionEntry;
+  foreign_settlement: PredictionEntry;
+}
+
+export interface Remedy {
+  planet: string;
+  afflictions: string[];
+  gemstone: string;
+  mantra: string;
+  donation: string;
+  fasting_day: string;
+  caution_note: string;
+}
+
 export interface ChartResult {
   timezone: string;
   system: AstrologySystem;
@@ -238,7 +290,66 @@ export interface ChartResult {
   planetary_positions: unknown;
   houses: unknown;
   chart?: unknown;
+  ascendant?: { sign: string; degree: string };
+  nakshatra?: Nakshatra | null;
+  dasha?: DashaTimeline | null;
+  yogas?: Yoga[] | null;
+  predictions?: Predictions | null;
+  remedies?: Remedy[] | null;
+  location_matched?: boolean;
   [key: string]: unknown;
+}
+
+export type YearWiseStyle = "simplified" | "varshphal";
+
+export interface TransitInfo {
+  sign: string;
+  house_from_ascendant: number;
+  house_from_moon: number;
+}
+
+export interface GoverningDashaPeriod {
+  mahadasha_lord: string;
+  antardasha_lord: string;
+  start: string;
+  end: string;
+}
+
+export interface SimplifiedForecastResult {
+  year: number;
+  jupiter_transit: TransitInfo;
+  saturn_transit: TransitInfo;
+  governing_dasha: GoverningDashaPeriod[];
+}
+
+export interface Saham {
+  key: string;
+  name: string;
+  longitude: number;
+  sign: string;
+}
+
+export interface VarshphalForecastResult {
+  year: number;
+  solar_return_moment: string;
+  ascendant: { sign: string; degree: string };
+  planetary_positions: unknown;
+  houses: unknown;
+  muntha: { sign: string; lord: string };
+  varshesh: { lord: string; candidates: string[] };
+  is_day_birth: boolean;
+  sahams: Saham[];
+}
+
+export type YearWiseForecastResult =
+  | SimplifiedForecastResult
+  | VarshphalForecastResult;
+
+export interface YearWiseForecast {
+  id: number;
+  year: number;
+  style: YearWiseStyle;
+  result: YearWiseForecastResult;
 }
 
 export interface SavedChart {

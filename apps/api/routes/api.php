@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ChartCalculationController;
 use App\Http\Controllers\Api\ChartController;
+use App\Http\Controllers\Api\ChartReportController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\Api\PageController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\TestimonialController;
+use App\Http\Controllers\Api\YearWiseForecastController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('settings', [SettingController::class, 'show']);
@@ -45,6 +47,7 @@ Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/login', [AuthController::class, 'login']);
 
 Route::post('chart', [ChartCalculationController::class, 'calculate']);
+Route::post('year-wise', [YearWiseForecastController::class, 'calculate']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
@@ -53,4 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me/enrollments', [EnrollmentController::class, 'mine']);
     Route::get('me/charts', [ChartController::class, 'mine']);
     Route::post('charts', [ChartController::class, 'store']);
+    Route::get('charts/{birthChart}', [ChartController::class, 'show']);
+    Route::get('charts/{birthChart}/year-wise', [YearWiseForecastController::class, 'forSavedChart']);
+    Route::get('charts/{birthChart}/report', [ChartReportController::class, 'download']);
 });

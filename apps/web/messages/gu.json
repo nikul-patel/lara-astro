@@ -263,7 +263,7 @@
     "courseFallback": "અભ્યાસક્રમ", "reference": "સંદર્ભ: {reference}", "accessPending": "સંસ્થા ચુકવણીની પુષ્ટિ કરે પછી પ્રવેશ ખુલશે.",
     "progress": "પાઠ પ્રગતિ", "lessonsComplete": "{total} માંથી {complete} પૂર્ણ", "deviceProgress": "સર્વર સિંક ઉપલબ્ધ થાય ત્યાં સુધી પ્રગતિ આ ઉપકરણ પર સાચવાય છે.",
     "watchLesson": "પાઠ જુઓ", "liveClasses": "લાઇવ વર્ગો", "joinClass": "વર્ગમાં જોડાઓ",
-    "birthDate": "જન્મ તારીખ", "birthPlace": "જન્મ સ્થળ", "system": "પદ્ધતિ",
+    "birthDate": "જન્મ તારીખ", "birthPlace": "જન્મ સ્થળ", "system": "પદ્ધતિ", "viewKundali": "વિગતવાર કુંડળી જુઓ",
     "statuses": { "pending_payment": "ચુકવણી બાકી", "confirmed": "પુષ્ટ", "completed": "પૂર્ણ", "cancelled": "રદ", "no_show": "ગેરહાજર" },
     "empty": {
       "coursesTitle": "હજી કોઈ નોંધણી નથી", "coursesBody": "રેકોર્ડેડ અને લાઇવ અભ્યાસક્રમો જુઓ.", "browseCourses": "અભ્યાસક્રમો જુઓ",
@@ -337,5 +337,77 @@
     "mapHeading": "અમને શોધો",
     "mapTitle": "અમારું સ્થાન દર્શાવતો નકશો",
     "mapLink": "ગૂગલ નકશામાં ખોલો"
+  },
+  "Kundali": {
+    "metaTitle": "વિગતવાર કુંડળી અહેવાલ",
+    "metaDescription": "દશા, યોગ, ભવિષ્યવાણીઓ, ઉપાયો અને વર્ષવાર આગાહી સાથે તમારી વિગતવાર વૈદિક કુંડળી જુઓ અને તેને PDF તરીકે ડાઉનલોડ કરો.",
+    "eyebrow": "વિગતવાર અહેવાલ",
+    "title": "તમારી વિગતવાર કુંડળી",
+    "signInRequired": "આ કુંડળી જોવા માટે તમારા ખાતામાં સાઇન ઇન કરો.",
+    "goToAccount": "તમારા ખાતા પર જાઓ",
+    "loading": "તમારી કુંડળી લોડ થઈ રહી છે…",
+    "loadError": "આ કુંડળી લોડ થઈ શકી નહીં.",
+    "retry": "ફરી પ્રયાસ કરો",
+    "notFound": "આ સાચવેલી કુંડળી મળી નથી.",
+    "downloadPdf": "PDF ડાઉનલોડ કરો",
+    "downloading": "PDF તૈયાર થઈ રહી છે…",
+    "downloadError": "PDF બની શકી નહીં. કૃપા કરી ફરી પ્રયાસ કરો.",
+    "sections": {
+      "summary": "કુંડળી સારાંશ",
+      "dasha": "વિંશોત્તરી દશા",
+      "yogas": "યોગ",
+      "predictions": "ભવિષ્યવાણીઓ",
+      "remedies": "ઉપાયો",
+      "yearWise": "વર્ષવાર આગાહી"
+    },
+    "summary": {
+      "ascendant": "લગ્ન",
+      "timezone": "સમય ક્ષેત્ર",
+      "nakshatra": "ચંદ્ર નક્ષત્ર",
+      "nakshatraLord": "નક્ષત્ર સ્વામી",
+      "pada": "પદ",
+      "westernNotice": "નક્ષત્ર, દશા, યોગ, ભવિષ્યવાણીઓ અને ઉપાયો ફક્ત વૈદિક પદ્ધતિ માટે છે અને પાશ્ચાત્ય પદ્ધતિની કુંડળીમાં દેખાતા નથી."
+    },
+    "dasha": {
+      "mahadasha": "મહાદશા",
+      "antardasha": "અંતર્દશા",
+      "current": "વર્તમાન",
+      "viewAntardasha": "પેટા-ગાળા જુઓ",
+      "hideAntardasha": "પેટા-ગાળા છુપાવો"
+    },
+    "yogas": {
+      "empty": "આ કુંડળીમાં કોઈ ખાસ શાસ્ત્રીય યોગ મળ્યો નથી."
+    },
+    "predictions": {
+      "marriage": "લગ્ન અને ભાગીદારી",
+      "career": "કારકિર્દી, નોકરી અને વ્યવસાય",
+      "education": "શિક્ષણ",
+      "foreignSettlement": "વિદેશ સ્થાયી થવું"
+    },
+    "remedies": {
+      "empty": "કોઈ ખાસ ઉપાય સૂચવવામાં આવ્યો નથી — કોઈ નોંધપાત્ર પીડા મળી નથી.",
+      "gemstone": "રત્ન",
+      "mantra": "મંત્ર",
+      "donation": "દાન",
+      "fastingDay": "વ્રતનો દિવસ"
+    },
+    "yearWise": {
+      "style": "આગાહી શૈલી",
+      "simplified": "સરળ",
+      "varshphal": "સંપૂર્ણ વર્ષફળ",
+      "year": "વર્ષ",
+      "load": "આગાહી બતાવો",
+      "loading": "ગણતરી થઈ રહી છે…",
+      "error": "આ આગાહી ગણી શકાઈ નહીં.",
+      "jupiterTransit": "ગુરુ ગોચર",
+      "saturnTransit": "શનિ ગોચર",
+      "fromAscendant": "લગ્નથી {house}મું ભાવ",
+      "fromMoon": "ચંદ્રથી {house}મું ભાવ",
+      "governingDasha": "આ વર્ષની દશા",
+      "solarReturn": "સૂર્ય પ્રત્યાવર્તન",
+      "muntha": "મુંથા",
+      "varshesh": "વર્ષેશ (વર્ષ સ્વામી)",
+      "sahams": "સહમ"
+    }
   }
 }

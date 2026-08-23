@@ -263,7 +263,7 @@
     "courseFallback": "पाठ्यक्रम", "reference": "संदर्भ: {reference}", "accessPending": "संस्था द्वारा भुगतान की पुष्टि के बाद प्रवेश खुलेगा।",
     "progress": "पाठ प्रगति", "lessonsComplete": "{total} में से {complete} पूर्ण", "deviceProgress": "सर्वर सिंक उपलब्ध होने तक प्रगति इस डिवाइस पर सहेजी जाती है।",
     "watchLesson": "पाठ देखें", "liveClasses": "लाइव कक्षाएँ", "joinClass": "कक्षा में जुड़ें",
-    "birthDate": "जन्म तिथि", "birthPlace": "जन्म स्थान", "system": "प्रणाली",
+    "birthDate": "जन्म तिथि", "birthPlace": "जन्म स्थान", "system": "प्रणाली", "viewKundali": "विस्तृत कुंडली देखें",
     "statuses": { "pending_payment": "भुगतान लंबित", "confirmed": "पुष्ट", "completed": "पूर्ण", "cancelled": "रद्द", "no_show": "अनुपस्थित" },
     "empty": {
       "coursesTitle": "अभी कोई नामांकन नहीं", "coursesBody": "रिकॉर्डेड और लाइव पाठ्यक्रम देखें।", "browseCourses": "पाठ्यक्रम देखें",
@@ -337,5 +337,77 @@
     "mapHeading": "हमें खोजें",
     "mapTitle": "हमारा स्थान दर्शाने वाला मानचित्र",
     "mapLink": "गूगल मानचित्र में खोलें"
+  },
+  "Kundali": {
+    "metaTitle": "विस्तृत कुंडली रिपोर्ट",
+    "metaDescription": "दशा, योग, भविष्यवाणियों, उपायों और वर्षवार पूर्वानुमान के साथ अपनी विस्तृत वैदिक कुंडली देखें और उसे PDF के रूप में डाउनलोड करें।",
+    "eyebrow": "विस्तृत रिपोर्ट",
+    "title": "आपकी विस्तृत कुंडली",
+    "signInRequired": "यह कुंडली देखने के लिए अपने खाते में साइन इन करें।",
+    "goToAccount": "अपने खाते पर जाएँ",
+    "loading": "आपकी कुंडली लोड हो रही है…",
+    "loadError": "यह कुंडली लोड नहीं हो सकी।",
+    "retry": "पुनः प्रयास करें",
+    "notFound": "यह सहेजी गई कुंडली नहीं मिली।",
+    "downloadPdf": "PDF डाउनलोड करें",
+    "downloading": "PDF तैयार हो रही है…",
+    "downloadError": "PDF नहीं बनाई जा सकी। कृपया पुनः प्रयास करें।",
+    "sections": {
+      "summary": "कुंडली सारांश",
+      "dasha": "विंशोत्तरी दशा",
+      "yogas": "योग",
+      "predictions": "भविष्यवाणियाँ",
+      "remedies": "उपाय",
+      "yearWise": "वर्षवार पूर्वानुमान"
+    },
+    "summary": {
+      "ascendant": "लग्न",
+      "timezone": "समय क्षेत्र",
+      "nakshatra": "चंद्र नक्षत्र",
+      "nakshatraLord": "नक्षत्र स्वामी",
+      "pada": "पद",
+      "westernNotice": "नक्षत्र, दशा, योग, भविष्यवाणियाँ और उपाय केवल वैदिक प्रणाली के लिए हैं और पाश्चात्य प्रणाली की कुंडली में नहीं दिखाए जाते।"
+    },
+    "dasha": {
+      "mahadasha": "महादशा",
+      "antardasha": "अंतर्दशा",
+      "current": "वर्तमान",
+      "viewAntardasha": "उप-अवधि देखें",
+      "hideAntardasha": "उप-अवधि छिपाएँ"
+    },
+    "yogas": {
+      "empty": "इस कुंडली में कोई विशेष शास्त्रीय योग नहीं पाया गया।"
+    },
+    "predictions": {
+      "marriage": "विवाह और साझेदारी",
+      "career": "करियर, नौकरी और व्यवसाय",
+      "education": "शिक्षा",
+      "foreignSettlement": "विदेश स्थायित्व"
+    },
+    "remedies": {
+      "empty": "कोई विशेष उपाय सुझाया नहीं गया है — कोई महत्वपूर्ण पीड़ा नहीं पाई गई।",
+      "gemstone": "रत्न",
+      "mantra": "मंत्र",
+      "donation": "दान",
+      "fastingDay": "व्रत का दिन"
+    },
+    "yearWise": {
+      "style": "पूर्वानुमान शैली",
+      "simplified": "सरलीकृत",
+      "varshphal": "पूर्ण वर्षफल",
+      "year": "वर्ष",
+      "load": "पूर्वानुमान दिखाएँ",
+      "loading": "गणना हो रही है…",
+      "error": "यह पूर्वानुमान नहीं निकाला जा सका।",
+      "jupiterTransit": "गुरु गोचर",
+      "saturnTransit": "शनि गोचर",
+      "fromAscendant": "लग्न से {house}वाँ भाव",
+      "fromMoon": "चंद्र से {house}वाँ भाव",
+      "governingDasha": "इस वर्ष की दशा",
+      "solarReturn": "सूर्य प्रत्यावर्तन",
+      "muntha": "मुंथा",
+      "varshesh": "वर्षेश (वर्ष स्वामी)",
+      "sahams": "सहम"
+    }
   }
 }

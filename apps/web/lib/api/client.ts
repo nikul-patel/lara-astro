@@ -31,7 +31,7 @@ export function getApiBaseUrl(): string {
   );
 }
 
-function buildUrl(path: string, query?: Record<string, QueryValue>): string {
+export function buildUrl(path: string, query?: Record<string, QueryValue>): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = new URL(`${getApiBaseUrl()}${normalizedPath}`);
 
@@ -94,4 +94,38 @@ export async function apiRequest<T>(
   }
 
   return payload as T;
+}
+
+/**
+ * Fetches a binary response (currently just the PDF report) as a Blob,
+ * bypassing apiRequest's JSON handling. The report endpoint sits behind a
+ * Sanctum bearer token kept in localStorage rather than a cookie, so a
+ * plain `<a href>` can't authenticate the download — callers turn this
+ * Blob into an object URL and click a temporary `<a download>` instead
+ * (see components/kundali/kundali-report.tsx).
+ */
+export async function apiDownload(
+  path: string,
+  options: { query?: Record<string, QueryValue>; token?: string } = {},
+): Promise<{ blob: Blob; filename: string | null }> {
+  const requestHeaders = new Headers();
+  if (options.token) {
+    requestHeaders.set("Authorization", `Bearer ${options.token}`);
+  }
+
+  const response = await fetch(buildUrl(path, options.query), {
+    headers: requestHeaders,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(
+      `API request failed with status ${response.status}`,
+      response.status,
+    );
+  }
+
+  const disposition = response.headers.get("content-disposition");
+  const filenameMatch = disposition?.match(/filename="?([^";]+)"?/);
+
+  return { blob: await response.blob(), filename: filenameMatch?.[1] ?? null };
 }

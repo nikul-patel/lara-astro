@@ -3,6 +3,8 @@
 namespace App\Services\Astrology;
 
 use App\Models\Setting;
+use App\Services\Astrology\Predictions\PredictionEngine;
+use App\Services\Astrology\Remedies\RemedyEngine;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\ValidationException;
 
@@ -58,37 +60,26 @@ class BirthChartCalculator
         $utc = $localDateTime->utc();
         $julianDay = JulianDay::fromUtc($utc);
 
-        $tropicalLongitudes = [
-            'Sun' => SunPosition::apparentLongitude($julianDay),
-            'Moon' => MoonPosition::apparentLongitude($julianDay),
-            'Mercury' => PlanetaryElements::geocentricLongitude('mercury', $julianDay),
-            'Venus' => PlanetaryElements::geocentricLongitude('venus', $julianDay),
-            'Mars' => PlanetaryElements::geocentricLongitude('mars', $julianDay),
-            'Jupiter' => PlanetaryElements::geocentricLongitude('jupiter', $julianDay),
-            'Saturn' => PlanetaryElements::geocentricLongitude('saturn', $julianDay),
-            'Rahu' => LunarNodes::rahuLongitude($julianDay),
-            'Ketu' => LunarNodes::ketuLongitude($julianDay),
-        ];
+        $chart = ChartAssembler::assemble($julianDay, $location['latitude'], $location['longitude'], $system);
+        $chartLongitudes = $chart['chart_longitudes'];
+        $ascendant = $chart['ascendant_longitude'];
+        $planetaryPositions = $chart['planetary_positions'];
+        $houses = $chart['houses'];
 
-        $ayanamsa = $system === 'vedic' ? Ayanamsa::lahiri($julianDay) : 0.0;
-
-        $chartLongitudes = [];
-        foreach ($tropicalLongitudes as $planet => $longitude) {
-            $chartLongitudes[$planet] = AstroMath::normalizeDegrees($longitude - $ayanamsa);
-        }
-
-        $tropicalAscendant = Houses::ascendant($julianDay, $location['latitude'], $location['longitude']);
-        $ascendant = AstroMath::normalizeDegrees($tropicalAscendant - $ayanamsa);
-
-        $planetaryPositions = [];
-        foreach ($chartLongitudes as $planet => $longitude) {
-            $planetaryPositions[] = [
-                'name' => $planet,
-                'sign' => ZodiacSigns::forLongitude($longitude),
-                'degree' => ZodiacSigns::formatDegreeInSign($longitude),
-                'longitude' => round($longitude, 4),
-            ];
-        }
+        // Nakshatra and Vimshottari dasha are Vedic-specific (sidereal)
+        // concepts with no Western-astrology equivalent, same as
+        // chart_style above.
+        $nakshatra = $system === 'vedic' ? Nakshatra::forLongitude($chartLongitudes['Moon']) : null;
+        $dasha = $system === 'vedic'
+            ? ['mahadasha' => VimshottariDasha::timeline($chartLongitudes['Moon'], $localDateTime)]
+            : null;
+        $yogas = $system === 'vedic' ? YogaEngine::detect($houses) : null;
+        $predictions = $system === 'vedic' && $setting->astrology_predictions_enabled
+            ? PredictionEngine::generate($houses, $yogas)
+            : null;
+        $remedies = $system === 'vedic' && $setting->astrology_predictions_enabled
+            ? RemedyEngine::generate($houses, $chartLongitudes)
+            : null;
 
         return [
             'timezone' => $location['timezone'],
@@ -96,11 +87,13 @@ class BirthChartCalculator
             'chart_style' => $chartStyle,
             'recommendation' => $recommendation,
             'planetary_positions' => $planetaryPositions,
-            'houses' => Houses::wholeSignHouses($ascendant, $chartLongitudes),
-            'ascendant' => [
-                'sign' => ZodiacSigns::forLongitude($ascendant),
-                'degree' => ZodiacSigns::formatDegreeInSign($ascendant),
-            ],
+            'houses' => $houses,
+            'ascendant' => $chart['ascendant'],
+            'nakshatra' => $nakshatra,
+            'dasha' => $dasha,
+            'yogas' => $yogas,
+            'predictions' => $predictions,
+            'remedies' => $remedies,
             'location_matched' => $location['matched'],
         ];
     }

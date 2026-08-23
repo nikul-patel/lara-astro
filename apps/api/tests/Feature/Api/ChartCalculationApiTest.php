@@ -26,6 +26,73 @@ test('calculating a chart returns planetary positions, houses, and a recommendat
     expect($houseNumbers->all())->toBe(range(1, 12));
 });
 
+test('a vedic chart includes the Moon\'s nakshatra and a 9-period Vimshottari Mahadasha timeline', function () {
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonStructure([
+            'nakshatra' => ['index', 'name', 'lord', 'pada'],
+            'dasha' => ['mahadasha'],
+        ])
+        ->assertJsonCount(9, 'dasha.mahadasha');
+
+    $mahadasha = $response->json('dasha.mahadasha');
+    expect($mahadasha[0])->toHaveKeys(['lord', 'start', 'end', 'antardashas'])
+        ->and($mahadasha[0]['antardashas'])->toHaveCount(9);
+});
+
+test('a western chart has no nakshatra or dasha (sidereal-only concepts)', function () {
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('nakshatra', null)
+        ->assertJsonPath('dasha', null);
+});
+
+test('a vedic chart includes a yogas array (possibly empty) and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    expect($vedic->json('yogas'))->toBeArray()
+        ->and($western->json('yogas'))->toBeNull();
+});
+
+test('a vedic chart includes predictions for all 4 life areas by default', function () {
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonStructure(['predictions' => ['marriage', 'career', 'education', 'foreign_settlement']]);
+    expect($response->json('remedies'))->toBeArray();
+});
+
+test('a deployment can disable predictions and remedies content', function () {
+    Setting::current()->update(['astrology_predictions_enabled' => false]);
+
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'vedic',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('predictions', null)
+        ->assertJsonPath('remedies', null);
+});
+
 test('region recommendation matches the PRD table for south and east Indian birth places', function () {
     $south = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Chennai, Tamil Nadu',
