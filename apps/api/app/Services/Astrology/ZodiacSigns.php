@@ -37,4 +37,20 @@ class ZodiacSigns
 
         return sprintf('%02d° %02d′', $wholeDegrees, $minutes);
     }
+
+    /**
+     * The house number (1-12) $toSign occupies when counted inclusively
+     * from $fromSign — e.g. offset(Aries, Aries) = 1, offset(Aries, Taurus)
+     * = 2. Shared by every place in this codebase that needs a
+     * sign-to-sign distance rather than a longitude-to-house lookup
+     * (YearlyForecast\TransitForecast's Gochara offsets, the Doshas and
+     * Matching namespaces' rashi-based rules).
+     */
+    public static function offset(string $fromSign, string $toSign): int
+    {
+        $fromIndex = array_search($fromSign, self::NAMES, true);
+        $toIndex = array_search($toSign, self::NAMES, true);
+
+        return (($toIndex - $fromIndex + 12) % 12) + 1;
+    }
 }

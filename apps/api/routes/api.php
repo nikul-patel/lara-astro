@@ -12,9 +12,14 @@ use App\Http\Controllers\Api\ChartCalculationController;
 use App\Http\Controllers\Api\ChartController;
 use App\Http\Controllers\Api\ChartReportController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\DoshaController;
 use App\Http\Controllers\Api\EnrollmentController;
+use App\Http\Controllers\Api\KundaliMatchingController;
+use App\Http\Controllers\Api\NumerologyController;
 use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\PanchangController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\SadeSatiController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\TestimonialController;
@@ -48,6 +53,15 @@ Route::post('auth/login', [AuthController::class, 'login']);
 
 Route::post('chart', [ChartCalculationController::class, 'calculate']);
 Route::post('year-wise', [YearWiseForecastController::class, 'calculate']);
+
+// Premium-tier features on competitor platforms, offered free here (see
+// docs/API_CONTRACT.md's "Advanced free features" section). All public and
+// stateless, mirroring the chart/year-wise endpoints above.
+Route::post('doshas', [DoshaController::class, 'calculate']);
+Route::post('sade-sati', [SadeSatiController::class, 'calculate']);
+Route::post('kundali-matching', [KundaliMatchingController::class, 'calculate']);
+Route::post('panchang', [PanchangController::class, 'calculate']);
+Route::post('numerology', [NumerologyController::class, 'calculate']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
