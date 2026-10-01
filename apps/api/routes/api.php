@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\SadeSatiController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\TestimonialController;
+use App\Http\Controllers\Api\VargaController;
 use App\Http\Controllers\Api\YearWiseForecastController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,7 @@ Route::post('sade-sati', [SadeSatiController::class, 'calculate']);
 Route::post('kundali-matching', [KundaliMatchingController::class, 'calculate']);
 Route::post('panchang', [PanchangController::class, 'calculate']);
 Route::post('numerology', [NumerologyController::class, 'calculate']);
+Route::post('varga', [VargaController::class, 'calculate']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
