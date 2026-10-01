@@ -87,6 +87,9 @@ class BirthChartCalculator
         $ashtakvarga = $system === 'vedic'
             ? AshtakvargaCalculator::calculate($planetaryPositions, $chart['ascendant']['sign'])
             : null;
+        $avkahada = $system === 'vedic'
+            ? AvkahadaChakra::forChart($nakshatra, HouseLords::signOfPlanet('Moon', $houses), $chart['ascendant']['sign'])
+            : null;
 
         return [
             'timezone' => $location['timezone'],
@@ -102,6 +105,7 @@ class BirthChartCalculator
             'predictions' => $predictions,
             'remedies' => $remedies,
             'ashtakvarga' => $ashtakvarga,
+            'avkahada' => $avkahada,
             'location_matched' => $location['matched'],
         ];
     }
