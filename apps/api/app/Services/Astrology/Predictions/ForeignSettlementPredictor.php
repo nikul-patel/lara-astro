@@ -39,7 +39,7 @@ class ForeignSettlementPredictor
             $yoga = $byKey->get($yogaKey);
             $slots = match ($templateKey) {
                 'ninth_twelfth_link' => ['lord9' => $yoga['planets'][0], 'lord12' => $yoga['planets'][1]],
-                'twelfth_lord_strong' => ['lord' => $yoga['planets'][0], 'house' => $yoga['houses'][1]],
+                'twelfth_lord_strong' => ['lord' => $yoga['planets'][0], 'house' => Ordinal::suffix($yoga['houses'][1])],
                 default => [],
             };
 

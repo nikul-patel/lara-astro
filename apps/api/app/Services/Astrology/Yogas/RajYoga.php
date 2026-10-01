@@ -3,6 +3,7 @@
 namespace App\Services\Astrology\Yogas;
 
 use App\Services\Astrology\HouseLords;
+use App\Services\Astrology\Predictions\Ordinal;
 
 /**
  * Raj yoga: a kendra lord (1st/4th/7th/10th) and a trikona lord
@@ -51,7 +52,7 @@ class RajYoga
                     'category' => 'status_and_authority',
                     'planets' => [$kendraLord, $trikonaLord],
                     'houses' => [$kendra, $trikona],
-                    'description' => "The {$kendra}th-house lord ({$kendraLord}) and {$trikona}th-house lord ({$trikonaLord}) are linked, forming a Raj Yoga associated with rising status and authority.",
+                    'description' => 'The '.Ordinal::suffix($kendra)."-house lord ({$kendraLord}) and ".Ordinal::suffix($trikona)."-house lord ({$trikonaLord}) are linked, forming a Raj Yoga associated with rising status and authority.",
                 ];
             }
         }

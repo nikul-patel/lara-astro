@@ -2,7 +2,7 @@
     <h2>Shadbala &amp; Bhavabala</h2>
 
     <h3>Shadbala (Six-Fold Planetary Strength, in Rupas)</h3>
-    <table>
+    <table class="table-dense">
         <tr><th>Planet</th><th>Sthana</th><th>Dig</th><th>Kala</th><th>Chesta</th><th>Naisargika</th><th>Drik</th><th>Total Rupas</th><th>Required</th><th>Strong?</th></tr>
         @foreach ($shadbala['total_rupas'] as $planet => $totalRupas)
             <tr>
@@ -21,7 +21,7 @@
     </table>
 
     <h3>Bhavabala (House Strength, in Rupas)</h3>
-    <table>
+    <table class="table-dense">
         <tr>
             @foreach (array_keys($bhavabala['total_rupas']) as $house)
                 <th>House {{ $house }}</th>

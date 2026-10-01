@@ -35,9 +35,9 @@ class CareerPredictor
             $tenthHouseYoga !== null => ['tenth_lord_yoga', ['lord' => $lord, 'yogaName' => $tenthHouseYoga['name']]],
             $sign !== null && PlanetaryDignity::isExalted($lord, $sign) => ['tenth_lord_exalted', ['lord' => $lord, 'sign' => $sign]],
             $sign !== null && PlanetaryDignity::isDebilitated($lord, $sign) => ['tenth_lord_debilitated', ['lord' => $lord, 'sign' => $sign]],
-            $house !== null && in_array($house, self::KENDRA_TRIKONA, true) => ['tenth_lord_kendra_trikona', ['lord' => $lord, 'house' => $house]],
-            $house !== null && in_array($house, self::DUSTHANA, true) => ['tenth_lord_dusthana', ['lord' => $lord, 'house' => $house]],
-            default => ['tenth_lord_default', ['lord' => $lord, 'sign' => $sign, 'house' => $house]],
+            $house !== null && in_array($house, self::KENDRA_TRIKONA, true) => ['tenth_lord_kendra_trikona', ['lord' => $lord, 'house' => Ordinal::suffix($house)]],
+            $house !== null && in_array($house, self::DUSTHANA, true) => ['tenth_lord_dusthana', ['lord' => $lord, 'house' => Ordinal::suffix($house)]],
+            default => ['tenth_lord_default', ['lord' => $lord, 'sign' => $sign, 'house' => $house !== null ? Ordinal::suffix($house) : '']],
         };
 
         return [

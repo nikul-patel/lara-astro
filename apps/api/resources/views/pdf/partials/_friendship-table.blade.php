@@ -10,7 +10,7 @@
 
     @foreach (['natural' => 'Natural (Permanent) Friendship', 'temporal' => 'Temporal Friendship', 'combined' => 'Five-Fold (Combined) Friendship'] as $key => $label)
         <h3>{{ $label }}</h3>
-        <table>
+        <table class="table-dense">
             <tr>
                 <th></th>
                 @foreach ($friendshipPlanets as $planet)

@@ -40,7 +40,7 @@ class DashaNarrativePredictor
                 'lord' => $lord,
                 'house' => $house,
                 'text' => TemplateRenderer::render(DashaNarrativeTemplates::TEMPLATES['en'][$lord], [
-                    'house' => $house,
+                    'house' => Ordinal::suffix($house),
                     'signification' => HouseSignifications::SIGNIFICATION[$house],
                 ]),
             ];

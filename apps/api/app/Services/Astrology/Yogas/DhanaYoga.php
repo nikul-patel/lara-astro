@@ -3,6 +3,7 @@
 namespace App\Services\Astrology\Yogas;
 
 use App\Services\Astrology\HouseLords;
+use App\Services\Astrology\Predictions\Ordinal;
 
 /**
  * Dhana yoga: a wealth-house lord (2nd/11th) linked by conjunction,
@@ -46,7 +47,7 @@ class DhanaYoga
                     'category' => 'wealth',
                     'planets' => [$wealthLord, $linkedLord],
                     'houses' => [$wealth, $linked],
-                    'description' => "The {$wealth}th-house lord ({$wealthLord}) and {$linked}th-house lord ({$linkedLord}) are linked, forming a Dhana Yoga associated with financial gain.",
+                    'description' => 'The '.Ordinal::suffix($wealth)."-house lord ({$wealthLord}) and ".Ordinal::suffix($linked)."-house lord ({$linkedLord}) are linked, forming a Dhana Yoga associated with financial gain.",
                 ];
             }
         }
