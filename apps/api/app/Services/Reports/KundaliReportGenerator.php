@@ -64,7 +64,20 @@ class KundaliReportGenerator
             'forecast' => $forecast,
             'doshas' => $isVedic ? DoshaEngine::detect($result) : null,
             'sadeSati' => $isVedic ? self::sadeSati($chart, $result) : null,
-            'divisionalCharts' => $isVedic ? self::divisionalCharts($result) : null,
+            // isset() guard, not just $isVedic: a chart SAVED before #82 added
+            // `ascendant_longitude` to BirthChartCalculator's result has that
+            // key missing from its stored (cached-at-save-time) `result` JSON
+            // — this generator never re-runs BirthChartCalculator on an
+            // existing chart, so an old chart's result stays exactly as it
+            // was computed. Without this guard, divisionalCharts() would pass
+            // null into VargaCalculator::sign()'s typed float parameter and
+            // fatal with a TypeError, taking down the ENTIRE report (every
+            // other section already degrades gracefully via its own
+            // `@if (! empty(...))` guard) for the one new field this is the
+            // only section that needs. An old chart simply omits this one
+            // section rather than crashing; re-saving/recalculating the
+            // chart picks up every new field, this one included.
+            'divisionalCharts' => $isVedic && isset($result['ascendant_longitude']) ? self::divisionalCharts($result) : null,
             'transits' => $isVedic ? self::transits($result) : null,
             'siteName' => Setting::current()->site_name,
             'generatedAt' => now(),
