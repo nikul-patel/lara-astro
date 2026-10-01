@@ -51,6 +51,7 @@ test('the rendered report HTML includes every computed section, not just chart s
         'Dosha Analysis',
         'Sade Sati',
         'Your Ascendant',
+        'Nakshatra Phal',
         'Vimshottari Mahadasha Predictions',
     ] as $expectedSection) {
         expect($html)->toContain($expectedSection);

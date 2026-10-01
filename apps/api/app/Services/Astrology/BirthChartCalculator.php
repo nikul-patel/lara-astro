@@ -89,7 +89,7 @@ class BirthChartCalculator
             : null;
         $yogas = $system === 'vedic' ? YogaEngine::detect($houses) : null;
         $predictions = $system === 'vedic' && $setting->astrology_predictions_enabled
-            ? PredictionEngine::generate($houses, $yogas, $chart['ascendant']['sign'])
+            ? PredictionEngine::generate($houses, $yogas, $chart['ascendant']['sign'], $nakshatra['name'] ?? null)
             : null;
         $remedies = $system === 'vedic' && $setting->astrology_predictions_enabled
             ? RemedyEngine::generate($houses, $chartLongitudes)

@@ -95,6 +95,23 @@ test('a vedic chart includes predictions for all 4 life areas, an Ascendant desc
     expect(strlen($response->json('predictions.ascendant.text')))->toBeGreaterThan(200);
 });
 
+test('a vedic chart includes a Nakshatra Phal prediction matching the chart\'s own Moon nakshatra, and a western chart has none (#86)', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure(['predictions' => ['nakshatra' => ['key', 'text']]]);
+    expect($vedic->json('predictions.nakshatra.key'))->toBe($vedic->json('nakshatra.name'));
+    expect(strlen($vedic->json('predictions.nakshatra.text')))->toBeGreaterThan(200);
+
+    expect($western->json('predictions'))->toBeNull();
+});
+
 test('a deployment can disable predictions and remedies content', function () {
     Setting::current()->update(['astrology_predictions_enabled' => false]);
 

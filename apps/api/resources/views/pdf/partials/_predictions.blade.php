@@ -6,6 +6,11 @@
         <p>{{ $predictions['ascendant']['text'] }}</p>
     @endif
 
+    @if (! empty($predictions['nakshatra']))
+        <h3>Nakshatra Phal</h3>
+        <p>{{ $predictions['nakshatra']['text'] }}</p>
+    @endif
+
     <h3>Marriage &amp; Partnerships</h3>
     <p>{{ $predictions['marriage']['text'] }}</p>
 

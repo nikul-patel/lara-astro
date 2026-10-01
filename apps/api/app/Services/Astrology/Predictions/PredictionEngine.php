@@ -11,9 +11,9 @@ class PredictionEngine
     /**
      * @param  list<array{number: int, sign: string, planets: list<string>}>  $houses
      * @param  list<array{key: string, name: string, category: string, planets: list<string>, houses: list<int>, description: string}>  $yogas
-     * @return array{marriage: array{key: string, text: string}, career: array{key: string, text: string}, education: array{key: string, text: string}, foreign_settlement: array{key: string, text: string}, ascendant: array{key: string, text: string}, dasha_narrative: list<array{lord: string, house: int, text: string}>}
+     * @return array{marriage: array{key: string, text: string}, career: array{key: string, text: string}, education: array{key: string, text: string}, foreign_settlement: array{key: string, text: string}, ascendant: array{key: string, text: string}, nakshatra: ?array{key: string, text: string}, dasha_narrative: list<array{lord: string, house: int, text: string}>}
      */
-    public static function generate(array $houses, array $yogas, string $ascendantSign): array
+    public static function generate(array $houses, array $yogas, string $ascendantSign, ?string $moonNakshatraName = null): array
     {
         return [
             'marriage' => MarriagePredictor::predict($houses),
@@ -21,6 +21,7 @@ class PredictionEngine
             'education' => EducationPredictor::predict($houses),
             'foreign_settlement' => ForeignSettlementPredictor::predict($houses, $yogas),
             'ascendant' => AscendantPredictor::describe($ascendantSign),
+            'nakshatra' => $moonNakshatraName !== null ? NakshatraPredictor::describe($moonNakshatraName) : null,
             'dasha_narrative' => DashaNarrativePredictor::generate($houses),
         ];
     }
