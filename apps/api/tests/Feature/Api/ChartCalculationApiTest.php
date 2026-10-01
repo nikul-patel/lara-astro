@@ -397,6 +397,34 @@ test('a vedic chart includes a Lal Kitab fixed-house chart and Pucca Ghar, and a
     );
 });
 
+test('both vedic and western charts include 12 real Placidus Bhava Madhya cusps, 180 degrees apart from their opposite', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    foreach ([$vedic, $western] as $response) {
+        $response->assertOk()->assertJsonStructure([
+            'bhava_madhya' => [['house', 'sign', 'degree', 'longitude']],
+        ]);
+
+        $bhavaMadhya = $response->json('bhava_madhya');
+        expect($bhavaMadhya)->toHaveCount(12);
+        expect(array_column($bhavaMadhya, 'house'))->toBe(range(1, 12));
+
+        $byHouse = collect($bhavaMadhya)->keyBy('house');
+        foreach ([[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]] as [$a, $b]) {
+            $delta = fmod($byHouse[$b]['longitude'] - $byHouse[$a]['longitude'], 360);
+            $delta = $delta < 0 ? $delta + 360 : $delta;
+            expect(abs($delta - 180))->toBeLessThan(0.01);
+        }
+    }
+});
+
 test('an unrecognized place still calculates, falling back to Delhi and flagging the fallback', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Nowhereville',

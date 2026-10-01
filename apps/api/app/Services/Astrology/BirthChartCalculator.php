@@ -4,6 +4,7 @@ namespace App\Services\Astrology;
 
 use App\Models\Setting;
 use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
+use App\Services\Astrology\Houses\PlacidusCusps;
 use App\Services\Astrology\Jaimini\CharDasha;
 use App\Services\Astrology\Jaimini\Karakas;
 use App\Services\Astrology\KP\SubLord;
@@ -140,6 +141,24 @@ class BirthChartCalculator
         $lalKitab = $system === 'vedic' ? LalKitabChart::build($chartLongitudes, $chart['ascendant']['sign']) : null;
         $aspects = WesternAspects::detect($chartLongitudes);
 
+        // Placidus cusps are computed in the tropical frame (pure RAMC/
+        // latitude/obliquity geometry, no zodiac dependency) and then
+        // shifted into whichever frame this chart's system uses — same
+        // ayanamsa ChartAssembler already subtracted from every planet
+        // and the whole-sign ascendant, kept in sync here.
+        $ayanamsa = $system === 'vedic' ? Ayanamsa::lahiri($julianDay) : 0.0;
+        $placidusCusps = PlacidusCusps::calculate($julianDay, $location['latitude'], $location['longitude']);
+        $bhavaMadhya = [];
+        foreach ($placidusCusps as $houseNumber => $longitude) {
+            $shifted = AstroMath::normalizeDegrees($longitude - $ayanamsa);
+            $bhavaMadhya[] = [
+                'house' => $houseNumber,
+                'sign' => ZodiacSigns::forLongitude($shifted),
+                'degree' => ZodiacSigns::formatDegreeInSign($shifted),
+                'longitude' => round($shifted, 4),
+            ];
+        }
+
         return [
             'timezone' => $location['timezone'],
             'system' => $system,
@@ -161,6 +180,7 @@ class BirthChartCalculator
             'bhavabala' => $bhavabala,
             'kp' => $kp,
             'lal_kitab' => $lalKitab,
+            'bhava_madhya' => $bhavaMadhya,
             'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];
