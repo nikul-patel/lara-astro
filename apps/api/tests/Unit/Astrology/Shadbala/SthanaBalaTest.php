@@ -107,6 +107,37 @@ test('Saptavargaja Bala sums dignity across all 7 vargas, hand-verified sign-by-
     expect(SthanaBala::saptavargajaBala($chart, $rasiSigns)['Sun'])->toBe(60.0);
 });
 
+test('Moolatrikona detection uses the full fractional degree-in-sign, not a float-to-int-truncated one', function () {
+    // Sun's Moolatrikona is 0-20 Leo (longitude 120.0-140.0). 140.3 is 20.3
+    // degrees into Leo — just OUTSIDE Moolatrikona, inside Sun's own sign
+    // instead. Before this fix, SthanaBala used PHP's `%` operator on a
+    // float longitude, which silently truncates to int first: 140.3 % 30
+    // became (int) 140 % 30 = 20 (the .3 discarded), and 20 <= 20.0 wrongly
+    // classified this as still inside Moolatrikona.
+    $chart = ['Sun' => 140.3, 'Moon' => 125.0, 'Mars' => 125.0, 'Mercury' => 125.0, 'Jupiter' => 125.0, 'Venus' => 125.0, 'Saturn' => 125.0];
+    $rasiSigns = ['Sun' => 'Leo', 'Moon' => 'Leo', 'Mars' => 'Leo', 'Mercury' => 'Leo', 'Jupiter' => 'Leo', 'Venus' => 'Leo', 'Saturn' => 'Leo'];
+
+    // Degree-in-sign 20.3 lands in a different D7 (Saptamsha) segment than
+    // the 25 Leo case above (D7 spans 4.2857 degrees each; 20.3 falls in
+    // the Sagittarius segment, 25.0 in Capricorn's), so this total isn't
+    // the same 60.0 — each varga's sign/lord/relationship below is taken
+    // from VargaCalculator's own already-tested output
+    // (see VargaCalculatorTest), not re-derived here; only the D1 row
+    // (the thing this test exists to check) is asserted by hand:
+    // D1  Leo (own sign, correctly OUTSIDE 0-20 Moolatrikona)    -> 30
+    // D2  Cancer     -> lord Moon,    friend/enemy    -> neutral     -> 7.5
+    // D3  Aries      -> lord Mars,    friend/enemy    -> neutral     -> 7.5
+    // D7  Sagittarius-> lord Jupiter, friend/enemy    -> neutral     -> 7.5
+    // D9  Libra      -> lord Venus,   enemy/enemy     -> great_enemy -> 1.875
+    // D12 Aries      -> lord Mars,    friend/enemy    -> neutral     -> 7.5
+    // D30 Gemini     -> lord Mercury, neutral/enemy   -> enemy       -> 3.75
+    // Total: 30 + 7.5 + 7.5 + 7.5 + 1.875 + 7.5 + 3.75 = 65.625 -> 65.63.
+    // Before this fix, PHP's float-truncating `%` misclassified 20.3 as
+    // still inside Moolatrikona (see degreeInSign()'s doc comment), which
+    // would have scored D1 as 45 instead of 30, for a wrong total of 80.63.
+    expect(SthanaBala::saptavargajaBala($chart, $rasiSigns)['Sun'])->toBe(65.63);
+});
+
 test('calculate() sums all five sub-components into a per-planet total', function () {
     $chart = ['Sun' => 10.0, 'Moon' => 100.0, 'Mars' => 65.0, 'Mercury' => 200.0, 'Jupiter' => 280.0, 'Venus' => 300.0, 'Saturn' => 350.0];
     $rasiSigns = ['Sun' => 'Aries', 'Moon' => 'Cancer', 'Mars' => 'Gemini', 'Mercury' => 'Sagittarius', 'Jupiter' => 'Capricorn', 'Venus' => 'Capricorn', 'Saturn' => 'Pisces'];

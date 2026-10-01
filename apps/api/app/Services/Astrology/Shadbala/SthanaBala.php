@@ -171,7 +171,7 @@ class SthanaBala
         $values = [];
 
         foreach (PlanetaryFriendship::CLASSICAL_PLANETS as $planet) {
-            $degreeInSign = AstroMath::normalizeDegrees($chartLongitudes[$planet]) % 30;
+            $degreeInSign = self::degreeInSign($chartLongitudes[$planet]);
             $decan = (int) floor($degreeInSign / 10);
 
             $values[$planet] = $decan === self::DREKKANA_DECAN[$planet] ? 15.0 : 0.0;
@@ -215,7 +215,7 @@ class SthanaBala
     {
         $moolatrikona = PlanetaryDignity::MOOLATRIKONA[$planet];
         $sign = ZodiacSigns::forLongitude($longitude);
-        $degreeInSign = AstroMath::normalizeDegrees($longitude) % 30;
+        $degreeInSign = self::degreeInSign($longitude);
 
         return $sign === $moolatrikona['sign']
             && $degreeInSign >= $moolatrikona['from']
@@ -225,5 +225,28 @@ class SthanaBala
     private static function isEvenSign(string $sign): bool
     {
         return array_search($sign, ZodiacSigns::NAMES, true) % 2 === 1;
+    }
+
+    /**
+     * Degree elapsed within the current sign (0-30, fractional), computed
+     * without PHP's `%` operator — which silently truncates both operands
+     * to int, discarding everything after the decimal point (e.g. 227.05°
+     * would become 227 % 30 = 17, not 17.05). That truncation previously
+     * caused isInMoolatrikona() to misclassify any longitude in
+     * [to, to+1) degrees-in-sign as still inside a moolatrikona range
+     * whose upper bound ("to") lands on a whole degree — e.g. a Sun at
+     * 20.3° Leo (just past its 0-20° moolatrikona) would truncate to
+     * exactly 20°, which still satisfies `<= 20.0` and wrongly grants
+     * Sthana Bala's moolatrikona bonus. drekkanaBala()'s decan split
+     * happens to be unaffected (floor(degreeInSign / 10) lands on the
+     * same decan whether or not the sub-degree fraction survives), but
+     * this fix removes the truncation for both call sites rather than
+     * leaving one correct by accident.
+     */
+    private static function degreeInSign(float $longitude): float
+    {
+        $normalized = AstroMath::normalizeDegrees($longitude);
+
+        return $normalized - floor($normalized / 30) * 30;
     }
 }

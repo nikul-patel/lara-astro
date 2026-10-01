@@ -44,12 +44,64 @@
 
     @include('pdf.partials._chart-summary', ['result' => $result])
 
+    @if (! empty($result['avkahada']))
+        @include('pdf.partials._avkahada', ['avkahada' => $result['avkahada']])
+    @endif
+
+    @if (! empty($result['ashtakvarga']))
+        @include('pdf.partials._ashtakvarga', ['ashtakvarga' => $result['ashtakvarga']])
+    @endif
+
+    @if (! empty($divisionalCharts))
+        @include('pdf.partials._divisional-charts', ['divisionalCharts' => $divisionalCharts])
+    @endif
+
+    @if (! empty($result['bhava_madhya']))
+        @include('pdf.partials._bhava-madhya', ['result' => $result])
+    @endif
+
     @if (! empty($result['dasha']['mahadasha']))
         @include('pdf.partials._dasha-timeline', ['dasha' => $result['dasha']])
     @endif
 
+    @if (! empty($result['dasha']['yogini']))
+        @include('pdf.partials._yogini-dasha', ['dasha' => $result['dasha']])
+    @endif
+
+    @if (! empty($result['jaimini']))
+        @include('pdf.partials._jaimini', ['jaimini' => $result['jaimini']])
+    @endif
+
+    @if (! empty($result['kp']))
+        @include('pdf.partials._kp', ['kp' => $result['kp']])
+    @endif
+
+    @if (! empty($result['shadbala']) && ! empty($result['bhavabala']))
+        @include('pdf.partials._shadbala', ['shadbala' => $result['shadbala'], 'bhavabala' => $result['bhavabala']])
+    @endif
+
+    @if (! empty($result['lal_kitab']))
+        @include('pdf.partials._lal-kitab', ['lalKitab' => $result['lal_kitab']])
+    @endif
+
+    @if (! empty($result['friendship_table']))
+        @include('pdf.partials._friendship-table', ['friendshipTable' => $result['friendship_table']])
+    @endif
+
+    @if (! empty($result['aspects']))
+        @include('pdf.partials._aspects', ['result' => $result])
+    @endif
+
     @if (! empty($result['yogas']))
         @include('pdf.partials._yogas', ['yogas' => $result['yogas']])
+    @endif
+
+    @if (! empty($doshas))
+        @include('pdf.partials._doshas', ['doshas' => $doshas])
+    @endif
+
+    @if (! empty($sadeSati))
+        @include('pdf.partials._sade-sati', ['sadeSati' => $sadeSati])
     @endif
 
     @if (! empty($result['predictions']))

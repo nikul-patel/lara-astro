@@ -193,6 +193,14 @@ class BirthChartCalculator
             'planetary_positions' => $planetaryPositions,
             'houses' => $houses,
             'ascendant' => $chart['ascendant'],
+            // Exposed alongside the formatted `ascendant` block above
+            // purely so downstream longitude-only consumers (e.g.
+            // KundaliReportGenerator's Shodashvarga table, which needs a
+            // raw longitude to feed VargaCalculator::sign(), not a
+            // pre-formatted sign/degree pair) don't have to re-geocode and
+            // recompute the whole chart just to get a number this method
+            // already has in `$ascendant`.
+            'ascendant_longitude' => $ascendant,
             'nakshatra' => $nakshatra,
             'dasha' => $dasha,
             'yogas' => $yogas,
