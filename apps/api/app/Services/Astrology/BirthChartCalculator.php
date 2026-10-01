@@ -90,6 +90,14 @@ class BirthChartCalculator
         $avkahada = $system === 'vedic'
             ? AvkahadaChakra::forChart($nakshatra, HouseLords::signOfPlanet('Moon', $houses), $chart['ascendant']['sign'])
             : null;
+        $friendshipTable = null;
+        if ($system === 'vedic') {
+            $classicalPlanetSigns = [];
+            foreach (PlanetaryFriendship::CLASSICAL_PLANETS as $planet) {
+                $classicalPlanetSigns[$planet] = ZodiacSigns::forLongitude($chartLongitudes[$planet]);
+            }
+            $friendshipTable = PlanetaryFriendship::table($classicalPlanetSigns);
+        }
 
         return [
             'timezone' => $location['timezone'],
@@ -106,6 +114,7 @@ class BirthChartCalculator
             'remedies' => $remedies,
             'ashtakvarga' => $ashtakvarga,
             'avkahada' => $avkahada,
+            'friendship_table' => $friendshipTable,
             'location_matched' => $location['matched'],
         ];
     }

@@ -202,6 +202,23 @@ test('a vedic chart includes a Yogini Dasha timeline and a western chart has non
     expect($western->json('dasha'))->toBeNull();
 });
 
+test('a vedic chart includes a 42-row planetary friendship table and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonCount(42, 'friendship_table');
+    $row = $vedic->json('friendship_table.0');
+    expect($row)->toHaveKeys(['from', 'to', 'natural', 'temporal', 'combined']);
+
+    expect($western->json('friendship_table'))->toBeNull();
+});
+
 test('a vedic chart includes an Avkahada Chakra panel and a western chart has none', function () {
     $vedic = $this->postJson('/api/v1/chart', [
         'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
