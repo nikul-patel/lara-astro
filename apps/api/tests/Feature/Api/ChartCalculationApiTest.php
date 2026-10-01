@@ -183,6 +183,31 @@ test('validation rejects a missing required field', function () {
     ])->assertJsonValidationErrors('dob');
 });
 
+test('a vedic chart includes Ashtakvarga and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'ashtakvarga' => ['bhinnashtakavarga', 'sarvashtakavarga'],
+    ]);
+    expect($western->json('ashtakvarga'))->toBeNull();
+
+    $sarvashtakavarga = $vedic->json('ashtakvarga.sarvashtakavarga');
+    expect($sarvashtakavarga)->toHaveCount(12)
+        ->and(array_sum($sarvashtakavarga))->toBe(337);
+
+    $bhinnashtakavarga = $vedic->json('ashtakvarga.bhinnashtakavarga');
+    expect(array_keys($bhinnashtakavarga))->toEqualCanonicalizing(
+        ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'],
+    );
+});
+
 test('an unrecognized place still calculates, falling back to Delhi and flagging the fallback', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Nowhereville',

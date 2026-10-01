@@ -3,6 +3,7 @@
 namespace App\Services\Astrology;
 
 use App\Models\Setting;
+use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use Carbon\CarbonImmutable;
@@ -80,6 +81,9 @@ class BirthChartCalculator
         $remedies = $system === 'vedic' && $setting->astrology_predictions_enabled
             ? RemedyEngine::generate($houses, $chartLongitudes)
             : null;
+        $ashtakvarga = $system === 'vedic'
+            ? AshtakvargaCalculator::calculate($planetaryPositions, $chart['ascendant']['sign'])
+            : null;
 
         return [
             'timezone' => $location['timezone'],
@@ -94,6 +98,7 @@ class BirthChartCalculator
             'yogas' => $yogas,
             'predictions' => $predictions,
             'remedies' => $remedies,
+            'ashtakvarga' => $ashtakvarga,
             'location_matched' => $location['matched'],
         ];
     }
