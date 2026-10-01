@@ -69,15 +69,30 @@ test('a vedic chart includes a yogas array (possibly empty) and a western chart 
         ->and($western->json('yogas'))->toBeNull();
 });
 
-test('a vedic chart includes predictions for all 4 life areas by default', function () {
+test('a vedic chart includes predictions for all 4 life areas, an Ascendant description, and per-dasha-lord narratives by default', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
         'system' => 'vedic',
     ]);
 
     $response->assertOk()
-        ->assertJsonStructure(['predictions' => ['marriage', 'career', 'education', 'foreign_settlement']]);
+        ->assertJsonStructure([
+            'predictions' => [
+                'marriage', 'career', 'education', 'foreign_settlement',
+                'ascendant' => ['key', 'text'],
+                'dasha_narrative',
+            ],
+        ]);
     expect($response->json('remedies'))->toBeArray();
+
+    $dashaNarrative = $response->json('predictions.dasha_narrative');
+    expect($dashaNarrative)->toHaveCount(9);
+    foreach ($dashaNarrative as $period) {
+        expect($period)->toHaveKeys(['lord', 'house', 'text']);
+        expect(strlen($period['text']))->toBeGreaterThan(150);
+    }
+
+    expect(strlen($response->json('predictions.ascendant.text')))->toBeGreaterThan(200);
 });
 
 test('a deployment can disable predictions and remedies content', function () {

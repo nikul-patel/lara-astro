@@ -36,7 +36,9 @@ test('a guest can calculate a full varshphal forecast without saving anything', 
 
     $response->assertOk()->assertJsonStructure([
         'year', 'solar_return_moment', 'ascendant', 'planetary_positions', 'houses', 'muntha', 'varshesh', 'sahams',
+        'mudda_dasha' => [['lord', 'start', 'end', 'house', 'text']],
     ]);
+    expect($response->json('mudda_dasha'))->toHaveCount(9);
     expect(YearWiseForecast::count())->toBe(0);
 });
 

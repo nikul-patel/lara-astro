@@ -11,15 +11,17 @@ class PredictionEngine
     /**
      * @param  list<array{number: int, sign: string, planets: list<string>}>  $houses
      * @param  list<array{key: string, name: string, category: string, planets: list<string>, houses: list<int>, description: string}>  $yogas
-     * @return array{marriage: array{key: string, text: string}, career: array{key: string, text: string}, education: array{key: string, text: string}, foreign_settlement: array{key: string, text: string}}
+     * @return array{marriage: array{key: string, text: string}, career: array{key: string, text: string}, education: array{key: string, text: string}, foreign_settlement: array{key: string, text: string}, ascendant: array{key: string, text: string}, dasha_narrative: list<array{lord: string, house: int, text: string}>}
      */
-    public static function generate(array $houses, array $yogas): array
+    public static function generate(array $houses, array $yogas, string $ascendantSign): array
     {
         return [
             'marriage' => MarriagePredictor::predict($houses),
             'career' => CareerPredictor::predict($houses, $yogas),
             'education' => EducationPredictor::predict($houses),
             'foreign_settlement' => ForeignSettlementPredictor::predict($houses, $yogas),
+            'ascendant' => AscendantPredictor::describe($ascendantSign),
+            'dasha_narrative' => DashaNarrativePredictor::generate($houses),
         ];
     }
 }

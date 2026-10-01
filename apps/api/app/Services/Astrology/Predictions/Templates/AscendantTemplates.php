@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Services\Astrology\Predictions\Templates;
+
+/**
+ * Curated Lagna (Ascendant-sign) description text: temperament, physical
+ * build, and health tendencies traditionally associated with each of the
+ * 12 rising signs — classical significations (sign ruler's nature plus
+ * the Lagna's own elemental/modal qualities), not generic astrology-
+ * column filler. See MarriageTemplates' docblock for the multi-locale
+ * shape rationale.
+ */
+class AscendantTemplates
+{
+    public const TEMPLATES = [
+        'en' => [
+            'Aries' => 'With Aries rising, Mars shapes your first house, giving you a bold, assertive temperament that moves quickly from thought to action — you lead rather than wait to be led, though impatience and a quick temper can follow just as fast. Physically this often shows as a well-built, athletic frame, a strong brow, and a direct, energetic gaze. The vulnerable areas to watch are the head and face — headaches, minor injuries, and accidents from moving too fast are the classical caution for this Lagna.',
+            'Taurus' => 'With Taurus rising, Venus shapes your first house, lending steadiness, patience, and a strong appreciation for comfort and beauty — you build slowly but what you build tends to last, even if stubbornness sets in once your mind is made up. Physically this often shows as a sturdy, well-proportioned build with a notably attractive face and a thick neck. The throat and neck are the classical area of vulnerability — sore throats and thyroid-related issues are worth watching.',
+            'Gemini' => 'With Gemini rising, Mercury shapes your first house, giving you a quick, curious mind that is happiest juggling several interests at once — you communicate easily and adapt fast, though restlessness and scattered focus can follow. Physically this often shows as a tall or slender build with long limbs and expressive, quick hand gestures. The nervous system and respiratory tract are the classical area of vulnerability — nervous tension and breathing-related complaints are worth watching.',
+            'Cancer' => 'With Cancer rising, the Moon shapes your first house, giving you a deeply emotional, intuitive, and nurturing temperament — your moods shift with your surroundings, and home and family matter to you more than most. Physically this often shows as a rounded, soft facial structure and a build that can fluctuate noticeably with emotional state. The stomach and digestive system are the classical area of vulnerability — digestive sensitivity to stress is worth watching.',
+            'Leo' => 'With Leo rising, the Sun shapes your first house, giving you a confident, commanding presence and a natural wish to be seen and respected — generosity and warmth come easily, though pride can make it hard to accept being overlooked. Physically this often shows as a broad-shouldered, upright build with a strong, dignified bearing and often striking hair. The heart and upper spine are the classical area of vulnerability — cardiovascular health deserves attention through life.',
+            'Virgo' => 'With Virgo rising, Mercury shapes your first house, giving you an analytical, detail-oriented temperament with a genuine wish to be useful — you notice what others miss, though a tendency to worry or over-criticize (yourself most of all) can follow. Physically this often shows as a neat, compact build with fine features and a youthful appearance that lingers. The digestive and nervous systems are the classical area of vulnerability — stress-related stomach complaints are worth watching.',
+            'Libra' => 'With Libra rising, Venus shapes your first house, giving you a charming, diplomatic temperament with a strong instinct for fairness and harmony — you read people well and dislike conflict, though indecision can creep in when a choice feels unbalanced. Physically this often shows as a graceful, well-proportioned build with pleasant, symmetrical features. The kidneys and lower back are the classical area of vulnerability — these deserve attention, especially under stress.',
+            'Scorpio' => 'With Scorpio rising, Mars shapes your first house, giving you an intense, private temperament with remarkable depth and willpower — you commit fully once invested, and little escapes your notice, though secrecy and a tendency to hold grudges can follow. Physically this often shows as a medium, muscular build with penetrating, magnetic eyes. The reproductive and excretory systems are the classical area of vulnerability — these are worth routine attention.',
+            'Sagittarius' => 'With Sagittarius rising, Jupiter shapes your first house, giving you an optimistic, philosophical temperament with a genuine love of ideas, travel, and freedom — you speak your mind plainly, sometimes more bluntly than intended. Physically this often shows as a tall, athletic build with a prominent forehead and long thighs. The hips and thighs are the classical area of vulnerability — these deserve attention, particularly with age.',
+            'Capricorn' => 'With Capricorn rising, Saturn shapes your first house, giving you a disciplined, ambitious temperament that plays the long game — you are patient with effort and slow to trust, and achievement tends to come later in life but last longer once it arrives. Physically this often shows as a lean, bony build with prominent knees and a serious, composed expression. The bones, joints, and knees are the classical area of vulnerability — these deserve attention through life.',
+            'Aquarius' => 'With Aquarius rising, Saturn shapes your first house, giving you an independent, unconventional temperament with a genuine pull toward humanitarian causes and original ideas — you value your freedom and can seem detached even to people close to you. Physically this often shows as a tall, lean build with a distinctive, often striking appearance. Circulation and the ankles are the classical area of vulnerability — these deserve routine attention.',
+            'Pisces' => 'With Pisces rising, Jupiter shapes your first house, giving you a compassionate, imaginative temperament with a rich inner life — you absorb the moods of people and places around you easily, for better and worse, and a dreamy, impressionable streak runs through your choices. Physically this often shows as soft, rounded features with large, expressive eyes. The lymphatic system and feet are the classical area of vulnerability — these deserve attention, especially in damp or cold conditions.',
+        ],
+        'hi' => [],
+        'gu' => [],
+    ];
+}
