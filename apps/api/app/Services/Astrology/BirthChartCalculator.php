@@ -7,8 +7,11 @@ use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
 use App\Services\Astrology\Houses\PlacidusCusps;
 use App\Services\Astrology\Jaimini\CharDasha;
 use App\Services\Astrology\Jaimini\Karakas;
+use App\Services\Astrology\KP\RulingPlanets;
+use App\Services\Astrology\KP\Significators;
 use App\Services\Astrology\KP\SubLord;
 use App\Services\Astrology\LalKitab\LalKitabChart;
+use App\Services\Astrology\Panchang\Vaar;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use App\Services\Astrology\Shadbala\BhavabalaCalculator;
@@ -180,10 +183,27 @@ class BirthChartCalculator
                 $kpCusps[] = ['house' => $houseNumber] + SubLord::forLongitude($longitude);
             }
 
+            $kpAscendant = SubLord::forLongitude($ascendant);
+
+            $planetNakshatraLords = [];
+            foreach ($kpSubLords as $planet => $subLord) {
+                $planetNakshatraLords[$planet] = $subLord['nakshatra_lord'];
+            }
+            $houseSignificators = Significators::forHouses($bhavaMadhya, $planetNakshatraLords);
+
             $kp = [
                 'sub_lords' => $kpSubLords,
-                'ascendant' => SubLord::forLongitude($ascendant),
+                'ascendant' => $kpAscendant,
                 'cusps' => $kpCusps,
+                'house_significators' => $houseSignificators,
+                'planet_significations' => Significators::planetSignifications($houseSignificators),
+                'ruling_planets' => RulingPlanets::compute(
+                    Vaar::forDate($localDateTime)['lord'],
+                    $chart['ascendant']['sign'],
+                    $kpAscendant,
+                    $classicalPlanetSigns['Moon'],
+                    $kpSubLords['Moon']
+                ),
             ];
         }
 

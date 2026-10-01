@@ -380,6 +380,59 @@ test('a vedic chart includes KP sub-lords for every planet and the ascendant, an
     expect($western->json('kp'))->toBeNull();
 });
 
+test('a vedic chart includes KP house significators, planet significations, and ruling planets (#84)', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'kp' => [
+            'house_significators' => [
+                '1' => ['occupants', 'owner', 'occupant_star_lords', 'owner_star_lords', 'combined'],
+            ],
+            'planet_significations',
+            'ruling_planets' => [
+                'day_lord', 'ascendant_sign_lord', 'ascendant_star_lord', 'ascendant_sub_lord',
+                'moon_sign_lord', 'moon_star_lord', 'moon_sub_lord',
+            ],
+        ],
+    ]);
+
+    $houseSignificators = $vedic->json('kp.house_significators');
+    expect(array_map('intval', array_keys($houseSignificators)))->toBe(range(1, 12));
+
+    // Every house's owner must itself appear in that house's combined significator list (the weakest level always applies).
+    foreach ($houseSignificators as $house => $significators) {
+        expect($significators['combined'])->toContain($significators['owner']);
+        // Every occupant and owner-star-lord/occupant-star-lord is also reflected in combined.
+        foreach ([...$significators['occupants'], ...$significators['occupant_star_lords'], ...$significators['owner_star_lords']] as $planet) {
+            expect($significators['combined'])->toContain($planet);
+        }
+    }
+
+    // planet_significations is the inverse of house_significators' combined lists: every (planet, house) pair must appear in both directions.
+    $planetSignifications = $vedic->json('kp.planet_significations');
+    foreach ($houseSignificators as $house => $significators) {
+        foreach ($significators['combined'] as $planet) {
+            expect($planetSignifications[$planet])->toContain((int) $house);
+        }
+    }
+
+    $validSubLords = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+    $classicalPlanets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+    expect($vedic->json('kp.ruling_planets.day_lord'))->toBeIn($classicalPlanets);
+    expect($vedic->json('kp.ruling_planets.ascendant_sign_lord'))->toBeIn($classicalPlanets);
+    expect($vedic->json('kp.ruling_planets.ascendant_star_lord'))->toBeIn($validSubLords);
+    expect($vedic->json('kp.ruling_planets.ascendant_sub_lord'))->toBeIn($validSubLords);
+    expect($vedic->json('kp.ruling_planets.moon_sign_lord'))->toBeIn($classicalPlanets);
+    expect($vedic->json('kp.ruling_planets.moon_star_lord'))->toBeIn($validSubLords);
+    expect($vedic->json('kp.ruling_planets.moon_sub_lord'))->toBeIn($validSubLords);
+
+    // Day lord must match the birth date's actual civil weekday (12 May 1994 was a Thursday -> Jupiter).
+    expect($vedic->json('kp.ruling_planets.day_lord'))->toBe('Jupiter');
+});
+
 test('a vedic chart includes a Lal Kitab fixed-house chart and Pucca Ghar, and a western chart has none', function () {
     $vedic = $this->postJson('/api/v1/chart', [
         'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
