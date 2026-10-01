@@ -47,24 +47,16 @@ class TransitForecast
             'year' => $year,
             'jupiter_transit' => [
                 'sign' => $jupiterSign,
-                'house_from_ascendant' => self::houseOffset($ascendantSign, $jupiterSign),
-                'house_from_moon' => self::houseOffset($moonSign, $jupiterSign),
+                'house_from_ascendant' => ZodiacSigns::offset($ascendantSign, $jupiterSign),
+                'house_from_moon' => ZodiacSigns::offset($moonSign, $jupiterSign),
             ],
             'saturn_transit' => [
                 'sign' => $saturnSign,
-                'house_from_ascendant' => self::houseOffset($ascendantSign, $saturnSign),
-                'house_from_moon' => self::houseOffset($moonSign, $saturnSign),
+                'house_from_ascendant' => ZodiacSigns::offset($ascendantSign, $saturnSign),
+                'house_from_moon' => ZodiacSigns::offset($moonSign, $saturnSign),
             ],
             'governing_dasha' => self::governingDasha($natalChart['dasha']['mahadasha'] ?? [], $year),
         ];
-    }
-
-    private static function houseOffset(string $fromSign, string $toSign): int
-    {
-        $fromIndex = array_search($fromSign, ZodiacSigns::NAMES, true);
-        $toIndex = array_search($toSign, ZodiacSigns::NAMES, true);
-
-        return (($toIndex - $fromIndex + 12) % 12) + 1;
     }
 
     /**

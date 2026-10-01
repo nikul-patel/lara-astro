@@ -7,6 +7,7 @@ use App\Services\Astrology\HouseLords;
 use App\Services\Astrology\JulianDay;
 use App\Services\Astrology\PlaceLookup;
 use App\Services\Astrology\PlanetaryDignity;
+use App\Services\Astrology\Predictions\VarshaphalNarrativePredictor;
 use App\Services\Astrology\ZodiacSigns;
 use Carbon\CarbonImmutable;
 
@@ -36,6 +37,9 @@ class VarshphalCalculator
         $varshesh = self::varshesh($muntha, $returnChart);
         $isDayBirth = self::isDayBirth($returnChart);
         $sahams = Saham::compute($returnChart['ascendant_longitude'], $returnChart['chart_longitudes'], $isDayBirth);
+        $muddaDasha = VarshaphalNarrativePredictor::annotate(
+            MuddaDasha::timeline($returnChart['chart_longitudes']['Moon'], $returnMoment, $returnChart['houses'])
+        );
 
         return [
             'year' => $year,
@@ -47,6 +51,7 @@ class VarshphalCalculator
             'varshesh' => $varshesh,
             'is_day_birth' => $isDayBirth,
             'sahams' => $sahams,
+            'mudda_dasha' => $muddaDasha,
         ];
     }
 

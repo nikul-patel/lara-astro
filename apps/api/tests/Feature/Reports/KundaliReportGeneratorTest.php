@@ -19,6 +19,49 @@ test('generates a valid PDF for a full vedic chart (nakshatra, dasha, yogas, pre
     expect($pdf->output())->toStartWith('%PDF');
 });
 
+test('the rendered report HTML includes every computed section, not just chart summary/dasha/yogas/predictions/remedies (#82)', function () {
+    $chart = BirthChart::factory()->make([
+        'name' => 'Ananya Singh',
+        'dob' => '1994-05-12',
+        'time' => '14:30',
+        'result' => BirthChartCalculator::calculate([
+            'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India', 'system' => 'vedic',
+        ]),
+    ]);
+
+    $html = view('pdf.kundali-report', KundaliReportGenerator::viewData($chart))->render();
+
+    foreach ([
+        'Avkahada Chakra',
+        'Ashtakvarga',
+        'Prastharashtakvarga',
+        'Shodashvarga (Divisional Charts)',
+        'Bhava Madhya (Chalit / Placidus Cusps)',
+        'Yogini Dasha',
+        'Jaimini System',
+        'KP System (Nakshatra Nadi)',
+        'Ruling Planets',
+        'Significators of Houses',
+        'Planet Significations',
+        'Shadbala &amp; Bhavabala',
+        'Avastha (Planetary States)',
+        'Lal Kitab Chart',
+        'Planetary Friendship Table',
+        'Planetary Aspects (Western)',
+        'Dosha Analysis',
+        'Sade Sati',
+        'Transit Today',
+        'Your Ascendant',
+        'Nakshatra Phal',
+        'Vimshottari Mahadasha Predictions',
+    ] as $expectedSection) {
+        expect($html)->toContain($expectedSection);
+    }
+
+    // D1 isn't repeated in the Shodashvarga table — it's already the main chart shown earlier.
+    expect($html)->not->toContain('>D1<');
+});
+
 test('generates a valid PDF for a western chart, where nakshatra/dasha/yogas/predictions/remedies are all null', function () {
     $chart = BirthChart::factory()->make([
         'name' => 'Test',

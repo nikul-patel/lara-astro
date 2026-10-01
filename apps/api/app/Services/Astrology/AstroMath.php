@@ -32,6 +32,18 @@ class AstroMath
     }
 
     /**
+     * Plain (non-atan2) arctangent, returning degrees in (-90, 90) —
+     * deliberately NOT quadrant-resolving like atan2Deg, for formulas
+     * (e.g. Houses\PlacidusCusps) that need the raw principal-range
+     * result and resolve the quadrant themselves against a known
+     * neighboring reference point.
+     */
+    public static function atanDeg(float $x): float
+    {
+        return rad2deg(atan($x));
+    }
+
+    /**
      * Normalizes an angle to the [0, 360) range.
      */
     public static function normalizeDegrees(float $degrees): float

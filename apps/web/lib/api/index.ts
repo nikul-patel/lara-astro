@@ -12,12 +12,22 @@ import type {
   CourseType,
   CreateBookingInput,
   CreateEnrollmentInput,
+  DoshaInput,
+  DoshaResult,
   Enrollment,
+  KundaliMatchingInput,
+  KundaliMatchingResult,
   Locale,
   MeResponse,
+  NumerologyInput,
+  NumerologyResult,
   PaginatedResponse,
+  PanchangInput,
+  PanchangResult,
   Post,
   RegisterInput,
+  SadeSatiInput,
+  SadeSatiResult,
   SavedChart,
   Service,
   Settings,
@@ -159,6 +169,30 @@ export const api = {
     login: (input: AuthCredentials) => post<AuthResponse>("/auth/login", input),
     logout: (token: string) => post<void>("/auth/logout", undefined, token),
     me: (token: string) => get<MeResponse>("/me", undefined, token),
+  },
+
+  numerology: {
+    calculate: (input: NumerologyInput) =>
+      post<NumerologyResult>("/numerology", input),
+  },
+
+  panchang: {
+    calculate: (input: PanchangInput) =>
+      post<PanchangResult>("/panchang", input),
+  },
+
+  doshas: {
+    calculate: (input: DoshaInput) => post<DoshaResult>("/doshas", input),
+  },
+
+  sadeSati: {
+    calculate: (input: SadeSatiInput) =>
+      post<SadeSatiResult>("/sade-sati", input),
+  },
+
+  kundaliMatching: {
+    calculate: (input: KundaliMatchingInput) =>
+      post<KundaliMatchingResult>("/kundali-matching", input),
   },
 } as const;
 
