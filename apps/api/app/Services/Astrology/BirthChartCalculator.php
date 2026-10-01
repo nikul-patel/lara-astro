@@ -4,6 +4,8 @@ namespace App\Services\Astrology;
 
 use App\Models\Setting;
 use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
+use App\Services\Astrology\Jaimini\CharDasha;
+use App\Services\Astrology\Jaimini\Karakas;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use Carbon\CarbonImmutable;
@@ -91,12 +93,20 @@ class BirthChartCalculator
             ? AvkahadaChakra::forChart($nakshatra, HouseLords::signOfPlanet('Moon', $houses), $chart['ascendant']['sign'])
             : null;
         $friendshipTable = null;
+        $jaimini = null;
         if ($system === 'vedic') {
             $classicalPlanetSigns = [];
             foreach (PlanetaryFriendship::CLASSICAL_PLANETS as $planet) {
                 $classicalPlanetSigns[$planet] = ZodiacSigns::forLongitude($chartLongitudes[$planet]);
             }
             $friendshipTable = PlanetaryFriendship::table($classicalPlanetSigns);
+
+            $jaimini = [
+                'atmakaraka' => Karakas::atmakaraka($chartLongitudes),
+                'karakamsa' => Karakas::karakamsa($chartLongitudes),
+                'swamsa' => Karakas::swamsa($ascendant),
+                'char_dasha' => CharDasha::timeline($chart['ascendant']['sign'], $classicalPlanetSigns, $localDateTime),
+            ];
         }
         $aspects = WesternAspects::detect($chartLongitudes);
 
@@ -116,6 +126,7 @@ class BirthChartCalculator
             'ashtakvarga' => $ashtakvarga,
             'avkahada' => $avkahada,
             'friendship_table' => $friendshipTable,
+            'jaimini' => $jaimini,
             'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];

@@ -202,6 +202,23 @@ test('a vedic chart includes a Yogini Dasha timeline and a western chart has non
     expect($western->json('dasha'))->toBeNull();
 });
 
+test('a vedic chart includes Jaimini Atmakaraka/Karakamsa/Swamsa/Char Dasha and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'jaimini' => ['atmakaraka', 'karakamsa', 'swamsa', 'char_dasha'],
+    ]);
+    expect($vedic->json('jaimini.char_dasha'))->toHaveCount(12);
+    expect($western->json('jaimini'))->toBeNull();
+});
+
 test('both vedic and western charts include a Western-style aspects list', function () {
     $vedic = $this->postJson('/api/v1/chart', [
         'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
