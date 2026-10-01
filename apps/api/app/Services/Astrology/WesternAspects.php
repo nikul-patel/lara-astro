@@ -50,27 +50,62 @@ class WesternAspects
                 $from = $planets[$i];
                 $to = $planets[$j];
 
-                $angle = self::angularSeparation($planetLongitudes[$from], $planetLongitudes[$to]);
-
-                foreach (self::ASPECTS as $exactAngle => $name) {
-                    $orb = abs($angle - $exactAngle);
-
-                    if ($orb <= self::ORB_DEGREES) {
-                        $aspects[] = [
-                            'from' => $from,
-                            'to' => $to,
-                            'aspect' => $name,
-                            'angle' => round($angle, 2),
-                            'orb' => round($orb, 2),
-                        ];
-
-                        break; // the 5 exact angles are >= 60° apart and the orb is 6°, so at most one can match
-                    }
+                $match = self::matchAspect($from, $to, $planetLongitudes[$from], $planetLongitudes[$to]);
+                if ($match !== null) {
+                    $aspects[] = $match;
                 }
             }
         }
 
         return $aspects;
+    }
+
+    /**
+     * Same aspect detection as {@see self::detect()}, but between every
+     * point in one labeled set and every point in another, rather than
+     * within a single set — e.g. every planet against every Bhava
+     * Madhya house cusp, without also reporting planet-to-planet pairs
+     * (already covered by `detect()`) or cusp-to-cusp pairs (where
+     * opposite cusps are trivially always a 180° opposition by
+     * construction, not a meaningful aspect finding).
+     *
+     * @param  array<string, float>  $fromPoints
+     * @param  array<string, float>  $toPoints
+     * @return list<array{from: string, to: string, aspect: string, angle: float, orb: float}>
+     */
+    public static function detectBetweenGroups(array $fromPoints, array $toPoints): array
+    {
+        $aspects = [];
+
+        foreach ($fromPoints as $from => $fromLongitude) {
+            foreach ($toPoints as $to => $toLongitude) {
+                $match = self::matchAspect($from, $to, $fromLongitude, $toLongitude);
+                if ($match !== null) {
+                    $aspects[] = $match;
+                }
+            }
+        }
+
+        return $aspects;
+    }
+
+    /**
+     * @return ?array{from: string, to: string, aspect: string, angle: float, orb: float}
+     */
+    private static function matchAspect(string $from, string $to, float $fromLongitude, float $toLongitude): ?array
+    {
+        $angle = self::angularSeparation($fromLongitude, $toLongitude);
+
+        foreach (self::ASPECTS as $exactAngle => $name) {
+            $orb = abs($angle - $exactAngle);
+
+            if ($orb <= self::ORB_DEGREES) {
+                // The 5 exact angles are >= 60° apart and the orb is 6°, so at most one can match.
+                return ['from' => $from, 'to' => $to, 'aspect' => $name, 'angle' => round($angle, 2), 'orb' => round($orb, 2)];
+            }
+        }
+
+        return null;
     }
 
     /** The shorter angular distance between two longitudes, in [0, 180]. */

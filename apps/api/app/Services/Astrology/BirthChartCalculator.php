@@ -126,18 +126,6 @@ class BirthChartCalculator
             );
             $bhavabala = BhavabalaCalculator::calculate($shadbala['total_virupas'], $chartLongitudes, $houses);
         }
-        $kp = null;
-        if ($system === 'vedic') {
-            $kpSubLords = [];
-            foreach ($chartLongitudes as $planet => $longitude) {
-                $kpSubLords[$planet] = SubLord::forLongitude($longitude);
-            }
-
-            $kp = [
-                'sub_lords' => $kpSubLords,
-                'ascendant' => SubLord::forLongitude($ascendant),
-            ];
-        }
         $lalKitab = $system === 'vedic' ? LalKitabChart::build($chartLongitudes, $chart['ascendant']['sign']) : null;
         $aspects = WesternAspects::detect($chartLongitudes);
 
@@ -148,14 +136,52 @@ class BirthChartCalculator
         // and the whole-sign ascendant, kept in sync here.
         $ayanamsa = $system === 'vedic' ? Ayanamsa::lahiri($julianDay) : 0.0;
         $placidusCusps = PlacidusCusps::calculate($julianDay, $location['latitude'], $location['longitude']);
-        $bhavaMadhya = [];
+        $shiftedCusps = [];
         foreach ($placidusCusps as $houseNumber => $longitude) {
-            $shifted = AstroMath::normalizeDegrees($longitude - $ayanamsa);
+            $shiftedCusps[$houseNumber] = AstroMath::normalizeDegrees($longitude - $ayanamsa);
+        }
+
+        $cuspPlanets = PlacidusCusps::planetsByHouse($shiftedCusps, $chartLongitudes);
+        $bhavaMadhya = [];
+        foreach ($shiftedCusps as $houseNumber => $longitude) {
             $bhavaMadhya[] = [
                 'house' => $houseNumber,
-                'sign' => ZodiacSigns::forLongitude($shifted),
-                'degree' => ZodiacSigns::formatDegreeInSign($shifted),
-                'longitude' => round($shifted, 4),
+                'sign' => ZodiacSigns::forLongitude($longitude),
+                'degree' => ZodiacSigns::formatDegreeInSign($longitude),
+                'longitude' => round($longitude, 4),
+                'planets' => $cuspPlanets[$houseNumber],
+            ];
+        }
+
+        // Cuspal aspects: available for both systems, like `aspects`
+        // above — aspect-by-angular-separation isn't a sidereal-only
+        // concept, it just uses whichever frame this chart already
+        // produced. Planet-to-cusp only (see WesternAspects::
+        // detectBetweenGroups's doc comment for why cusp-to-cusp is
+        // excluded — opposite cusps are trivially 180° apart by
+        // construction, not a meaningful finding).
+        $cuspLabels = [];
+        foreach ($shiftedCusps as $houseNumber => $longitude) {
+            $cuspLabels["House{$houseNumber}"] = $longitude;
+        }
+        $cuspalAspects = WesternAspects::detectBetweenGroups($chartLongitudes, $cuspLabels);
+
+        $kp = null;
+        if ($system === 'vedic') {
+            $kpSubLords = [];
+            foreach ($chartLongitudes as $planet => $longitude) {
+                $kpSubLords[$planet] = SubLord::forLongitude($longitude);
+            }
+
+            $kpCusps = [];
+            foreach ($shiftedCusps as $houseNumber => $longitude) {
+                $kpCusps[] = ['house' => $houseNumber] + SubLord::forLongitude($longitude);
+            }
+
+            $kp = [
+                'sub_lords' => $kpSubLords,
+                'ascendant' => SubLord::forLongitude($ascendant),
+                'cusps' => $kpCusps,
             ];
         }
 
@@ -182,6 +208,7 @@ class BirthChartCalculator
             'lal_kitab' => $lalKitab,
             'bhava_madhya' => $bhavaMadhya,
             'aspects' => $aspects,
+            'cuspal_aspects' => $cuspalAspects,
             'location_matched' => $location['matched'],
         ];
     }

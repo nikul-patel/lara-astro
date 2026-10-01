@@ -145,6 +145,40 @@ class PlacidusCusps
     }
 
     /**
+     * Assigns each planet to the Placidus (cusp-bounded) house its
+     * longitude actually falls in — the "Chalit" placement, which can
+     * genuinely differ from the whole-sign placement
+     * ({@see Houses::wholeSignHouses()}) for a
+     * planet sitting near a sign boundary, since cusps rarely land
+     * exactly on a sign boundary themselves.
+     *
+     * @param  array<int, float>  $cusps  calculate()'s output.
+     * @param  array<string, float>  $planetLongitudes
+     * @return array<int, list<string>> House number (1-12) => planet names.
+     */
+    public static function planetsByHouse(array $cusps, array $planetLongitudes): array
+    {
+        $byHouse = array_fill_keys(range(1, 12), []);
+
+        foreach ($planetLongitudes as $planet => $longitude) {
+            foreach (range(1, 12) as $house) {
+                $start = $cusps[$house];
+                $end = $cusps[$house === 12 ? 1 : $house + 1];
+
+                $spanToEnd = AstroMath::normalizeDegrees($end - $start);
+                $spanToPlanet = AstroMath::normalizeDegrees($longitude - $start);
+
+                if ($spanToPlanet < $spanToEnd) {
+                    $byHouse[$house][] = $planet;
+                    break;
+                }
+            }
+        }
+
+        return $byHouse;
+    }
+
+    /**
      * Ecliptic longitude of the point with zero ecliptic latitude and
      * the given right ascension — the same relation
      * {@see Houses::ascendant()} and this

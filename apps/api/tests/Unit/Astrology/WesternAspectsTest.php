@@ -42,3 +42,18 @@ test('detect() checks every pair exactly once, not twice', function () {
     $pairs = collect($aspects)->map(fn ($a) => "{$a['from']}-{$a['to']}");
     expect($pairs->all())->toBe(['Sun-Moon']);
 });
+
+test('detectBetweenGroups() only reports cross-group pairs, never within either group', function () {
+    // Sun-Cusp1: 63 -> sextile. Sun-Moon (same group, planets) and
+    // Cusp1-Cusp7 (same group, cusps, and trivially a 180-degree
+    // opposition by construction) must NOT appear even though they'd
+    // match if detect() were run on the merged set.
+    $planets = ['Sun' => 0.0, 'Moon' => 0.0];
+    $cusps = ['Cusp1' => 63.0, 'Cusp7' => 180.0];
+
+    $aspects = WesternAspects::detectBetweenGroups($planets, $cusps);
+
+    $pairs = collect($aspects)->map(fn ($a) => "{$a['from']}-{$a['to']}")->all();
+    expect($pairs)->toContain('Sun-Cusp1', 'Moon-Cusp1');
+    expect($pairs)->not->toContain('Sun-Moon', 'Cusp1-Cusp7');
+});

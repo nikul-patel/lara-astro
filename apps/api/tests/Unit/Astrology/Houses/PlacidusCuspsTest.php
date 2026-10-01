@@ -116,6 +116,22 @@ test('every opposite pair of cusps is exactly 180 degrees apart, and houses adva
     expect($unrolled[11])->toBeLessThan($cusps[1] + 360);
 });
 
+test('planetsByHouse() assigns each planet to the cusp-bounded span containing its longitude, including boundary cases', function () {
+    $cusps = [1 => 0.0, 2 => 30.0, 3 => 60.0, 4 => 90.0, 5 => 120.0, 6 => 150.0, 7 => 180.0, 8 => 210.0, 9 => 240.0, 10 => 270.0, 11 => 300.0, 12 => 330.0];
+
+    $byHouse = PlacidusCusps::planetsByHouse($cusps, [
+        'Sun' => 15.0,   // Mid house 1 (0-30).
+        'Moon' => 0.0,   // Exactly at the house 1 cusp -> inclusive start, belongs to house 1.
+        'Mars' => 30.0,  // Exactly at the house 2 cusp -> exclusive end for house 1, belongs to house 2.
+        'Mercury' => 355.0, // Wraps past house 12's end (330) toward house 1 (0) -> house 12.
+    ]);
+
+    expect($byHouse[1])->toBe(['Sun', 'Moon']);
+    expect($byHouse[2])->toBe(['Mars']);
+    expect($byHouse[12])->toBe(['Mercury']);
+    expect($byHouse[5])->toBe([]);
+});
+
 test('returns all 12 house numbers with no missing or duplicate keys', function () {
     $julianDay = JulianDay::fromUtc(CarbonImmutable::parse('1994-05-12 09:00:00', 'UTC'));
     $cusps = PlacidusCusps::calculate($julianDay, 26.9124, 75.7873);

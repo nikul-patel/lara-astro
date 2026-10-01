@@ -359,6 +359,7 @@ test('a vedic chart includes KP sub-lords for every planet and the ascendant, an
                 'Sun' => ['nakshatra', 'nakshatra_lord', 'pada', 'sub_lord'],
             ],
             'ascendant' => ['nakshatra', 'nakshatra_lord', 'pada', 'sub_lord'],
+            'cusps' => [['house', 'nakshatra', 'nakshatra_lord', 'pada', 'sub_lord']],
         ],
     ]);
     expect(array_keys($vedic->json('kp.sub_lords')))->toEqualCanonicalizing(
@@ -368,6 +369,13 @@ test('a vedic chart includes KP sub-lords for every planet and the ascendant, an
     $validSubLords = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
     expect($vedic->json('kp.sub_lords.Sun.sub_lord'))->toBeIn($validSubLords);
     expect($vedic->json('kp.ascendant.sub_lord'))->toBeIn($validSubLords);
+
+    $kpCusps = $vedic->json('kp.cusps');
+    expect($kpCusps)->toHaveCount(12);
+    expect(array_column($kpCusps, 'house'))->toBe(range(1, 12));
+    foreach ($kpCusps as $cusp) {
+        expect($cusp['sub_lord'])->toBeIn($validSubLords);
+    }
 
     expect($western->json('kp'))->toBeNull();
 });
@@ -409,18 +417,51 @@ test('both vedic and western charts include 12 real Placidus Bhava Madhya cusps,
 
     foreach ([$vedic, $western] as $response) {
         $response->assertOk()->assertJsonStructure([
-            'bhava_madhya' => [['house', 'sign', 'degree', 'longitude']],
+            'bhava_madhya' => [['house', 'sign', 'degree', 'longitude', 'planets']],
         ]);
 
         $bhavaMadhya = $response->json('bhava_madhya');
         expect($bhavaMadhya)->toHaveCount(12);
         expect(array_column($bhavaMadhya, 'house'))->toBe(range(1, 12));
 
+        // Every one of the chart's 9 bodies must land in exactly one
+        // Chalit (cusp-bounded) house — no planet dropped, none duplicated.
+        $allAssignedPlanets = collect($bhavaMadhya)->flatMap(fn (array $h) => $h['planets']);
+        expect($allAssignedPlanets->sort()->values()->all())
+            ->toBe(collect(['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'])->sort()->values()->all());
+
         $byHouse = collect($bhavaMadhya)->keyBy('house');
         foreach ([[1, 7], [2, 8], [3, 9], [4, 10], [5, 11], [6, 12]] as [$a, $b]) {
             $delta = fmod($byHouse[$b]['longitude'] - $byHouse[$a]['longitude'], 360);
             $delta = $delta < 0 ? $delta + 360 : $delta;
             expect(abs($delta - 180))->toBeLessThan(0.01);
+        }
+    }
+});
+
+test('both vedic and western charts include cuspal aspects between planets and Bhava Madhya houses', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    foreach ([$vedic, $western] as $response) {
+        $response->assertOk()->assertJsonStructure([
+            'cuspal_aspects',
+        ]);
+
+        $cuspalAspects = $response->json('cuspal_aspects');
+        expect($cuspalAspects)->toBeArray();
+
+        foreach ($cuspalAspects as $aspect) {
+            expect($aspect)->toHaveKeys(['from', 'to', 'aspect', 'angle', 'orb']);
+            // "from" is always a planet, "to" is always a house label — never the reverse, and never planet-planet or house-house.
+            expect($aspect['from'])->toBeIn(['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']);
+            expect($aspect['to'])->toMatch('/^House(1[0-2]|[1-9])$/');
         }
     }
 });
