@@ -7,6 +7,7 @@ use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
 use App\Services\Astrology\Jaimini\CharDasha;
 use App\Services\Astrology\Jaimini\Karakas;
 use App\Services\Astrology\KP\SubLord;
+use App\Services\Astrology\LalKitab\LalKitabChart;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use App\Services\Astrology\Shadbala\BhavabalaCalculator;
@@ -136,6 +137,7 @@ class BirthChartCalculator
                 'ascendant' => SubLord::forLongitude($ascendant),
             ];
         }
+        $lalKitab = $system === 'vedic' ? LalKitabChart::build($chartLongitudes, $chart['ascendant']['sign']) : null;
         $aspects = WesternAspects::detect($chartLongitudes);
 
         return [
@@ -158,6 +160,7 @@ class BirthChartCalculator
             'shadbala' => $shadbala,
             'bhavabala' => $bhavabala,
             'kp' => $kp,
+            'lal_kitab' => $lalKitab,
             'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];

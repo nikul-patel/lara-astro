@@ -357,6 +357,31 @@ test('a vedic chart includes KP sub-lords for every planet and the ascendant, an
     expect($western->json('kp'))->toBeNull();
 });
 
+test('a vedic chart includes a Lal Kitab fixed-house chart and Pucca Ghar, and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'lal_kitab' => ['houses', 'ascendant_house', 'empty_houses', 'pucca_ghar'],
+    ]);
+    expect($western->json('lal_kitab'))->toBeNull();
+
+    $houses = $vedic->json('lal_kitab.houses');
+    expect($houses)->toHaveCount(12);
+    expect($houses[0])->toBe(['number' => 1, 'sign' => 'Aries', 'planets' => $houses[0]['planets']]);
+    expect($houses[11]['sign'])->toBe('Pisces');
+
+    expect(array_keys($vedic->json('lal_kitab.pucca_ghar')))->toEqualCanonicalizing(
+        ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'],
+    );
+});
+
 test('an unrecognized place still calculates, falling back to Delhi and flagging the fallback', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Nowhereville',
