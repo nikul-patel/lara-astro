@@ -378,3 +378,138 @@ export interface AuthResponse {
 export interface MeResponse {
   client: Client;
 }
+
+export interface DoshaHouseAffliction {
+  afflicted: boolean;
+  house: number | null;
+}
+
+export interface ManglikResult {
+  is_manglik: boolean;
+  from_ascendant: DoshaHouseAffliction;
+  from_moon: DoshaHouseAffliction;
+  from_venus: DoshaHouseAffliction;
+  cancelled: boolean;
+  cancellation_reason: string | null;
+  description: string;
+}
+
+export interface KaalSarpResult {
+  present: boolean;
+  type: string | null;
+  rahu_house: number | null;
+  description: string;
+}
+
+export interface DoshaInput extends BirthDetails {
+  name: string;
+}
+
+export interface DoshaResult {
+  manglik: ManglikResult;
+  kaal_sarp: KaalSarpResult;
+}
+
+export type SadeSatiPhase = "rising" | "peak" | "setting" | "none";
+
+export interface SadeSatiInput extends BirthDetails {
+  name: string;
+  reference_date?: string;
+}
+
+export interface SadeSatiResult {
+  moon_sign: string;
+  phase: SadeSatiPhase;
+  is_active: boolean;
+  cycle_start: string;
+  peak_phase_start: string;
+  setting_phase_start: string;
+  cycle_end: string;
+}
+
+export interface KundaliMatchingPerson {
+  name: string;
+  dob: string;
+  time: string;
+  place: string;
+}
+
+export interface KundaliMatchingInput {
+  bride: KundaliMatchingPerson;
+  groom: KundaliMatchingPerson;
+}
+
+export interface KootaResult {
+  name: string;
+  points: number;
+  max_points: number;
+  description: string;
+}
+
+export interface KundaliMatchingPartyResult {
+  nakshatra: Nakshatra;
+  rashi: string;
+}
+
+export interface KundaliMatchingResult {
+  total_points: number;
+  max_points: number;
+  minimum_recommended: number;
+  is_recommended: boolean;
+  has_nadi_dosha: boolean;
+  has_bhakoot_dosha: boolean;
+  kootas: KootaResult[];
+  bride: KundaliMatchingPartyResult;
+  groom: KundaliMatchingPartyResult;
+}
+
+export interface PanchangInput {
+  date?: string;
+  place: string;
+}
+
+export interface PanchangTithi {
+  number: number;
+  name: string;
+  paksha: string;
+}
+
+export interface PanchangYoga {
+  index: number;
+  name: string;
+}
+
+export interface PanchangVaar {
+  name: string;
+  lord: string;
+}
+
+export interface PanchangResult {
+  date: string;
+  tithi: PanchangTithi;
+  nakshatra: Nakshatra;
+  yoga: PanchangYoga;
+  /** A plain karana name (e.g. "Bava") — unlike yoga/nakshatra it has no independently useful numeric index. */
+  karana: string;
+  vaar: PanchangVaar;
+  sunrise: string;
+  sunset: string;
+  location_matched: boolean;
+}
+
+export interface NumerologyInput {
+  name: string;
+  dob: string;
+}
+
+export interface NumerologyNumber {
+  number: number;
+  meaning: string;
+}
+
+export interface NumerologyResult {
+  life_path: NumerologyNumber;
+  destiny: NumerologyNumber;
+  soul_urge: NumerologyNumber;
+  personality: NumerologyNumber;
+}
