@@ -297,6 +297,37 @@ test('a vedic chart includes Ashtakvarga and a western chart has none', function
     );
 });
 
+test('a vedic chart includes Shadbala and Bhavabala and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'shadbala' => [
+            'sthana' => ['uchcha', 'saptavargaja', 'ojayugmarasyamsa', 'kendradi', 'drekkana', 'total'],
+            'dig', 'kala' => ['nathonnatha', 'paksha', 'tribhaga', 'vara', 'hora', 'ayana', 'yuddha', 'total'],
+            'chesta', 'naisargika', 'drik', 'total_virupas', 'total_rupas', 'minimum_required_rupas', 'is_strong',
+        ],
+        'bhavabala' => ['bhavadhipati', 'bhava_drishti', 'total_virupas', 'total_rupas'],
+    ]);
+    expect($western->json('shadbala'))->toBeNull();
+    expect($western->json('bhavabala'))->toBeNull();
+
+    $planets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+    expect(array_keys($vedic->json('shadbala.total_rupas')))->toEqualCanonicalizing($planets);
+    foreach ($planets as $planet) {
+        // Naisargika Bala alone (fixed, chart-independent) guarantees every total is positive.
+        expect($vedic->json("shadbala.total_virupas.{$planet}"))->toBeGreaterThan(0);
+    }
+
+    expect($vedic->json('bhavabala.total_rupas.1'))->not->toBeNull();
+});
+
 test('an unrecognized place still calculates, falling back to Delhi and flagging the fallback', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Nowhereville',

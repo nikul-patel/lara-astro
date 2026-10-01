@@ -30,6 +30,24 @@ class SunriseSunset
      */
     public static function forDate(CarbonImmutable $localMidnight, float $latitude, float $longitude): array
     {
+        $moments = self::moments($localMidnight, $latitude, $longitude);
+
+        return [
+            'sunrise' => $moments['sunrise']?->setTimezone($localMidnight->timezone)->format('H:i'),
+            'sunset' => $moments['sunset']?->setTimezone($localMidnight->timezone)->format('H:i'),
+        ];
+    }
+
+    /**
+     * Same calculation as {@see self::forDate()}, but returning the raw UTC
+     * instants rather than formatted local time strings — what Shadbala's
+     * Kala Bala components (Nathonnatha, Tribhaga, Hora Bala) need for
+     * sub-minute day/night-length arithmetic rather than a display string.
+     *
+     * @return array{sunrise: ?CarbonImmutable, sunset: ?CarbonImmutable}
+     */
+    public static function moments(CarbonImmutable $localMidnight, float $latitude, float $longitude): array
+    {
         $noonJulianDay = JulianDay::fromUtc($localMidnight->setTime(12, 0)->utc());
         $sunLongitude = SunPosition::apparentLongitude($noonJulianDay);
         $obliquity = Houses::obliquity($noonJulianDay);
@@ -57,7 +75,16 @@ class SunriseSunset
         // rest of this engine).
         $t = JulianDay::centuriesSinceJ2000($noonJulianDay);
         $meanLongitude = AstroMath::normalizeDegrees(280.46646 + 36000.76983 * $t);
-        $equationOfTimeMinutes = 4 * ($meanLongitude - 0.0057183 - $sunLongitude);
+
+        // meanLongitude and sunLongitude are both normalized to [0, 360)
+        // independently, so near either's 0°/360° crossing (the
+        // equinoxes) their raw difference can read as ~360° instead of
+        // the true few-degree gap — fold it to (-180, 180] before
+        // converting to minutes, or the equation-of-time correction comes
+        // out roughly 24 hours wrong and sunrise/sunset lands a full day
+        // off near every equinox.
+        $longitudeDelta = AstroMath::normalizeDegrees($meanLongitude - 0.0057183 - $sunLongitude + 180) - 180;
+        $equationOfTimeMinutes = 4 * $longitudeDelta;
 
         $solarNoonUtcHours = 12 - $longitude / 15 - $equationOfTimeMinutes / 60;
         $sunriseUtcHours = $solarNoonUtcHours - $hourAngle / 15;
@@ -66,9 +93,6 @@ class SunriseSunset
         $sunriseUtc = $localMidnight->utc()->startOfDay()->addSeconds((int) round($sunriseUtcHours * 3600));
         $sunsetUtc = $localMidnight->utc()->startOfDay()->addSeconds((int) round($sunsetUtcHours * 3600));
 
-        return [
-            'sunrise' => $sunriseUtc->setTimezone($localMidnight->timezone)->format('H:i'),
-            'sunset' => $sunsetUtc->setTimezone($localMidnight->timezone)->format('H:i'),
-        ];
+        return ['sunrise' => $sunriseUtc, 'sunset' => $sunsetUtc];
     }
 }

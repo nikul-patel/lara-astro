@@ -5,10 +5,11 @@ namespace App\Services\Astrology;
 /**
  * Classical sign-based dignity (exaltation, debilitation, own-sign,
  * moolatrikona) and combustion. Dignity here is evaluated at the sign
- * level, not the exact degree — the exaltation/debilitation "deep point"
- * degrees only matter for fine-grained strength scoring (shadbala), which
- * this engine doesn't attempt; sign-level dignity is what the yoga rules
- * in Services/Astrology/Yogas actually need.
+ * level, not the exact degree, for every lookup except
+ * {@see self::DEEP_EXALTATION_DEGREE} — sign-level dignity is what the
+ * yoga rules in Services/Astrology/Yogas need; the deep-point degrees
+ * exist only for Shadbala's Uchcha Bala (Services/Astrology/Shadbala),
+ * which does need exact-degree strength scoring.
  *
  * Rahu/Ketu's exaltation and debilitation signs are genuinely contested
  * across classical texts (unlike the 7 classical grahas, where there's
@@ -28,6 +29,20 @@ class PlanetaryDignity
         'Sun' => 'Libra', 'Moon' => 'Scorpio', 'Mars' => 'Cancer', 'Mercury' => 'Pisces',
         'Jupiter' => 'Capricorn', 'Venus' => 'Virgo', 'Saturn' => 'Aries',
         'Rahu' => 'Scorpio', 'Ketu' => 'Taurus',
+    ];
+
+    /**
+     * Exact degree-within-sign of each planet's deep exaltation point
+     * (within {@see self::EXALTATION_SIGN}) — e.g. the Sun is only
+     * maximally exalted at 10° Aries, not anywhere in Aries. Deep
+     * debilitation sits at the same degree offset within the opposite
+     * (7th) sign. Classical values (BPHS); no Rahu/Ketu entry since their
+     * exaltation is already a stated simplification with no commonly-cited
+     * deep-point degree.
+     */
+    public const DEEP_EXALTATION_DEGREE = [
+        'Sun' => 10.0, 'Moon' => 3.0, 'Mars' => 28.0, 'Mercury' => 15.0,
+        'Jupiter' => 5.0, 'Venus' => 27.0, 'Saturn' => 20.0,
     ];
 
     public const OWN_SIGNS = [
@@ -78,6 +93,18 @@ class PlanetaryDignity
     public static function isOwnSign(string $planet, string $sign): bool
     {
         return in_array($sign, self::OWN_SIGNS[$planet] ?? [], true);
+    }
+
+    /**
+     * Absolute longitude (0-360°) of the planet's deep debilitation point —
+     * the reference Shadbala's Uchcha Bala measures angular distance from
+     * (see Shadbala\SthanaBala::uchchaBala()).
+     */
+    public static function deepDebilitationLongitude(string $planet): float
+    {
+        $signIndex = array_search(self::DEBILITATION_SIGN[$planet], ZodiacSigns::NAMES, true);
+
+        return $signIndex * 30 + self::DEEP_EXALTATION_DEGREE[$planet];
     }
 
     /**

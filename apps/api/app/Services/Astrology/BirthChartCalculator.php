@@ -8,6 +8,8 @@ use App\Services\Astrology\Jaimini\CharDasha;
 use App\Services\Astrology\Jaimini\Karakas;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
+use App\Services\Astrology\Shadbala\BhavabalaCalculator;
+use App\Services\Astrology\Shadbala\ShadbalaCalculator;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\ValidationException;
 
@@ -94,6 +96,8 @@ class BirthChartCalculator
             : null;
         $friendshipTable = null;
         $jaimini = null;
+        $shadbala = null;
+        $bhavabala = null;
         if ($system === 'vedic') {
             $classicalPlanetSigns = [];
             foreach (PlanetaryFriendship::CLASSICAL_PLANETS as $planet) {
@@ -107,6 +111,17 @@ class BirthChartCalculator
                 'swamsa' => Karakas::swamsa($ascendant),
                 'char_dasha' => CharDasha::timeline($chart['ascendant']['sign'], $classicalPlanetSigns, $localDateTime),
             ];
+
+            $shadbala = ShadbalaCalculator::calculate(
+                $julianDay,
+                $chartLongitudes,
+                $classicalPlanetSigns,
+                $houses,
+                $localDateTime,
+                $location['latitude'],
+                $location['longitude']
+            );
+            $bhavabala = BhavabalaCalculator::calculate($shadbala['total_virupas'], $chartLongitudes, $houses);
         }
         $aspects = WesternAspects::detect($chartLongitudes);
 
@@ -127,6 +142,8 @@ class BirthChartCalculator
             'avkahada' => $avkahada,
             'friendship_table' => $friendshipTable,
             'jaimini' => $jaimini,
+            'shadbala' => $shadbala,
+            'bhavabala' => $bhavabala,
             'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];
