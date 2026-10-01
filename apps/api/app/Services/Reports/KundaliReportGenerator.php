@@ -42,7 +42,24 @@ class KundaliReportGenerator
 {
     public static function generate(BirthChart $chart, ?YearWiseForecast $forecast = null): DomPdf
     {
-        return Pdf::loadView('pdf.kundali-report', self::viewData($chart, $forecast))->setPaper('a4');
+        $pdf = Pdf::loadView('pdf.kundali-report', self::viewData($chart, $forecast))->setPaper('a4');
+
+        // page_text()'s {PAGE_NUM}/{PAGE_COUNT} placeholders are resolved
+        // per-page by dompdf's own deferred page-script mechanism (see
+        // Dompdf\Adapter\CPDF::page_text()) — this is the documented way to
+        // get a real "Page N of M" in dompdf; the CSS-only equivalent,
+        // counter(pages), is NOT reliably supported (it resolved to a
+        // literal 0 when tried). Requires render() to run first so the
+        // canvas exists; output()/download() check $rendered and skip
+        // re-rendering, so this doesn't render the document twice.
+        // Coordinates are in PDF points (595.28x841.89 for A4), not the
+        // template's CSS pixels. x is a fixed estimate centering a
+        // "Page NN of NN" string at 8pt — precise width-measured
+        // centering isn't worth the complexity for a page number.
+        $pdf->render();
+        $pdf->getCanvas()->page_text(267, 783, 'Page {PAGE_NUM} of {PAGE_COUNT}', null, 8, [0.66, 0.39, 0.16]);
+
+        return $pdf;
     }
 
     /**

@@ -23,7 +23,7 @@ class TransitPredictor
         foreach ($transits as $planet => $transit) {
             $narratives[$planet] = $transit + [
                 'text' => TemplateRenderer::render(TransitTemplates::TEMPLATES['en'][$planet], [
-                    'house' => $transit['house_from_moon'],
+                    'house' => Ordinal::suffix($transit['house_from_moon']),
                     'signification' => HouseSignifications::SIGNIFICATION[$transit['house_from_moon']],
                 ]),
             ];

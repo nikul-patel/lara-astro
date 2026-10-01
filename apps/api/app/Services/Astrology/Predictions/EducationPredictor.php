@@ -39,9 +39,9 @@ class EducationPredictor
             $sign5 !== null && PlanetaryDignity::isExalted($lord5, $sign5) => ['fifth_lord_exalted', ['lord' => $lord5, 'sign' => $sign5]],
             $sign5 !== null && PlanetaryDignity::isDebilitated($lord5, $sign5) => ['fourth_or_fifth_debilitated', ['houseLabel' => '5th', 'lord' => $lord5, 'sign' => $sign5]],
             $sign4 !== null && PlanetaryDignity::isDebilitated($lord4, $sign4) => ['fourth_or_fifth_debilitated', ['houseLabel' => '4th', 'lord' => $lord4, 'sign' => $sign4]],
-            $house5 !== null && in_array($house5, self::KENDRA_TRIKONA, true) => ['fifth_lord_kendra_trikona', ['lord' => $lord5, 'house' => $house5]],
-            $house5 !== null && in_array($house5, self::DUSTHANA, true) => ['fourth_or_fifth_dusthana', ['houseLabel' => '5th', 'lord' => $lord5, 'house' => $house5]],
-            $house4 !== null && in_array($house4, self::DUSTHANA, true) => ['fourth_or_fifth_dusthana', ['houseLabel' => '4th', 'lord' => $lord4, 'house' => $house4]],
+            $house5 !== null && in_array($house5, self::KENDRA_TRIKONA, true) => ['fifth_lord_kendra_trikona', ['lord' => $lord5, 'house' => Ordinal::suffix($house5)]],
+            $house5 !== null && in_array($house5, self::DUSTHANA, true) => ['fourth_or_fifth_dusthana', ['houseLabel' => '5th', 'lord' => $lord5, 'house' => Ordinal::suffix($house5)]],
+            $house4 !== null && in_array($house4, self::DUSTHANA, true) => ['fourth_or_fifth_dusthana', ['houseLabel' => '4th', 'lord' => $lord4, 'house' => Ordinal::suffix($house4)]],
             default => ['default', ['fourthLord' => $lord4, 'fifthLord' => $lord5]],
         };
 

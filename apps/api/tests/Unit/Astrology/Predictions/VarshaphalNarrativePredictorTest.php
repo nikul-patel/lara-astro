@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Astrology\Nakshatra;
+use App\Services\Astrology\Predictions\Ordinal;
 use App\Services\Astrology\Predictions\TemplateRenderer;
 use App\Services\Astrology\Predictions\Templates\HouseSignifications;
 use App\Services\Astrology\Predictions\Templates\VarshaphalNarrativeTemplates;
@@ -25,14 +26,14 @@ test('every lord x house combination (9 x 12 = 108) resolves to real, non-placeh
     foreach (Nakshatra::LORD_CYCLE as $lord) {
         foreach (range(1, 12) as $house) {
             $text = TemplateRenderer::render(VarshaphalNarrativeTemplates::TEMPLATES['en'][$lord], [
-                'house' => $house,
+                'house' => Ordinal::suffix($house),
                 'signification' => HouseSignifications::SIGNIFICATION[$house],
             ]);
 
             expect($text)->toBeString()->not->toBeEmpty();
             expect(strlen($text))->toBeGreaterThan(150);
             expect($text)->not->toContain('{')->not->toContain('}');
-            expect($text)->toContain("{$house}th house");
+            expect($text)->toContain(Ordinal::suffix($house).' house');
         }
     }
 });

@@ -3,6 +3,7 @@
 namespace App\Services\Astrology\Yogas;
 
 use App\Services\Astrology\HouseLords;
+use App\Services\Astrology\Predictions\Ordinal;
 
 /**
  * Classical indicators of foreign residence/travel and, by extension,
@@ -56,7 +57,7 @@ class ForeignSettlementIndicators
                 'foreign_settlement_12th_lord_strong',
                 [$lord12],
                 [12, $lord12Placement],
-                "The 12th-house lord ({$lord12}) is placed in a kendra/trikona house ({$lord12Placement}th), strengthening prospects for a successful stint abroad rather than mere foreign travel.",
+                'The 12th-house lord ('.$lord12.') is placed in a kendra/trikona house ('.Ordinal::suffix($lord12Placement).'), strengthening prospects for a successful stint abroad rather than mere foreign travel.',
             );
         }
 

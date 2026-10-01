@@ -33,9 +33,9 @@ class MarriagePredictor
         [$key, $slots] = match (true) {
             $sign !== null && PlanetaryDignity::isExalted($lord, $sign) => ['seventh_lord_exalted', ['lord' => $lord, 'sign' => $sign]],
             $sign !== null && PlanetaryDignity::isDebilitated($lord, $sign) => ['seventh_lord_debilitated', ['lord' => $lord, 'sign' => $sign]],
-            $house !== null && in_array($house, self::KENDRA_TRIKONA, true) => ['seventh_lord_kendra_trikona', ['lord' => $lord, 'house' => $house]],
-            $house !== null && in_array($house, self::DUSTHANA, true) => ['seventh_lord_dusthana', ['lord' => $lord, 'house' => $house]],
-            default => ['seventh_lord_default', ['lord' => $lord, 'sign' => $sign, 'house' => $house]],
+            $house !== null && in_array($house, self::KENDRA_TRIKONA, true) => ['seventh_lord_kendra_trikona', ['lord' => $lord, 'house' => Ordinal::suffix($house)]],
+            $house !== null && in_array($house, self::DUSTHANA, true) => ['seventh_lord_dusthana', ['lord' => $lord, 'house' => Ordinal::suffix($house)]],
+            default => ['seventh_lord_default', ['lord' => $lord, 'sign' => $sign, 'house' => $house !== null ? Ordinal::suffix($house) : '']],
         };
 
         return [

@@ -2,10 +2,10 @@
     <h2>Ashtakvarga</h2>
 
     <h3>Sarvashtakavarga (Combined)</h3>
-    <table>
+    <table class="table-dense">
         <tr>
             @foreach ($ashtakvarga['sarvashtakavarga'] as $sign => $total)
-                <th>{{ $sign }}</th>
+                <th>{{ \App\Services\Astrology\ZodiacSigns::ABBREVIATIONS[$sign] }}</th>
             @endforeach
         </tr>
         <tr>
@@ -16,11 +16,11 @@
     </table>
 
     <h3>Bhinnashtakavarga (Per Planet)</h3>
-    <table>
+    <table class="table-dense">
         <tr>
             <th>Planet</th>
             @foreach (array_keys($ashtakvarga['sarvashtakavarga']) as $sign)
-                <th>{{ $sign }}</th>
+                <th>{{ \App\Services\Astrology\ZodiacSigns::ABBREVIATIONS[$sign] }}</th>
             @endforeach
         </tr>
         @foreach ($ashtakvarga['bhinnashtakavarga'] as $planet => $signTotals)

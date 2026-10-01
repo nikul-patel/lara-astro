@@ -9,6 +9,20 @@ class ZodiacSigns
         'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
     ];
 
+    /**
+     * Standard 3-letter sign abbreviations — used only where a table needs
+     * one column per sign (12+ columns: Ashtakvarga, Prastharashtakvarga,
+     * Shodashvarga) and the full name would wrap or overflow; narrative
+     * text elsewhere always uses the full name from NAMES.
+     *
+     * @var array<string, string>
+     */
+    public const ABBREVIATIONS = [
+        'Aries' => 'Ari', 'Taurus' => 'Tau', 'Gemini' => 'Gem', 'Cancer' => 'Can',
+        'Leo' => 'Leo', 'Virgo' => 'Vir', 'Libra' => 'Lib', 'Scorpio' => 'Sco',
+        'Sagittarius' => 'Sag', 'Capricorn' => 'Cap', 'Aquarius' => 'Aqu', 'Pisces' => 'Pis',
+    ];
+
     public static function forLongitude(float $longitude): string
     {
         return self::NAMES[(int) floor(AstroMath::normalizeDegrees($longitude) / 30)];

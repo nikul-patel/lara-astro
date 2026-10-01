@@ -13,6 +13,17 @@ test('clamps rather than rolling over when rounding lands on the sign boundary',
     expect(ZodiacSigns::formatDegreeInSign(149.9994))->toBe('29° 59′');
 });
 
+test('ABBREVIATIONS has exactly one unique 3-letter entry for every sign in NAMES', function () {
+    expect(array_keys(ZodiacSigns::ABBREVIATIONS))->toBe(ZodiacSigns::NAMES);
+
+    foreach (ZodiacSigns::ABBREVIATIONS as $sign => $abbreviation) {
+        expect($abbreviation)->toHaveLength(3);
+        expect(ucfirst(strtolower($abbreviation)))->toBe($abbreviation); // Title case, e.g. "Sag" not "SAG"/"sag".
+    }
+
+    expect(array_unique(ZodiacSigns::ABBREVIATIONS))->toHaveCount(12);
+});
+
 test('sign name and formatted degree stay consistent at a sign boundary', function () {
     $longitude = 149.9994; // just inside Leo (120-149.999...)
 

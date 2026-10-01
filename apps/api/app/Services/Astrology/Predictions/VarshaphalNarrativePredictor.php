@@ -22,7 +22,7 @@ class VarshaphalNarrativePredictor
         return array_map(
             fn (array $period) => $period + [
                 'text' => TemplateRenderer::render(VarshaphalNarrativeTemplates::TEMPLATES['en'][$period['lord']], [
-                    'house' => $period['house'],
+                    'house' => Ordinal::suffix($period['house']),
                     'signification' => HouseSignifications::SIGNIFICATION[$period['house']],
                 ]),
             ],
