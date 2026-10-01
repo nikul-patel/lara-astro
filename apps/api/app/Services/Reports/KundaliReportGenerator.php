@@ -6,7 +6,9 @@ use App\Models\BirthChart;
 use App\Models\Setting;
 use App\Models\YearWiseForecast;
 use App\Services\Astrology\Doshas\DoshaEngine;
+use App\Services\Astrology\Predictions\TransitPredictor;
 use App\Services\Astrology\Transits\SadeSati;
+use App\Services\Astrology\Transits\Transit;
 use App\Services\Astrology\Varga\VargaCalculator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPdf;
@@ -18,17 +20,19 @@ use Carbon\CarbonImmutable;
  * ashtakvarga/avkahada/jaimini/shadbala/kp/lal_kitab/bhava_madhya/aspects —
  * see BirthChartCalculator) plus an optional year-wise forecast section.
  *
- * Doshas, Sade Sati, and the Shodashvarga divisional-chart table are
- * deliberately NOT part of BirthChartCalculator's own result (same
- * reasoning as their standalone controllers: Sade Sati/doshas are their
- * own endpoints, divisional charts are computed per-varga on demand — see
- * DoshaEngine, Transits\SadeSati, VargaController), so this generator
- * computes them fresh from the chart's own already-computed
- * planetary_positions/houses (for doshas — identical inputs to
- * DoshaController) and birth moment (for Sade Sati/divisional charts —
- * identical inputs to SadeSatiController/VargaController), rather than
- * re-running PlaceLookup/geocoding, which only VargaCalculator's
- * longitude-based sign lookup actually needs.
+ * Doshas, Sade Sati, today's Gochar transits, and the Shodashvarga
+ * divisional-chart table are deliberately NOT part of
+ * BirthChartCalculator's own result (same reasoning as their standalone
+ * controllers: Sade Sati/doshas/transits are their own endpoints,
+ * divisional charts are computed per-varga on demand — see DoshaEngine,
+ * Transits\SadeSati, Transits\Transit, VargaController), so this
+ * generator computes them fresh from the chart's own already-computed
+ * planetary_positions/houses (for doshas/transits — identical inputs to
+ * DoshaController/TransitController) and birth moment (for Sade
+ * Sati/divisional charts — identical inputs to
+ * SadeSatiController/VargaController), rather than re-running
+ * PlaceLookup/geocoding, which only VargaCalculator's longitude-based
+ * sign lookup actually needs.
  *
  * No caching: dompdf rendering is cheap, pure-CPU HTML-to-PDF with no I/O,
  * so every request regenerates the PDF fresh rather than risking a stale
@@ -61,6 +65,7 @@ class KundaliReportGenerator
             'doshas' => $isVedic ? DoshaEngine::detect($result) : null,
             'sadeSati' => $isVedic ? self::sadeSati($chart, $result) : null,
             'divisionalCharts' => $isVedic ? self::divisionalCharts($result) : null,
+            'transits' => $isVedic ? self::transits($result) : null,
             'siteName' => Setting::current()->site_name,
             'generatedAt' => now(),
         ];
@@ -75,6 +80,22 @@ class KundaliReportGenerator
         $birthMoment = CarbonImmutable::parse("{$chart->dob->toDateString()} {$chart->time}", $result['timezone']);
 
         return SadeSati::forChart($result, $birthMoment, CarbonImmutable::now());
+    }
+
+    /**
+     * Today's Gochar (transit), relative to this chart's own natal Moon —
+     * computed fresh at request time, same reasoning as sadeSati() above
+     * (date-dependent, not part of BirthChartCalculator's own result).
+     *
+     * @param  array<string, mixed>  $result
+     * @return array<string, mixed>
+     */
+    private static function transits(array $result): array
+    {
+        $natalMoonSign = collect($result['planetary_positions'])->firstWhere('name', 'Moon')['sign'];
+        $transitSigns = Transit::signsAt(CarbonImmutable::now());
+
+        return TransitPredictor::generate(Transit::forNatalMoon($transitSigns, $natalMoonSign));
     }
 
     /**

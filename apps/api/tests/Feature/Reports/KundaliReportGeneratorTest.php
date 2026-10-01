@@ -50,6 +50,7 @@ test('the rendered report HTML includes every computed section, not just chart s
         'Planetary Aspects (Western)',
         'Dosha Analysis',
         'Sade Sati',
+        'Transit Today',
         'Your Ascendant',
         'Nakshatra Phal',
         'Vimshottari Mahadasha Predictions',

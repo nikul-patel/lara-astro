@@ -112,6 +112,10 @@
         @include('pdf.partials._sade-sati', ['sadeSati' => $sadeSati])
     @endif
 
+    @if (! empty($transits))
+        @include('pdf.partials._transits', ['transits' => $transits, 'generatedAt' => $generatedAt])
+    @endif
+
     @if (! empty($result['predictions']))
         @include('pdf.partials._predictions', ['predictions' => $result['predictions']])
     @endif
