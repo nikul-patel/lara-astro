@@ -98,6 +98,7 @@ class BirthChartCalculator
             }
             $friendshipTable = PlanetaryFriendship::table($classicalPlanetSigns);
         }
+        $aspects = WesternAspects::detect($chartLongitudes);
 
         return [
             'timezone' => $location['timezone'],
@@ -115,6 +116,7 @@ class BirthChartCalculator
             'ashtakvarga' => $ashtakvarga,
             'avkahada' => $avkahada,
             'friendship_table' => $friendshipTable,
+            'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];
     }
