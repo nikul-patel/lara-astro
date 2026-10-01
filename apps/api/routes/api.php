@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\NumerologyController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PanchangController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\PratyantardashaController;
 use App\Http\Controllers\Api\SadeSatiController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
@@ -64,6 +65,7 @@ Route::post('kundali-matching', [KundaliMatchingController::class, 'calculate'])
 Route::post('panchang', [PanchangController::class, 'calculate']);
 Route::post('numerology', [NumerologyController::class, 'calculate']);
 Route::post('varga', [VargaController::class, 'calculate']);
+Route::post('dasha/pratyantardasha', [PratyantardashaController::class, 'calculate']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('auth/logout', [AuthController::class, 'logout']);
