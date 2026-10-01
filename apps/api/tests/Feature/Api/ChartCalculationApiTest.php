@@ -328,6 +328,35 @@ test('a vedic chart includes Shadbala and Bhavabala and a western chart has none
     expect($vedic->json('bhavabala.total_rupas.1'))->not->toBeNull();
 });
 
+test('a vedic chart includes KP sub-lords for every planet and the ascendant, and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk()->assertJsonStructure([
+        'kp' => [
+            'sub_lords' => [
+                'Sun' => ['nakshatra', 'nakshatra_lord', 'pada', 'sub_lord'],
+            ],
+            'ascendant' => ['nakshatra', 'nakshatra_lord', 'pada', 'sub_lord'],
+        ],
+    ]);
+    expect(array_keys($vedic->json('kp.sub_lords')))->toEqualCanonicalizing(
+        ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Rahu', 'Ketu'],
+    );
+
+    $validSubLords = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+    expect($vedic->json('kp.sub_lords.Sun.sub_lord'))->toBeIn($validSubLords);
+    expect($vedic->json('kp.ascendant.sub_lord'))->toBeIn($validSubLords);
+
+    expect($western->json('kp'))->toBeNull();
+});
+
 test('an unrecognized place still calculates, falling back to Delhi and flagging the fallback', function () {
     $response = $this->postJson('/api/v1/chart', [
         'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Nowhereville',

@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Services\Astrology\Ashtakvarga\AshtakvargaCalculator;
 use App\Services\Astrology\Jaimini\CharDasha;
 use App\Services\Astrology\Jaimini\Karakas;
+use App\Services\Astrology\KP\SubLord;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use App\Services\Astrology\Shadbala\BhavabalaCalculator;
@@ -123,6 +124,18 @@ class BirthChartCalculator
             );
             $bhavabala = BhavabalaCalculator::calculate($shadbala['total_virupas'], $chartLongitudes, $houses);
         }
+        $kp = null;
+        if ($system === 'vedic') {
+            $kpSubLords = [];
+            foreach ($chartLongitudes as $planet => $longitude) {
+                $kpSubLords[$planet] = SubLord::forLongitude($longitude);
+            }
+
+            $kp = [
+                'sub_lords' => $kpSubLords,
+                'ascendant' => SubLord::forLongitude($ascendant),
+            ];
+        }
         $aspects = WesternAspects::detect($chartLongitudes);
 
         return [
@@ -144,6 +157,7 @@ class BirthChartCalculator
             'jaimini' => $jaimini,
             'shadbala' => $shadbala,
             'bhavabala' => $bhavabala,
+            'kp' => $kp,
             'aspects' => $aspects,
             'location_matched' => $location['matched'],
         ];
