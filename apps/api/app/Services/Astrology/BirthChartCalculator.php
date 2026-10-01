@@ -101,12 +101,14 @@ class BirthChartCalculator
         $jaimini = null;
         $shadbala = null;
         $bhavabala = null;
+        $avastha = null;
         if ($system === 'vedic') {
             $classicalPlanetSigns = [];
             foreach (PlanetaryFriendship::CLASSICAL_PLANETS as $planet) {
                 $classicalPlanetSigns[$planet] = ZodiacSigns::forLongitude($chartLongitudes[$planet]);
             }
             $friendshipTable = PlanetaryFriendship::table($classicalPlanetSigns);
+            $avastha = Avastha::forChart($chartLongitudes, $classicalPlanetSigns);
 
             $jaimini = [
                 'atmakaraka' => Karakas::atmakaraka($chartLongitudes),
@@ -212,6 +214,7 @@ class BirthChartCalculator
             'jaimini' => $jaimini,
             'shadbala' => $shadbala,
             'bhavabala' => $bhavabala,
+            'avastha' => $avastha,
             'kp' => $kp,
             'lal_kitab' => $lalKitab,
             'bhava_madhya' => $bhavaMadhya,

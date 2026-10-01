@@ -41,6 +41,7 @@ test('the rendered report HTML includes every computed section, not just chart s
         'Jaimini System',
         'KP System (Nakshatra Nadi)',
         'Shadbala &amp; Bhavabala',
+        'Avastha (Planetary States)',
         'Lal Kitab Chart',
         'Planetary Friendship Table',
         'Planetary Aspects (Western)',

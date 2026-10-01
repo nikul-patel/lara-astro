@@ -84,6 +84,10 @@
         @include('pdf.partials._shadbala', ['shadbala' => $result['shadbala'], 'bhavabala' => $result['bhavabala']])
     @endif
 
+    @if (! empty($result['avastha']))
+        @include('pdf.partials._avastha', ['avastha' => $result['avastha']])
+    @endif
+
     @if (! empty($result['lal_kitab']))
         @include('pdf.partials._lal-kitab', ['lalKitab' => $result['lal_kitab']])
     @endif
