@@ -34,6 +34,7 @@ test('the rendered report HTML includes every computed section, not just chart s
     foreach ([
         'Avkahada Chakra',
         'Ashtakvarga',
+        'Prastharashtakvarga',
         'Shodashvarga (Divisional Charts)',
         'Bhava Madhya (Chalit / Placidus Cusps)',
         'Yogini Dasha',

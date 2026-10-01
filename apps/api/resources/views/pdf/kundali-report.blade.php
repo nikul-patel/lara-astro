@@ -52,6 +52,10 @@
         @include('pdf.partials._ashtakvarga', ['ashtakvarga' => $result['ashtakvarga']])
     @endif
 
+    @if (! empty($result['ashtakvarga']['prastharashtakvarga']))
+        @include('pdf.partials._prastharashtakvarga', ['ashtakvarga' => $result['ashtakvarga']])
+    @endif
+
     @if (! empty($divisionalCharts))
         @include('pdf.partials._divisional-charts', ['divisionalCharts' => $divisionalCharts])
     @endif

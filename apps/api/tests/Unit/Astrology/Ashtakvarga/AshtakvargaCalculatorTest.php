@@ -45,3 +45,44 @@ test('sarvashtakavarga is the sum of all 7 planets\' bhinnashtakavarga per sign'
         expect($total)->toBe($expected);
     }
 });
+
+test('Sun\'s Prastharashtakvarga lists exactly 3 contributors (Sun, Mars, Saturn) granting an Aries bindu', function () {
+    // Same hand-verified fact as the bhinnashtakavarga test above, but
+    // checking the per-contributor detail Prastharashtakvarga exists to
+    // expose rather than just the summed total.
+    $result = AshtakvargaCalculator::calculate(ashtakvargaFixture(), 'Aries');
+
+    $ariesBindus = array_map(fn (array $bindus) => $bindus['Aries'], $result['prastharashtakvarga']['Sun']);
+
+    expect(array_filter($ariesBindus))->toHaveCount(3);
+    expect($ariesBindus['Sun'])->toBe(1);
+    expect($ariesBindus['Mars'])->toBe(1);
+    expect($ariesBindus['Saturn'])->toBe(1);
+    expect($ariesBindus['Moon'])->toBe(0);
+});
+
+test('prastharashtakvarga\'s per-contributor bindus sum to exactly bhinnashtakavarga\'s per-sign totals, for every subject and sign', function () {
+    $result = AshtakvargaCalculator::calculate(ashtakvargaFixture(), 'Aries');
+
+    foreach ($result['prastharashtakvarga'] as $subject => $contributorBindus) {
+        foreach (array_keys($result['bhinnashtakavarga'][$subject]) as $sign) {
+            $summed = array_sum(array_column($contributorBindus, $sign));
+
+            expect($summed)->toBe($result['bhinnashtakavarga'][$subject][$sign]);
+        }
+    }
+});
+
+test('prastharashtakvarga only ever contains 0/1 bindus and exactly the 8 classical contributors per subject', function () {
+    $result = AshtakvargaCalculator::calculate(ashtakvargaFixture(), 'Aries');
+
+    foreach ($result['prastharashtakvarga'] as $contributorBindus) {
+        expect($contributorBindus)->toHaveCount(8);
+
+        foreach ($contributorBindus as $bindus) {
+            foreach ($bindus as $value) {
+                expect($value)->toBeIn([0, 1]);
+            }
+        }
+    }
+});

@@ -13,6 +13,16 @@ use App\Services\Astrology\ZodiacSigns;
  * Ascendant) grants a bindu (point) to specific signs, counted as houses
  * from that contributor's own position — see {@see BinduTables} for the
  * fixed classical rule tables this reads from.
+ *
+ * Prastharashtakvarga ("spread-out Ashtakvarga", #85) is the same
+ * calculation one level less summed: each contributor's individual 0/1
+ * bindu per sign, kept instead of being discarded once added into
+ * Bhinnashtakavarga's per-sign total — i.e. `prastharashtakvarga[subject]
+ * [contributor][sign]` sums (over contributor) to exactly
+ * `bhinnashtakavarga[subject][sign]`, which sums (over subject) to exactly
+ * `sarvashtakavarga[sign]`. No new classical rule beyond what
+ * Bhinnashtakavarga already uses — purely keeping an intermediate value
+ * this method was already computing.
  */
 class AshtakvargaCalculator
 {
@@ -21,6 +31,7 @@ class AshtakvargaCalculator
      * @return array{
      *     bhinnashtakavarga: array<string, array<string, int>>,
      *     sarvashtakavarga: array<string, int>,
+     *     prastharashtakvarga: array<string, array<string, array<string, int>>>,
      * }
      */
     public static function calculate(array $planetaryPositions, string $ascendantSign): array
@@ -33,22 +44,29 @@ class AshtakvargaCalculator
         }
 
         $bhinnashtakavarga = [];
+        $prastharashtakvarga = [];
         $sarvashtakavarga = array_fill_keys(ZodiacSigns::NAMES, 0);
 
         foreach (BinduTables::SUBJECT_PLANETS as $subject) {
             $signTotals = array_fill_keys(ZodiacSigns::NAMES, 0);
+            $contributorBindus = [];
 
             foreach (BinduTables::TABLES[$subject] as $contributor => $houses) {
                 $contributorSign = $contributorSigns[$contributor];
+                $bindus = array_fill_keys(ZodiacSigns::NAMES, 0);
 
                 foreach (ZodiacSigns::NAMES as $sign) {
                     if (in_array(ZodiacSigns::offset($contributorSign, $sign), $houses, true)) {
                         $signTotals[$sign]++;
+                        $bindus[$sign] = 1;
                     }
                 }
+
+                $contributorBindus[$contributor] = $bindus;
             }
 
             $bhinnashtakavarga[$subject] = $signTotals;
+            $prastharashtakvarga[$subject] = $contributorBindus;
 
             foreach ($signTotals as $sign => $points) {
                 $sarvashtakavarga[$sign] += $points;
@@ -58,6 +76,7 @@ class AshtakvargaCalculator
         return [
             'bhinnashtakavarga' => $bhinnashtakavarga,
             'sarvashtakavarga' => $sarvashtakavarga,
+            'prastharashtakvarga' => $prastharashtakvarga,
         ];
     }
 }
