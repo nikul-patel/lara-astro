@@ -29,8 +29,9 @@ class SadeSatiController extends Controller
         ]);
 
         $chart = BirthChartCalculator::calculate([...$validated, 'system' => 'vedic']);
+        $birthMoment = CarbonImmutable::parse("{$validated['dob']} {$validated['time']}", $chart['timezone']);
         $referenceDate = CarbonImmutable::parse($validated['reference_date'] ?? now()->toDateString());
 
-        return response()->json(SadeSati::forChart($chart, $referenceDate));
+        return response()->json(SadeSati::forChart($chart, $birthMoment, $referenceDate));
     }
 }
