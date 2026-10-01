@@ -72,7 +72,10 @@ class BirthChartCalculator
         // chart_style above.
         $nakshatra = $system === 'vedic' ? Nakshatra::forLongitude($chartLongitudes['Moon']) : null;
         $dasha = $system === 'vedic'
-            ? ['mahadasha' => VimshottariDasha::timeline($chartLongitudes['Moon'], $localDateTime)]
+            ? [
+                'mahadasha' => VimshottariDasha::timeline($chartLongitudes['Moon'], $localDateTime),
+                'yogini' => YoginiDasha::timeline($chartLongitudes['Moon'], $localDateTime),
+            ]
             : null;
         $yogas = $system === 'vedic' ? YogaEngine::detect($houses) : null;
         $predictions = $system === 'vedic' && $setting->astrology_predictions_enabled

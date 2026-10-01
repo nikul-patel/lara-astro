@@ -183,6 +183,25 @@ test('validation rejects a missing required field', function () {
     ])->assertJsonValidationErrors('dob');
 });
 
+test('a vedic chart includes a Yogini Dasha timeline and a western chart has none', function () {
+    $vedic = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+    $western = $this->postJson('/api/v1/chart', [
+        'name' => 'Test', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Delhi, India',
+        'system' => 'western',
+    ]);
+
+    $vedic->assertOk();
+    $yoginiTimeline = $vedic->json('dasha.yogini');
+    expect($yoginiTimeline)->toBeArray()->not->toBeEmpty();
+    expect($yoginiTimeline[0])->toHaveKeys(['lord', 'start', 'end', 'antardashas'])
+        ->and($yoginiTimeline[0]['antardashas'])->toHaveCount(8);
+
+    expect($western->json('dasha'))->toBeNull();
+});
+
 test('a vedic chart includes Ashtakvarga and a western chart has none', function () {
     $vedic = $this->postJson('/api/v1/chart', [
         'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
