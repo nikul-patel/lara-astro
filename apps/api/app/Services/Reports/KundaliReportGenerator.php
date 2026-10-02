@@ -6,6 +6,9 @@ use App\Models\BirthChart;
 use App\Models\Setting;
 use App\Models\YearWiseForecast;
 use App\Services\Astrology\Doshas\DoshaEngine;
+use App\Services\Astrology\Predictions\ChartContext;
+use App\Services\Astrology\Predictions\CurrentPeriodPredictor;
+use App\Services\Astrology\Predictions\DetailedReadingEngine;
 use App\Services\Astrology\Predictions\TransitPredictor;
 use App\Services\Astrology\Transits\SadeSati;
 use App\Services\Astrology\Transits\Transit;
@@ -75,6 +78,13 @@ class KundaliReportGenerator
         $result = $chart->result;
         $isVedic = $result['system'] === 'vedic';
 
+        // Recomputed from the stored chart rather than read from
+        // result.predictions, so charts saved before the detailed reading
+        // existed still get it, and template improvements reach every
+        // report. Gated on predictions being present, i.e. the deployment
+        // had astrology_predictions_enabled on when the chart was saved.
+        $context = $isVedic && ! empty($result['predictions']) ? ChartContext::fromResult($result) : null;
+
         return [
             'chart' => $chart,
             'result' => $result,
@@ -96,6 +106,8 @@ class KundaliReportGenerator
             // chart picks up every new field, this one included.
             'divisionalCharts' => $isVedic && isset($result['ascendant_longitude']) ? self::divisionalCharts($result) : null,
             'transits' => $isVedic ? self::transits($result) : null,
+            'detailedReading' => $context !== null ? DetailedReadingEngine::generate($context) : null,
+            'currentPeriod' => $context !== null ? CurrentPeriodPredictor::generate($context, CarbonImmutable::now()) : null,
             'siteName' => Setting::current()->site_name,
             'generatedAt' => now(),
         ];
