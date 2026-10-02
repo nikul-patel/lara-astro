@@ -184,7 +184,41 @@
             border-radius: 6px;
             background: #fffdf8;
             padding: 10px 14px;
+            margin: 6px 0 12px 0;
         }
+
+        .card p { margin: 3px 0 5px 0; }
+
+        /* Detailed life reading: a small uppercase label leads each factor
+           paragraph, and a coloured pill carries the house's strength band. */
+        .reading-label {
+            font-size: 7.5px;
+            font-weight: bold;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #a8632a;
+        }
+
+        .life-area { margin: 0 0 14px 0; }
+
+        .life-area h3 { margin-bottom: 4px; }
+
+        .badge {
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 7.5px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 8px;
+            color: #ffffff;
+        }
+
+        .badge-strong { background: #4d7c3a; }
+        .badge-moderate { background: #b07a1f; }
+        .badge-care { background: #a8432a; }
+
+        .area-facts { font-size: 8.5px; color: #7a7067; margin: 0 0 4px 0; }
     </style>
 </head>
 <body>
@@ -289,7 +323,11 @@
     @endif
 
     @if (! empty($result['predictions']))
-        @include('pdf.partials._predictions', ['predictions' => $result['predictions']])
+        @include('pdf.partials._predictions', [
+            'predictions' => $result['predictions'],
+            'detailedReading' => $detailedReading,
+            'currentPeriod' => $currentPeriod,
+        ])
     @endif
 
     @if (! empty($result['remedies']))

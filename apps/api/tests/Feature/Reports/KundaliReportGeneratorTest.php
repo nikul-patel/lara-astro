@@ -54,6 +54,10 @@ test('the rendered report HTML includes every computed section, not just chart s
         'Your Ascendant',
         'Nakshatra Phal',
         'Vimshottari Mahadasha Predictions',
+        'Your Chart at a Glance',
+        'Your Current Planetary Period',
+        'Detailed Life Reading',
+        'Marriage, Partnerships &amp; Public Dealings',
     ] as $expectedSection) {
         expect($html)->toContain($expectedSection);
     }
@@ -156,4 +160,38 @@ test('generates a valid PDF with an embedded simplified year-wise forecast secti
     $pdf = KundaliReportGenerator::generate($chart, $forecast);
 
     expect($pdf->output())->toStartWith('%PDF');
+});
+
+test('a chart saved before the detailed reading existed still gets it, computed fresh from its stored result', function () {
+    // Simulates a chart saved before predictions.overview/life_areas, the
+    // Ashtakvarga and Shadbala existed: the report recomputes the reading
+    // from planets/houses/dasha, and simply skips the factors it lacks.
+    $staleResult = BirthChartCalculator::calculate([
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India', 'system' => 'vedic',
+    ]);
+    unset($staleResult['predictions']['overview'], $staleResult['predictions']['life_areas'], $staleResult['ashtakvarga'], $staleResult['shadbala']);
+
+    $chart = BirthChart::factory()->make(['name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'result' => $staleResult]);
+
+    $viewData = KundaliReportGenerator::viewData($chart);
+    expect($viewData['detailedReading']['life_areas'])->toHaveCount(12)
+        ->and($viewData['detailedReading']['life_areas'][0]['sav_bindus'])->toBeNull()
+        ->and($viewData['detailedReading']['overview']['strongest_planet'])->toBeNull();
+
+    expect(view('pdf.kundali-report', $viewData)->render())->toContain('Detailed Life Reading');
+    expect(KundaliReportGenerator::generate($chart)->output())->toStartWith('%PDF');
+});
+
+test('no detailed reading is rendered when the chart was saved with predictions disabled', function () {
+    $result = BirthChartCalculator::calculate([
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India', 'system' => 'vedic',
+    ]);
+    $result['predictions'] = null;
+
+    $chart = BirthChart::factory()->make(['name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'result' => $result]);
+
+    $viewData = KundaliReportGenerator::viewData($chart);
+    expect($viewData['detailedReading'])->toBeNull()
+        ->and($viewData['currentPeriod'])->toBeNull()
+        ->and(view('pdf.kundali-report', $viewData)->render())->not->toContain('Detailed Life Reading');
 });

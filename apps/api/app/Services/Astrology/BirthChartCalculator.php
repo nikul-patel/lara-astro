@@ -12,6 +12,7 @@ use App\Services\Astrology\KP\Significators;
 use App\Services\Astrology\KP\SubLord;
 use App\Services\Astrology\LalKitab\LalKitabChart;
 use App\Services\Astrology\Panchang\Vaar;
+use App\Services\Astrology\Predictions\ChartContext;
 use App\Services\Astrology\Predictions\PredictionEngine;
 use App\Services\Astrology\Remedies\RemedyEngine;
 use App\Services\Astrology\Shadbala\BhavabalaCalculator;
@@ -88,9 +89,6 @@ class BirthChartCalculator
             ]
             : null;
         $yogas = $system === 'vedic' ? YogaEngine::detect($houses) : null;
-        $predictions = $system === 'vedic' && $setting->astrology_predictions_enabled
-            ? PredictionEngine::generate($houses, $yogas, $chart['ascendant']['sign'], $nakshatra['name'] ?? null)
-            : null;
         $remedies = $system === 'vedic' && $setting->astrology_predictions_enabled
             ? RemedyEngine::generate($houses, $chartLongitudes)
             : null;
@@ -131,6 +129,15 @@ class BirthChartCalculator
             );
             $bhavabala = BhavabalaCalculator::calculate($shadbala['total_virupas'], $chartLongitudes, $houses);
         }
+        $predictions = $system === 'vedic' && $setting->astrology_predictions_enabled
+            ? PredictionEngine::generate(
+                $houses,
+                $yogas,
+                $chart['ascendant']['sign'],
+                $nakshatra['name'] ?? null,
+                new ChartContext($houses, $chartLongitudes, $chart['ascendant']['sign'], $ashtakvarga['sarvashtakavarga'], $dasha['mahadasha'], $shadbala),
+            )
+            : null;
         $lalKitab = $system === 'vedic' ? LalKitabChart::build($chartLongitudes, $chart['ascendant']['sign']) : null;
         $aspects = WesternAspects::detect($chartLongitudes);
 

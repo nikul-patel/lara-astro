@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Setting;
+use App\Services\Astrology\HouseLords;
 
 test('calculating a chart returns planetary positions, houses, and a recommendation', function () {
     $response = $this->postJson('/api/v1/chart', [
@@ -93,6 +94,30 @@ test('a vedic chart includes predictions for all 4 life areas, an Ascendant desc
     }
 
     expect(strlen($response->json('predictions.ascendant.text')))->toBeGreaterThan(200);
+});
+
+test('a vedic chart includes the detailed twelve-house life reading and its overview', function () {
+    $response = $this->postJson('/api/v1/chart', [
+        'name' => 'Ananya Singh', 'dob' => '1994-05-12', 'time' => '14:30', 'place' => 'Jaipur, India',
+        'system' => 'vedic',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonStructure([
+            'predictions' => [
+                'overview' => ['dominant_element', 'dominant_modality', 'strongest_planet', 'strongest_areas', 'areas_needing_care', 'paragraphs'],
+                'life_areas' => [
+                    '*' => ['house', 'title', 'sign', 'lord', 'lord_house', 'lord_dignity', 'occupants', 'aspected_by', 'karaka', 'sav_bindus', 'score', 'strength', 'strength_label', 'activation_periods', 'sections' => ['*' => ['label', 'text']]],
+                ],
+            ],
+        ])
+        ->assertJsonCount(12, 'predictions.life_areas');
+
+    foreach ($response->json('predictions.life_areas') as $index => $area) {
+        expect($area['house'])->toBe($index + 1)
+            ->and($area['lord'])->toBe(HouseLords::SIGN_RULERS[$area['sign']])
+            ->and($area['sav_bindus'])->toBe($response->json("ashtakvarga.sarvashtakavarga.{$area['sign']}"));
+    }
 });
 
 test('a vedic chart includes a Nakshatra Phal prediction matching the chart\'s own Moon nakshatra, and a western chart has none (#86)', function () {
